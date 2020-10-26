@@ -130,9 +130,7 @@
       ]
     }
   },
-  "includeOnly": [
-    "Pantheon.wad.client"
-  ],
+  "includeOnly": [],
   "samplerNames": [
     "Diffuse_Texture",
     "DiffuseTexture",
