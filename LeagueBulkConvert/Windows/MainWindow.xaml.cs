@@ -44,7 +44,7 @@ namespace LeagueBulkConvert.Windows
         {
             ((Button)sender).IsEnabled = false;
             viewModel.LoadingVisibility = Visibility.Visible;
-            await Task.Run(async () => await Converter.Converter.StartConversion(viewModel.LeaguePath, viewModel.OutPath));
+            await Converter.Converter.StartConversion(viewModel.LeaguePath, viewModel.OutPath);
             ((Button)sender).IsEnabled = true;
         }
 
