@@ -42,8 +42,6 @@
             <RowDefinition Height="12" />
             <RowDefinition Height="24" />
             <RowDefinition Height="12" />
-            <RowDefinition Height="24" />
-            <RowDefinition Height="12" />
             <RowDefinition Height="36" />
             <RowDefinition Height="12" />
         </Grid.RowDefinitions>
@@ -99,37 +97,28 @@
                 Grid.Row="9"
                 HorizontalAlignment="Center"
                 IsChecked="{Binding IncludeHiddenMeshes}" />
-        <Label
-                Content="Show error pop-ups"
-                Grid.Column="1"
-                Grid.Row="11" />
-        <CheckBox
-                Grid.Column="5"
-                Grid.Row="11"
-                HorizontalAlignment="Center"
-                IsChecked="{Binding ShowErrors}" />
         <Button
                 Click="Convert"
                 Content="Convert"
                 Grid.Column="1"
-                Grid.Row="13"
+                Grid.Row="11"
                 IsEnabled="{Binding AllowConversion}" />
         <Button
                 Click="EditConfig"
                 Content="Edit config"
                 Grid.Column="3"
                 Grid.ColumnSpan="3"
-                Grid.Row="13" />
+                Grid.Row="11" />
         <Rectangle
                 Grid.ColumnSpan="7"
-                Grid.RowSpan="15"
+                Grid.RowSpan="13"
                 Fill="Black"
                 Opacity="0.5"
                 Visibility="{Binding LoadingVisibility}" />
         <ProgressBar
                 Style="{DynamicResource MaterialDesignCircularProgressBar}"
                 Grid.ColumnSpan="7"
-                Grid.RowSpan="15"
+                Grid.RowSpan="13"
                 Height="200"
                 IsIndeterminate="True"
                 Width="200"

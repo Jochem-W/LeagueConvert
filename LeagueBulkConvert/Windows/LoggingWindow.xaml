@@ -1,0 +1,35 @@
+﻿<Window
+        x:Class="LeagueBulkConvert.Windows.LoggingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LeagueBulkConvert.MVVM.ViewModels"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Background="{DynamicResource MaterialDesignPaper}"
+        ResizeMode="CanMinimize"
+        FontFamily="{materialDesign:MaterialDesignFont}"
+        Height="540"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        Title="League Bulk Convert - Log"
+        Width="960">
+
+    <Window.DataContext>
+        <local:LoggingViewModel />
+    </Window.DataContext>
+
+    <Grid>
+        <ScrollViewer ScrollChanged="ScrollViewer_ScrollChanged">
+            <TextBox
+                    Background="Transparent"
+                    BorderThickness="0"
+                    IsReadOnly="True"
+                    Style="{DynamicResource MaterialDesignOutlinedTextFieldTextBox}"
+                    Text="{Binding Log}"
+                    TextWrapping="Wrap"/>
+        </ScrollViewer>
+    </Grid>
+</Window>

@@ -49,7 +49,9 @@ namespace LeagueBulkConvert.Windows
         {
             ((Button)sender).IsEnabled = false;
             viewModel.LoadingVisibility = Visibility.Visible;
-            await Task.Run(async () => await Converter.Converter.StartConversion(viewModel));
+            var loggingViewModel = new LoggingViewModel();
+            new LoggingWindow { DataContext = loggingViewModel }.Show();
+            await Task.Run(async () => await Converter.Converter.StartConversion(viewModel, loggingViewModel));
             viewModel.LoadingVisibility = Visibility.Hidden;
             ((Button)sender).IsEnabled = true;
         }
