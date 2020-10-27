@@ -34,7 +34,6 @@ Easily convert champion models from League of Legends to glTF.
 `scaleList`: a list of scales I've calculated from the champion's official confirmed heights to resize the model to real life size (you probably don't need to change this)
 
 ## Troubleshooting
-Since very few people have used this program so far and since I've not experienced any issues during my testing, I don't really have anything to put here.
-
 * You need to be connected to the internet to use this program, since it downloads textfiles from GitHub
 * You should select an empty directory for the converted files, since the program automatically creates and deletes entire directories recursively.
+* Some files cannot be parsed because [LoL-Fantome/Fantome.Libraries.League](https://github.com/LoL-Fantome/Fantome.Libraries.League) doesn't support them. Please report these issues there!
