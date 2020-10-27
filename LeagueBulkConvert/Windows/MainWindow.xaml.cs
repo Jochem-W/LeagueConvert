@@ -50,7 +50,7 @@ namespace LeagueBulkConvert.Windows
         {
             ((Button)sender).IsEnabled = false;
             viewModel.LoadingVisibility = Visibility.Visible;
-            await Task.Run(async () => await Converter.Converter.StartConversion(viewModel.LeaguePath, viewModel.OutPath, viewModel.IncludeSkeletons, viewModel.IncludeAnimations));
+            await Task.Run(async () => await Converter.Converter.StartConversion(viewModel));
             viewModel.LoadingVisibility = Visibility.Hidden;
             ((Button)sender).IsEnabled = true;
         }
@@ -59,7 +59,7 @@ namespace LeagueBulkConvert.Windows
         {
             if (!File.Exists("config.json"))
             {
-                MessageBox.Show("Couldn't find config.json. Did you extract the archive correctly?");
+                new LinkMessageBox("Couldn't find config.json. Did you extract the archive correctly?").ShowDialog();
                 return;
             }
             var process = new Process
@@ -73,7 +73,7 @@ namespace LeagueBulkConvert.Windows
             }
             catch (Win32Exception exception)
             {
-                MessageBox.Show($"{exception.Message}");
+                new LinkMessageBox(exception.Message).ShowDialog();
                 process.Dispose();
             }
         }

@@ -1,5 +1,6 @@
 ﻿using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.WadFile;
+using LeagueBulkConvert.MVVM.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,27 +16,27 @@ namespace LeagueBulkConvert.Converter
 
         public static readonly IDictionary<string, IDictionary<ulong, string>> HashTables = new Dictionary<string, IDictionary<ulong, string>>();
 
-        private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions { IgnoreNullValues = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        public static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions { IgnoreNullValues = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-        public static async Task StartConversion(string installPath, string outPath, bool includeSkeletons, bool includeAnimations)
+        public static async Task StartConversion(MainViewModel viewModel)
         {
             var fileStream = File.OpenRead("config.json");
             Config = await JsonSerializer.DeserializeAsync<Config>(fileStream, SerializerOptions);
             Config.CalculateScale();
             await fileStream.DisposeAsync();
-            if (includeSkeletons)
-                Config.ExtractFormats.Add("skl");
-            if (includeAnimations)
+            if (viewModel.IncludeSkeletons)
+                Config.ExtractFormats.Add(".skl");
+            if (viewModel.IncludeAnimations)
             {
-                Config.ExtractFormats.Add("anm");
-                Config.ExtractFormats.Add("bin");
+                Config.ExtractFormats.Add(".anm");
+                Config.ExtractFormats.Add(".bin");
             }
             var currentDirectory = Environment.CurrentDirectory;
-            Directory.SetCurrentDirectory(outPath);
+            Directory.SetCurrentDirectory(viewModel.OutPath);
             await Utils.ReadHashTables();
-            foreach (var path in Directory.EnumerateFiles($"{installPath}\\Game\\DATA\\FINAL\\Champions", "*.wad.client").Where(f => !f.Contains('_')))
+            foreach (var path in Directory.EnumerateFiles($"{viewModel.LeaguePath}\\Game\\DATA\\FINAL\\Champions", "*.wad.client").Where(f => !f.Contains('_')))
             {
-                if (Config.IncludeOnly.Count != 0 && Config.IncludeOnly.FirstOrDefault(p => path.Contains(p)) is null)
+                if (Config.IncludeOnly.Count != 0 && !Config.IncludeOnly.Contains(Path.GetFileName(path)))
                     continue;
                 var wad = Wad.Mount(path, true);
                 await Utils.ExtractWad(wad);
@@ -47,17 +48,17 @@ namespace LeagueBulkConvert.Converter
                     if (!name.EndsWith(".bin") || !name.Contains("\\skins\\") || name.Contains("root"))
                         continue;
                     var splitName = name.Split('\\');
-                    Console.WriteLine(string.Join('\\', splitName.TakeLast(3)));
+                    //Console.WriteLine(string.Join('\\', splitName.TakeLast(3)));
                     var character = splitName[^3];
                     if (Config.IgnoreCharacters.Contains(character))
                         continue;
                     var binFile = new BINFile(entry.Value.GetDataHandle().GetDecompressedStream());
                     //await File.WriteAllTextAsync("current.json", Newtonsoft.Json.JsonConvert.SerializeObject(binFile, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore }));
-                    var skin = new Skin(character, splitName[^1].Split('.')[0], binFile, includeAnimations);
+                    var skin = new Skin(character, Path.GetFileNameWithoutExtension(name), binFile, viewModel.IncludeAnimations, viewModel.IncludeHiddenMeshes);
                     if (!skin.Exists)
                         continue;
                     skin.Clean();
-                    skin.Save(includeSkeletons);
+                    skin.Save(viewModel.IncludeSkeletons);
                 }
                 wad.Dispose();
                 Directory.Delete("assets", true);

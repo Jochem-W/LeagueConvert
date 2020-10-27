@@ -10,16 +10,14 @@ namespace LeagueBulkConvert.Converter.Json
 {
     static class Utils
     {
-        public static JsonSerializerOptions SerializerOptions { get; private set; }
-
         public static async Task Export()
         {
             var champions = new List<Champion>();
             var fileStream = File.OpenRead("championFull.json");
-            var dDragon = (await JsonSerializer.DeserializeAsync<Base>(fileStream, SerializerOptions)).Champions;
+            var dDragon = (await JsonSerializer.DeserializeAsync<Base>(fileStream, Converter.SerializerOptions)).Champions;
             await fileStream.DisposeAsync();
             fileStream = File.OpenRead("skins.json");
-            var cDragon = await JsonSerializer.DeserializeAsync<Dictionary<string, CommunityDragon.Skin>>(fileStream, SerializerOptions);
+            var cDragon = await JsonSerializer.DeserializeAsync<Dictionary<string, CommunityDragon.Skin>>(fileStream, Converter.SerializerOptions);
             await fileStream.DisposeAsync();
             fileStream = File.OpenRead("colours.min.json");
             var colours = await JsonSerializer.DeserializeAsync<Dictionary<string, List<List<string>>>>(fileStream);
@@ -62,7 +60,7 @@ namespace LeagueBulkConvert.Converter.Json
             }
             //CheckMissing(champions);
             fileStream = File.Create("skins.min.json");
-            await JsonSerializer.SerializeAsync(fileStream, champions.OrderBy(c => c.Name), SerializerOptions);
+            await JsonSerializer.SerializeAsync(fileStream, champions.OrderBy(c => c.Name), Converter.SerializerOptions);
             await fileStream.DisposeAsync();
         }
     }

@@ -77,6 +77,17 @@ namespace LeagueBulkConvert.MVVM.ViewModels
             }
         }
 
+        private bool includeHiddenMeshes;
+        public bool IncludeHiddenMeshes
+        {
+            get => includeHiddenMeshes;
+            set
+            {
+                includeHiddenMeshes = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool includeSkeletons;
         public bool IncludeSkeletons
         {

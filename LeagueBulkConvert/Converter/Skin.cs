@@ -3,6 +3,7 @@ using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.SimpleSkinFile;
 using Fantome.Libraries.League.IO.SkeletonFile;
 using ImageMagick;
+using LeagueBulkConvert.Windows;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,6 +36,8 @@ namespace LeagueBulkConvert.Converter
 
         public void AddAnimations(string binPath)
         {
+            if (!File.Exists(binPath)) // assuming that the extraction is flawless, this shouldn't be a bad thing to do
+                return;
             var binFile = new BINFile(binPath);
             if (binFile.Entries.Count != 1)
                 throw new NotImplementedException();
@@ -60,7 +63,22 @@ namespace LeagueBulkConvert.Converter
                 if (Converter.HashTables["binhashes"].ContainsKey(key))
                     name = Converter.HashTables["binhashes"][key];
                 else
-                    name = path.Split('\\')[^1].Split('.')[0];
+                    name = Path.GetFileNameWithoutExtension(path);
+                Animation animation;
+                try
+                {
+                    animation = new Animation(path);
+                }
+                catch (ArgumentException e)
+                {
+                    Application.Current.Dispatcher.Invoke(delegate
+                    {
+                        new LinkMessageBox($"An error was encountered when parsing the following animation: {path}.\n\nReport the issue, including the message below, here: ",
+                            new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
+                            .ShowDialog();
+                    });
+                    continue;
+                }
                 Animations.Add((name, new Animation(path)));
             }
             /*var animationsPath = binPath.Replace("data", "assets");
@@ -203,7 +221,7 @@ namespace LeagueBulkConvert.Converter
                     textures[textureFile] = new MagickImage(textureFile);
                 materialTextures[submesh.Name] = textures[textureFile];
             }
-            var folderPath = $"export\\assets\\{Character}";
+            var folderPath = $"export\\{Character}";
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
             SharpGLTF.Schema2.ModelRoot gltf;
@@ -219,16 +237,18 @@ namespace LeagueBulkConvert.Converter
             gltf.SaveGLB($"{folderPath}\\{Name}.glb");
         }
 
-        public Skin(string character, string name, BINFile file, bool includeAnimations)
+        public Skin(string character, string name, BINFile file, bool includeAnimations, bool includeHiddenMeshes)
         {
             Character = character;
             Name = name;
-            if (Converter.Config.IgnoreMeshes.ContainsKey(character) && Converter.Config.IgnoreMeshes[character].ContainsKey(name))
+            if (!includeHiddenMeshes && Converter.Config.IgnoreMeshes.ContainsKey(character) && Converter.Config.IgnoreMeshes[character].ContainsKey(name))
                 RemoveMeshes = new List<string>(Converter.Config.IgnoreMeshes[character][name]);
             else
                 RemoveMeshes = new List<string>();
             foreach (var entry in file.Entries)
                 ParseBinEntry(entry);
+            if (includeHiddenMeshes)
+                RemoveMeshes = new List<string>();
             if (includeAnimations)
             {
                 Animations = new List<(string, Animation)>();
@@ -240,7 +260,7 @@ namespace LeagueBulkConvert.Converter
                         }
                         catch (Exception e)
                         {
-                            MessageBox.Show($"Something went wrong when adding animations. Please let me know what skins you were converting when this happened. {e.Message}");
+                            new LinkMessageBox($"Something went wrong when adding animations. Please let me know what skins you were converting when this happened.\n{e.Message}").ShowDialog();
                         }
             }
 

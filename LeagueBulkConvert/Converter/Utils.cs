@@ -82,11 +82,12 @@ namespace LeagueBulkConvert.Converter
                 if (!Converter.HashTables["game"].ContainsKey(entry.Key))
                     continue;
                 var path = Converter.HashTables["game"][entry.Key].ToLower().Replace('/', '\\');
-                if (!Converter.Config.ExtractFormats.Contains(path.Split('.')[^1]))
+                var ext = Path.GetExtension(path);
+                if (!Converter.Config.ExtractFormats.Contains(Path.GetExtension(path)))
                     continue;
                 if (path.EndsWith(".bin") && !path.Contains("animations"))
                     continue;
-                var folderPath = string.Join('\\', path.Split('\\').SkipLast(1));
+                var folderPath = Path.GetDirectoryName(path);
                 if (!Directory.Exists(folderPath))
                     Directory.CreateDirectory(folderPath);
                 var outputFile = File.Create(path);
@@ -125,7 +126,7 @@ namespace LeagueBulkConvert.Converter
                     if (!hashTable.ContainsKey(ulongHash))
                         hashTable[ulongHash] = splitLine[1];
                 }
-                Converter.HashTables[file.Split('\\')[^1].Split('.')[1]] = hashTable;
+                Converter.HashTables[Path.GetFileNameWithoutExtension(file).Split('.')[1]] = hashTable;
             }
         }
 

@@ -1,10 +1,10 @@
 {
   "extractFormats": [
-    "dds",
-    "skn",
-    "png",
-    "jpg",
-    "tga"
+    ".dds",
+    ".skn",
+    ".png",
+    ".jpg",
+    ".tga"
   ],
   "ignoreCharacters": [
     "aniviaegg",
