@@ -22,14 +22,10 @@
     </Window.DataContext>
 
     <Grid>
-        <ScrollViewer ScrollChanged="ScrollViewer_ScrollChanged">
-            <TextBox
-                    Background="Transparent"
-                    BorderThickness="0"
-                    IsReadOnly="True"
-                    Style="{DynamicResource MaterialDesignOutlinedTextFieldTextBox}"
+        <ScrollViewer ScrollChanged="ScrollViewer_ScrollChanged" >
+            <TextBlock
                     Text="{Binding Log}"
-                    TextWrapping="Wrap" />
+                    TextWrapping="Wrap"/>
         </ScrollViewer>
     </Grid>
 </Window>
