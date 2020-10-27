@@ -17,16 +17,25 @@
 
     <Grid Margin="12">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="192" MaxWidth="576"/>
-            <ColumnDefinition Width="12"/>
-            <ColumnDefinition Width="60"/>
+            <ColumnDefinition
+                    MinWidth="192"
+                    MaxWidth="576" />
+            <ColumnDefinition Width="12" />
+            <ColumnDefinition Width="60" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition MinHeight="100"/>
-            <RowDefinition Height="12"/>
-            <RowDefinition Height="36"/>
+            <RowDefinition MinHeight="100" />
+            <RowDefinition Height="12" />
+            <RowDefinition Height="36" />
         </Grid.RowDefinitions>
-        <TextBlock x:Name="TextBlock" Grid.ColumnSpan="3" TextWrapping="Wrap" />
-        <Button Grid.Column="3" Grid.Row="3" Content="Ok" Click="Ok"/>
+        <TextBlock
+                x:Name="TextBlock"
+                Grid.ColumnSpan="3"
+                TextWrapping="Wrap" />
+        <Button
+                Grid.Column="3"
+                Grid.Row="3"
+                Content="Ok"
+                Click="Ok" />
     </Grid>
 </Window>

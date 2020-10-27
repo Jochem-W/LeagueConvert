@@ -27,7 +27,7 @@
             <ColumnDefinition Width="12" />
             <ColumnDefinition Width="96" />
             <ColumnDefinition Width="12" />
-            <ColumnDefinition Width="84" />
+            <ColumnDefinition Width="96" />
             <ColumnDefinition Width="12" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -35,6 +35,8 @@
             <RowDefinition Height="48" />
             <RowDefinition Height="12" />
             <RowDefinition Height="48" />
+            <RowDefinition Height="12" />
+            <RowDefinition Height="24" />
             <RowDefinition Height="12" />
             <RowDefinition Height="24" />
             <RowDefinition Height="12" />
@@ -78,6 +80,7 @@
         <CheckBox
                 Grid.Column="5"
                 Grid.Row="5"
+                HorizontalAlignment="Center"
                 IsEnabled="{Binding EnableSkeletonCheckbox}"
                 IsChecked="{Binding IncludeSkeletons}" />
         <Label
@@ -87,6 +90,7 @@
         <CheckBox
                 Grid.Column="5"
                 Grid.Row="7"
+                HorizontalAlignment="Center"
                 IsChecked="{Binding IncludeAnimations}" />
         <Label
                 Content="Include hidden meshes"
@@ -95,6 +99,7 @@
         <CheckBox
                 Grid.Column="5"
                 Grid.Row="9"
+                HorizontalAlignment="Center"
                 IsChecked="{Binding IncludeHiddenMeshes}" />
         <Label
                 Content="Show error pop-ups"
@@ -103,33 +108,47 @@
         <CheckBox
                 Grid.Column="5"
                 Grid.Row="11"
+                HorizontalAlignment="Center"
                 IsChecked="{Binding ShowErrors}" />
+        <Label
+                Content="Thread count"
+                Grid.Column="1"
+                Grid.Row="13" />
+        <Slider
+                AutoToolTipPlacement="BottomRight"
+                Grid.Column="3"
+                Grid.ColumnSpan="3"
+                Grid.Row="13"
+                Maximum="{Binding MaximumThreads}"
+                Minimum="1"
+                IsSnapToTickEnabled="True"
+                TickPlacement="BottomRight"
+                Value="{Binding ThreadCount}" />
         <Button
                 Click="Convert"
                 Content="Convert"
                 Grid.Column="1"
-                Grid.Row="13"
+                Grid.Row="15"
                 IsEnabled="{Binding AllowConversion}" />
         <Button
                 Click="EditConfig"
                 Content="Edit config"
                 Grid.Column="3"
                 Grid.ColumnSpan="3"
-                Grid.Row="13" />
+                Grid.Row="15" />
         <Rectangle
                 Grid.ColumnSpan="7"
-                Grid.RowSpan="15"
+                Grid.RowSpan="17"
                 Fill="Black"
                 Opacity="0.5"
                 Visibility="{Binding LoadingVisibility}" />
         <ProgressBar
                 Style="{DynamicResource MaterialDesignCircularProgressBar}"
                 Grid.ColumnSpan="7"
-                Grid.RowSpan="15"
+                Grid.RowSpan="17"
+                Height="200"
                 IsIndeterminate="True"
-                Margin="26"
-                VerticalAlignment="Top"
-                Visibility="{Binding LoadingVisibility}"
-                Width="200" />
+                Width="200"
+                Visibility="{Binding LoadingVisibility}" />
     </Grid>
 </Window>
