@@ -87,8 +87,6 @@ namespace LeagueBulkConvert.MVVM.ViewModels
             }
         }
 
-        public int MaximumThreads { get; }
-
         private string outPath;
         public string OutPath
         {
@@ -106,20 +104,11 @@ namespace LeagueBulkConvert.MVVM.ViewModels
 
         public bool ShowErrors { get; set; }
 
-        public int ThreadCount { get; set; } = 1;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        public MainViewModel()
-        {
-            Utils.GetPhysicallyInstalledSystemMemory(out long memory);
-            MaximumThreads = Math.Min(Environment.ProcessorCount,
-                                      (int)Math.Round((double)(memory / 1024 / 1024 / 2), MidpointRounding.AwayFromZero));
         }
     }
 }

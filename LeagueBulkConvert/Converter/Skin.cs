@@ -73,15 +73,15 @@ namespace LeagueBulkConvert.Converter
                 }
                 catch (Exception e)
                 {
-                    Application.Current.Dispatcher.Invoke(delegate
-                    {
-                        if (showErrors)
-                            new LinkMessageBox($"An error was encountered when parsing the following animation: {path}." +
-                                $"\n\nReport the issue, including the message below, here: ",
-                                new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
-                                .ShowDialog();
-                    });
-                    continue;
+                    if (showErrors)
+                        Application.Current.Dispatcher.Invoke(delegate
+                        {
+                                new LinkMessageBox($"An error was encountered when parsing the following animation: {path}." +
+                                    $"\n\nReport the issue, including the message below, here: ",
+                                    new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
+                                    .ShowDialog();
+                        });
+                        continue;
                 }
                 Animations.Add((name, new Animation(path)));
             }
