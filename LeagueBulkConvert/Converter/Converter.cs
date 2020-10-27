@@ -61,7 +61,14 @@ namespace LeagueBulkConvert.Converter
                     if (!skin.Exists)
                         continue;
                     skin.Clean();
-                    skin.Save(viewModel, loggingViewModel);
+                    try
+                    {
+                        skin.Save(viewModel, loggingViewModel);
+                    }
+                    catch (Exception)
+                    {
+                        loggingViewModel.AddLine("Couldn't save", 2);
+                    }
                 }
                 wad.Dispose();
                 loggingViewModel.AddLine("Cleaning", 1);
