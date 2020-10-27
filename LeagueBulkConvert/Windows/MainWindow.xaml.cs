@@ -1,7 +1,10 @@
 ﻿using LeagueBulkConvert.MVVM.ViewModels;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,6 +19,7 @@ namespace LeagueBulkConvert.Windows
         {
             InitializeComponent();
             DataContext = viewModel;
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
         }
 
         private string Browse(string initialDirectory)
@@ -53,12 +57,25 @@ namespace LeagueBulkConvert.Windows
 
         private void EditConfig(object sender, RoutedEventArgs e)
         {
+            if (!File.Exists("config.json"))
+            {
+                MessageBox.Show("Couldn't find config.json. Did you extract the archive correctly?");
+                return;
+            }
             var process = new Process
             {
-                StartInfo = new ProcessStartInfo($"{Environment.CurrentDirectory}\\config.json") { UseShellExecute = true }
+                StartInfo = new ProcessStartInfo("config.json") { UseShellExecute = true  }
             };
             process.Exited += (object sender, EventArgs e) => ((Process)sender).Dispose();
-            process.Start();
+            try
+            {
+                process.Start();
+            }
+            catch (Win32Exception exception)
+            {
+                MessageBox.Show($"{exception.Message}");
+                process.Dispose();
+            }
         }
     }
 }
