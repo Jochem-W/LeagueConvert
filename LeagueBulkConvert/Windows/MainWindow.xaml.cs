@@ -64,7 +64,7 @@ namespace LeagueBulkConvert.Windows
             }
             var process = new Process
             {
-                StartInfo = new ProcessStartInfo("config.json") { UseShellExecute = true  }
+                StartInfo = new ProcessStartInfo("config.json") { UseShellExecute = true }
             };
             process.Exited += (object sender, EventArgs e) => ((Process)sender).Dispose();
             try
