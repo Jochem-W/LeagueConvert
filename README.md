@@ -20,10 +20,6 @@ Easily convert champion models from League of Legends to glTF.
 
 `Include hidden meshes`: include meshes that would normally be hidden, like meshes used for the recall animation
 
-`Show error pop-ups`: enable the various error pop-ups
-
-`Thread count`: how many threads to use for conversion (limited to whichever is smaller: the amount of threads your processor has, or the amount of installed RAM in GiB divided by two)
-
 ## config.json
 `extractFormats`: files with these extensions will be extracted (you probably don't need to change this)
 
