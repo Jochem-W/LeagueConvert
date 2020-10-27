@@ -57,6 +57,8 @@ namespace LeagueBulkConvert.Converter
                 if (pathValue is null)
                     throw new NotImplementedException();
                 var path = pathValue.Value.ToString().ToLower().Replace('/', '\\');
+                if (!File.Exists(path))
+                    continue;
                 string name;
                 if (!ulong.TryParse(value.Key.Value.ToString(), out ulong key))
                     throw new NotImplementedException();
@@ -69,11 +71,12 @@ namespace LeagueBulkConvert.Converter
                 {
                     animation = new Animation(path);
                 }
-                catch (ArgumentException e)
+                catch (Exception e)
                 {
                     Application.Current.Dispatcher.Invoke(delegate
                     {
-                        new LinkMessageBox($"An error was encountered when parsing the following animation: {path}.\n\nReport the issue, including the message below, here: ",
+                        new LinkMessageBox($"An error was encountered when parsing the following animation: {path}." +
+                            $"\n\nReport the issue, including the message below, here: ",
                             new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
                             .ShowDialog();
                     });
@@ -109,7 +112,8 @@ namespace LeagueBulkConvert.Converter
                 var material = Materials[i];
                 if (material.Hash == 0 && string.IsNullOrWhiteSpace(material.Texture) && !RemoveMeshes.Contains(material.Name))
                     Materials[i].Texture = Texture;
-                if ((string.IsNullOrWhiteSpace(material.Texture) || material.Texture.Contains("empty32.dds")) && !RemoveMeshes.Contains(material.Name))
+                if ((string.IsNullOrWhiteSpace(material.Texture)
+                     || material.Texture.Contains("empty32.dds")) && !RemoveMeshes.Contains(material.Name))
                     RemoveMeshes.Add(material.Name);
                 if (!RemoveMeshes.Contains(material.Name))
                     continue;
@@ -199,7 +203,24 @@ namespace LeagueBulkConvert.Converter
 
         public void Save(bool includeSkeletons)
         {
-            var simpleSkin = new SimpleSkin(Mesh);
+            if (!File.Exists(Mesh))
+                return;
+            SimpleSkin simpleSkin;
+            try
+            {
+                simpleSkin = new SimpleSkin(Mesh);
+            }
+            catch (Exception e)
+            {
+                Application.Current.Dispatcher.Invoke(delegate
+                {
+                    new LinkMessageBox($"An error was encountered when parsing the following skin: {Mesh}." +
+                        $"\n\nReport the issue, including the message below, here: ",
+                        new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
+                        .ShowDialog();
+                });
+                return;
+            }
             var materialTextures = new Dictionary<string, MagickImage>();
             IDictionary<string, MagickImage> textures = new Dictionary<string, MagickImage>();
             for (var i = 0; i < simpleSkin.Submeshes.Count; i++)
@@ -230,10 +251,30 @@ namespace LeagueBulkConvert.Converter
                 gltf = simpleSkin.ToGltf(materialTextures);
                 gltf.ApplyBasisTransform(Converter.Config.ScaleMatrix);
             }
-            else if (Animations == null)
-                gltf = simpleSkin.ToGltf(new Skeleton(Skeleton), materialTextures);
             else
-                gltf = simpleSkin.ToGltf(new Skeleton(Skeleton), materialTextures, Animations);
+            {
+                Skeleton skeleton;
+                try
+                {
+                    skeleton = new Skeleton(Skeleton);
+                }
+                catch (Exception e)
+                {
+                    Application.Current.Dispatcher.Invoke(delegate
+                    {
+                        new LinkMessageBox($"An error was encountered when parsing the following skeleton: {Skeleton}." +
+                            $"\n\nReport the issue, including the message below, here: ",
+                            new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
+                            .ShowDialog();
+                    });
+                    return;
+                }
+                if (Animations is null)
+                    gltf = simpleSkin.ToGltf(skeleton, materialTextures);
+                else
+                    gltf = simpleSkin.ToGltf(skeleton, materialTextures, Animations);
+            }
+
             gltf.SaveGLB($"{folderPath}\\{Name}.glb");
         }
 
@@ -241,7 +282,9 @@ namespace LeagueBulkConvert.Converter
         {
             Character = character;
             Name = name;
-            if (!includeHiddenMeshes && Converter.Config.IgnoreMeshes.ContainsKey(character) && Converter.Config.IgnoreMeshes[character].ContainsKey(name))
+            if (!includeHiddenMeshes
+                && Converter.Config.IgnoreMeshes.ContainsKey(character)
+                && Converter.Config.IgnoreMeshes[character].ContainsKey(name))
                 RemoveMeshes = new List<string>(Converter.Config.IgnoreMeshes[character][name]);
             else
                 RemoveMeshes = new List<string>();
@@ -260,7 +303,9 @@ namespace LeagueBulkConvert.Converter
                         }
                         catch (Exception e)
                         {
-                            new LinkMessageBox($"Something went wrong when adding animations. Please let me know what skins you were converting when this happened.\n{e.Message}").ShowDialog();
+                            new LinkMessageBox($"Something went wrong when adding animations. " +
+                                $"Please let me know what skins you were converting when this happened " +
+                                $"and make sure to include the message below.\n\n{e.Message}").ShowDialog();
                         }
             }
 
