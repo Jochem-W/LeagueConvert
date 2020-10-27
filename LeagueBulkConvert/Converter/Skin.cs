@@ -7,8 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
-using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace LeagueBulkConvert.Converter
 {
@@ -235,7 +234,14 @@ namespace LeagueBulkConvert.Converter
                 Animations = new List<(string, Animation)>();
                 foreach (var filePath in file.Dependencies)
                     if (filePath.ToLower().Contains("/animations/"))
-                        AddAnimations(filePath.ToLower());
+                        try
+                        {
+                            AddAnimations(filePath.ToLower());
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show($"Something went wrong when adding animations. Please let me know what skins you were converting when this happened. {e.Message}");
+                        }
             }
 
         }
