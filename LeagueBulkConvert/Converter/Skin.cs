@@ -1,16 +1,21 @@
-﻿using Fantome.Libraries.League.IO.BIN;
+﻿using Fantome.Libraries.League.IO.AnimationFile;
+using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.SimpleSkinFile;
+using Fantome.Libraries.League.IO.SkeletonFile;
 using ImageMagick;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace LeagueBulkConvert.Converter
 {
     class Skin
     {
+        public List<(string, Animation)> Animations { get; set; }
+
         public string Character { get; set; }
 
         public bool Exists { get => File.Exists(Mesh); }
@@ -28,6 +33,54 @@ namespace LeagueBulkConvert.Converter
         public string Skeleton { get; set; }
 
         public string Texture { get; set; }
+
+        public void AddAnimations(string binPath)
+        {
+            var binFile = new BINFile(binPath);
+            if (binFile.Entries.Count != 1)
+                throw new NotImplementedException();
+            var animationValue = binFile.Entries[0].Values.FirstOrDefault(v => v.Property == 1172382456); //mClipDataMap
+            if (animationValue is null)
+                throw new NotImplementedException();
+            foreach (var value in ((BINMap)animationValue.Value).Values)
+            {
+                var structure = (BINStructure)value.Value.Value;
+                if (structure.Property != 1540989414) // AtomicClipData
+                    continue;
+                var animationData = structure.Values.FirstOrDefault(v => v.Property == 3030349134); // mAnimationResourceData
+                if (animationData is null)
+                    throw new NotImplementedException();
+                var animationDataStructure = (BINStructure)animationData.Value;
+                var pathValue = animationDataStructure.Values.FirstOrDefault(v => v.Property == 53080535); // mAnimationFilePath
+                if (pathValue is null)
+                    throw new NotImplementedException();
+                var path = pathValue.Value.ToString().ToLower().Replace('/', '\\');
+                string name;
+                if (!ulong.TryParse(value.Key.Value.ToString(), out ulong key))
+                    throw new NotImplementedException();
+                if (Converter.HashTables["binhashes"].ContainsKey(key))
+                    name = Converter.HashTables["binhashes"][key];
+                else
+                    name = path.Split('\\')[^1].Split('.')[0];
+                Animations.Add((name, new Animation(path)));
+            }
+            /*var animationsPath = binPath.Replace("data", "assets");
+            var splitPath = animationsPath.Split('/');
+            animationsPath = $"{string.Join('/', splitPath.SkipLast(2))}/skins/";
+            var binFileName = splitPath[^1].Split('.')[0];
+            if (binFileName == "skin0")
+                animationsPath += "base/animations";
+            else
+            {
+                var match = Regex.Match(binFileName, @"\d+$", RegexOptions.RightToLeft);
+                if (!match.Success)
+                    throw new NotImplementedException();
+                animationsPath += $"skin{match.Value.PadLeft(2, '0')}/animations";
+            }
+            animationsPath = animationsPath.Replace('/', '\\');
+            foreach (var file in Directory.EnumerateFiles(animationsPath))
+                Animations.Add((file.Split('\\')[^1], new Animation(file)));*/
+        }
 
         public void Clean()
         {
@@ -127,7 +180,7 @@ namespace LeagueBulkConvert.Converter
                 ParseBinStructure((BINStructure)value.Value);
         }
 
-        public void Save()
+        public void Save(bool includeSkeletons)
         {
             var simpleSkin = new SimpleSkin(Mesh);
             var materialTextures = new Dictionary<string, MagickImage>();
@@ -154,12 +207,20 @@ namespace LeagueBulkConvert.Converter
             var folderPath = $"export\\assets\\{Character}";
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
-            var gltf = simpleSkin.ToGltf(materialTextures);
-            gltf.ApplyBasisTransform(new Matrix4x4(Converter.Config.Scale, 0, 0, 0, 0, Converter.Config.Scale, 0, 0, 0, 0, Converter.Config.Scale, 0, 0, 0, 0, 1));
+            SharpGLTF.Schema2.ModelRoot gltf;
+            if (!includeSkeletons)
+            {
+                gltf = simpleSkin.ToGltf(materialTextures);
+                gltf.ApplyBasisTransform(Converter.Config.ScaleMatrix);
+            }
+            else if (Animations == null)
+                gltf = simpleSkin.ToGltf(new Skeleton(Skeleton), materialTextures);
+            else
+                gltf = simpleSkin.ToGltf(new Skeleton(Skeleton), materialTextures, Animations);
             gltf.SaveGLB($"{folderPath}\\{Name}.glb");
         }
 
-        public Skin(string character, string name, BINFile file)
+        public Skin(string character, string name, BINFile file, bool includeAnimations)
         {
             Character = character;
             Name = name;
@@ -169,6 +230,14 @@ namespace LeagueBulkConvert.Converter
                 RemoveMeshes = new List<string>();
             foreach (var entry in file.Entries)
                 ParseBinEntry(entry);
+            if (includeAnimations)
+            {
+                Animations = new List<(string, Animation)>();
+                foreach (var filePath in file.Dependencies)
+                    if (filePath.ToLower().Contains("/animations/"))
+                        AddAnimations(filePath.ToLower());
+            }
+
         }
     }
 

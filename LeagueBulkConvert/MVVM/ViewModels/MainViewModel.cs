@@ -88,7 +88,7 @@ namespace LeagueBulkConvert.MVVM.ViewModels
             }
         }
 
-        private bool enableSkeletonCheckbox = false;
+        private bool enableSkeletonCheckbox = true;
         public bool EnableSkeletonCheckbox
         {
             get => enableSkeletonCheckbox;

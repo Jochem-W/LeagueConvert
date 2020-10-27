@@ -17,12 +17,19 @@ namespace LeagueBulkConvert.Converter
 
         private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions { IgnoreNullValues = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-        public static async Task StartConversion(string installPath, string outPath)
+        public static async Task StartConversion(string installPath, string outPath, bool includeSkeletons, bool includeAnimations)
         {
             var fileStream = File.OpenRead("config.json");
             Config = await JsonSerializer.DeserializeAsync<Config>(fileStream, SerializerOptions);
             Config.CalculateScale();
             await fileStream.DisposeAsync();
+            if (includeSkeletons)
+                Config.ExtractFormats.Add("skl");
+            if (includeAnimations)
+            {
+                Config.ExtractFormats.Add("anm");
+                Config.ExtractFormats.Add("bin");
+            }
             var currentDirectory = Environment.CurrentDirectory;
             Directory.SetCurrentDirectory(outPath);
             await Utils.ReadHashTables();
@@ -41,20 +48,21 @@ namespace LeagueBulkConvert.Converter
                         continue;
                     var splitName = name.Split('\\');
                     Console.WriteLine(string.Join('\\', splitName.TakeLast(3)));
-                    var character = splitName.SkipLast(2).Last();
+                    var character = splitName[^3];
                     if (Config.IgnoreCharacters.Contains(character))
                         continue;
                     var binFile = new BINFile(entry.Value.GetDataHandle().GetDecompressedStream());
                     //await File.WriteAllTextAsync("current.json", Newtonsoft.Json.JsonConvert.SerializeObject(binFile, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore }));
-                    var skin = new Skin(character, splitName.Last().Split('.')[0], binFile);
+                    var skin = new Skin(character, splitName[^1].Split('.')[0], binFile, includeAnimations);
                     if (!skin.Exists)
                         continue;
                     skin.Clean();
-                    skin.Save();
+                    skin.Save(includeSkeletons);
                 }
                 wad.Dispose();
+                Directory.Delete("assets", true);
+                Directory.Delete("data", true);
             }
-            Directory.Delete("assets", true);
             //await CheckColours();
             //await Json.Utils.Export();
             Directory.SetCurrentDirectory(currentDirectory);

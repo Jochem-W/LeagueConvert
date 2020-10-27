@@ -18,11 +18,13 @@ namespace LeagueBulkConvert.Windows
             DataContext = viewModel;
         }
 
-        private string Browse()
+        private string Browse(string initialDirectory)
         {
+            if (string.IsNullOrWhiteSpace(initialDirectory))
+                initialDirectory = "C:";
             using var dlg = new CommonOpenFileDialog
             {
-                InitialDirectory = "C:",
+                InitialDirectory = initialDirectory,
                 IsFolderPicker = true
             };
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
@@ -32,19 +34,20 @@ namespace LeagueBulkConvert.Windows
 
         private void BrowseLeague(object sender, RoutedEventArgs e)
         {
-            viewModel.LeaguePath = Browse();
+            viewModel.LeaguePath = Browse(viewModel.LeaguePath);
         }
 
         private void BrowseOutput(object sender, RoutedEventArgs e)
         {
-            viewModel.OutPath = Browse();
+            viewModel.OutPath = Browse(viewModel.OutPath);
         }
 
         private async void Convert(object sender, RoutedEventArgs e)
         {
             ((Button)sender).IsEnabled = false;
             viewModel.LoadingVisibility = Visibility.Visible;
-            await Converter.Converter.StartConversion(viewModel.LeaguePath, viewModel.OutPath);
+            await Task.Run(async () => await Converter.Converter.StartConversion(viewModel.LeaguePath, viewModel.OutPath, viewModel.IncludeSkeletons, viewModel.IncludeAnimations));
+            viewModel.LoadingVisibility = Visibility.Hidden;
             ((Button)sender).IsEnabled = true;
         }
 

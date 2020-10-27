@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using System.Text.Json.Serialization;
 
 namespace LeagueBulkConvert.Converter
@@ -16,7 +17,7 @@ namespace LeagueBulkConvert.Converter
         public IList<string> SamplerNames { get; set; }
 
         [JsonIgnore]
-        public float Scale { get; private set; }
+        public Matrix4x4 ScaleMatrix { get; private set; }
 
         public IList<float> ScaleList { get; set; }
 
@@ -25,7 +26,8 @@ namespace LeagueBulkConvert.Converter
             var sum = 0f;
             foreach (var scale in ScaleList)
                 sum += scale;
-            Scale = sum / ScaleList.Count;
+            var averageScale = sum / ScaleList.Count;
+            ScaleMatrix = new Matrix4x4(averageScale, 0, 0, 0, 0, averageScale, 0, 0, 0, 0, averageScale, 0, 0, 0, 0, 1);
         }
     }
 }

@@ -82,10 +82,11 @@ namespace LeagueBulkConvert.Converter
                 if (!Converter.HashTables["game"].ContainsKey(entry.Key))
                     continue;
                 var path = Converter.HashTables["game"][entry.Key].ToLower().Replace('/', '\\');
-                if (!Converter.Config.ExtractFormats.Contains(path.Split('.').Last()))
+                if (!Converter.Config.ExtractFormats.Contains(path.Split('.')[^1]))
                     continue;
-                var splitPath = path.Split('\\');
-                var folderPath = string.Join('\\', splitPath.SkipLast(1));
+                if (path.EndsWith(".bin") && !path.Contains("animations"))
+                    continue;
+                var folderPath = string.Join('\\', path.Split('\\').SkipLast(1));
                 if (!Directory.Exists(folderPath))
                     Directory.CreateDirectory(folderPath);
                 var outputFile = File.Create(path);
@@ -112,7 +113,7 @@ namespace LeagueBulkConvert.Converter
 
         public static async Task ReadHashTables()
         {
-            await Utils.UpdateHashes();
+            await UpdateHashes();
             foreach (var file in Directory.EnumerateFiles($"{Environment.CurrentDirectory}\\hashes", "*.txt"))
             {
                 var lines = await File.ReadAllLinesAsync(file);
@@ -124,7 +125,7 @@ namespace LeagueBulkConvert.Converter
                     if (!hashTable.ContainsKey(ulongHash))
                         hashTable[ulongHash] = splitLine[1];
                 }
-                Converter.HashTables[file.Split('\\').Last().Split('.')[1]] = hashTable;
+                Converter.HashTables[file.Split('\\')[^1].Split('.')[1]] = hashTable;
             }
         }
 

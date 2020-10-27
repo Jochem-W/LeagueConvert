@@ -83,8 +83,7 @@
         <CheckBox
                 Grid.Column="5"
                 Grid.Row="7"
-                IsChecked="{Binding IncludeAnimations}"
-                IsEnabled="False" />
+                IsChecked="{Binding IncludeAnimations}" />
         <Button
                 Click="Convert"
                 Content="Convert"
