@@ -29,7 +29,7 @@
                     IsReadOnly="True"
                     Style="{DynamicResource MaterialDesignOutlinedTextFieldTextBox}"
                     Text="{Binding Log}"
-                    TextWrapping="Wrap"/>
+                    TextWrapping="Wrap" />
         </ScrollViewer>
     </Grid>
 </Window>
