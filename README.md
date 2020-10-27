@@ -10,11 +10,19 @@ Easily convert champion models from League of Legends to glTF.
 6. Click convert
 
 ## Options
-League install directory: the path to the "League of Legends" folder, e.g. "C:\Riot Games\League of Legends"
-Output directory: the path to the directory you'd like the .glb files to end up, e.g. "D:\LeagueBulkConvert" (make sure this directory already exists)
-Include skeletons: include the skeleton for each skin
-Include animations: include the skin's animations, which requires the skeleton
-Include hidden meshes: include meshes that would normally be hidden, like meshes used for the recall animation
+`League install directory`: the path to the "League of Legends" folder, e.g. "C:\Riot Games\League of Legends"
+
+`Output directory`: the path to the directory you'd like the .glb files to end up, e.g. "D:\LeagueBulkConvert" (make sure this directory already exists)
+
+`Include skeletons`: include the skeleton for each skin
+
+`Include animations`: include the skin's animations, which requires the skeleton
+
+`Include hidden meshes`: include meshes that would normally be hidden, like meshes used for the recall animation
+
+`Show error pop-ups`: enable the various error pop-ups
+
+`Thread count`: how many threads to use for conversion (limited to whichever is smaller: the amount of threads your processor has, or the amount of installed RAM in GiB divided by two)
 
 ## config.json
 `extractFormats`: files with these extensions will be extracted (you probably don't need to change this)
