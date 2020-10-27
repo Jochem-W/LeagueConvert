@@ -18,44 +18,14 @@ namespace LeagueBulkConvert.MVVM.ViewModels
             }
         }
 
-        private Visibility loadingVisibility = Visibility.Hidden;
-        public Visibility LoadingVisibility
+        private bool enableSkeletonCheckbox = true;
+        public bool EnableSkeletonCheckbox
         {
-            get => loadingVisibility;
+            get => enableSkeletonCheckbox;
             set
             {
-                loadingVisibility = value;
+                enableSkeletonCheckbox = value;
                 OnPropertyChanged();
-            }
-        }
-
-        private string leaguePath;
-        public string LeaguePath
-        {
-            get => leaguePath;
-            set
-            {
-                leaguePath = value;
-                OnPropertyChanged();
-                if (Directory.Exists(value) && Directory.Exists(OutPath))
-                    AllowConversion = true;
-                else
-                    AllowConversion = false;
-            }
-        }
-
-        private string outPath;
-        public string OutPath
-        {
-            get => outPath;
-            set
-            {
-                outPath = value;
-                OnPropertyChanged();
-                if (Directory.Exists(value) && Directory.Exists(OutPath))
-                    AllowConversion = true;
-                else
-                    AllowConversion = false;
             }
         }
 
@@ -99,13 +69,54 @@ namespace LeagueBulkConvert.MVVM.ViewModels
             }
         }
 
-        private bool enableSkeletonCheckbox = true;
-        public bool EnableSkeletonCheckbox
+        private Visibility loadingVisibility = Visibility.Hidden;
+        public Visibility LoadingVisibility
         {
-            get => enableSkeletonCheckbox;
+            get => loadingVisibility;
             set
             {
-                enableSkeletonCheckbox = value;
+                loadingVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string leaguePath;
+        public string LeaguePath
+        {
+            get => leaguePath;
+            set
+            {
+                leaguePath = value;
+                OnPropertyChanged();
+                if (Directory.Exists(value) && Directory.Exists(OutPath))
+                    AllowConversion = true;
+                else
+                    AllowConversion = false;
+            }
+        }
+
+        private string outPath;
+        public string OutPath
+        {
+            get => outPath;
+            set
+            {
+                outPath = value;
+                OnPropertyChanged();
+                if (Directory.Exists(value) && Directory.Exists(OutPath))
+                    AllowConversion = true;
+                else
+                    AllowConversion = false;
+            }
+        }
+
+        private bool showErrors = true;
+        public bool ShowErrors
+        {
+            get => showErrors;
+            set
+            {
+                showErrors = value;
                 OnPropertyChanged();
             }
         }

@@ -1,7 +1,6 @@
 ﻿using LeagueBulkConvert.MVVM.ViewModels;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -59,7 +58,7 @@ namespace LeagueBulkConvert.Windows
         {
             if (!File.Exists("config.json"))
             {
-                new LinkMessageBox("Couldn't find config.json. Did you extract the archive correctly?").ShowDialog();
+                new LinkMessageBox("Couldn't find config.json. This shouldn't be possible.").ShowDialog();
                 return;
             }
             var process = new Process
@@ -71,10 +70,23 @@ namespace LeagueBulkConvert.Windows
             {
                 process.Start();
             }
-            catch (Win32Exception exception)
+            catch (Exception)
             {
-                new LinkMessageBox(exception.Message).ShowDialog();
                 process.Dispose();
+                process = new Process
+                {
+                    StartInfo = new ProcessStartInfo("notepad.exe", "config.json") { UseShellExecute = true }
+                };
+                process.Exited += (object sender, EventArgs e) => ((Process)sender).Dispose();
+                try
+                {
+                    process.Start();
+                }
+                catch (Exception exception)
+                {
+                    new LinkMessageBox($"Couldn't open config.json\n\n{exception.Message}").ShowDialog();
+                    process.Dispose();
+                }
             }
         }
     }

@@ -54,11 +54,11 @@ namespace LeagueBulkConvert.Converter
                         continue;
                     var binFile = new BINFile(entry.Value.GetDataHandle().GetDecompressedStream());
                     //await File.WriteAllTextAsync("current.json", Newtonsoft.Json.JsonConvert.SerializeObject(binFile, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore }));
-                    var skin = new Skin(character, Path.GetFileNameWithoutExtension(name), binFile, viewModel.IncludeAnimations, viewModel.IncludeHiddenMeshes);
+                    var skin = new Skin(character, Path.GetFileNameWithoutExtension(name), binFile, viewModel.IncludeAnimations, viewModel.IncludeHiddenMeshes, viewModel.ShowErrors);
                     if (!skin.Exists)
                         continue;
                     skin.Clean();
-                    skin.Save(viewModel.IncludeSkeletons);
+                    skin.Save(viewModel.IncludeSkeletons, viewModel.ShowErrors);
                 }
                 wad.Dispose();
                 Directory.Delete("assets", true);

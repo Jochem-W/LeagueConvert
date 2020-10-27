@@ -34,7 +34,7 @@ namespace LeagueBulkConvert.Converter
 
         public string Texture { get; set; }
 
-        public void AddAnimations(string binPath)
+        public void AddAnimations(string binPath, bool showErrors)
         {
             if (!File.Exists(binPath)) // assuming that the extraction is flawless, this shouldn't be a bad thing to do
                 return;
@@ -75,10 +75,11 @@ namespace LeagueBulkConvert.Converter
                 {
                     Application.Current.Dispatcher.Invoke(delegate
                     {
-                        new LinkMessageBox($"An error was encountered when parsing the following animation: {path}." +
-                            $"\n\nReport the issue, including the message below, here: ",
-                            new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
-                            .ShowDialog();
+                        if (showErrors)
+                            new LinkMessageBox($"An error was encountered when parsing the following animation: {path}." +
+                                $"\n\nReport the issue, including the message below, here: ",
+                                new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
+                                .ShowDialog();
                     });
                     continue;
                 }
@@ -201,7 +202,7 @@ namespace LeagueBulkConvert.Converter
                 ParseBinStructure((BINStructure)value.Value);
         }
 
-        public void Save(bool includeSkeletons)
+        public void Save(bool includeSkeletons, bool showErrors)
         {
             if (!File.Exists(Mesh))
                 return;
@@ -212,13 +213,14 @@ namespace LeagueBulkConvert.Converter
             }
             catch (Exception e)
             {
-                Application.Current.Dispatcher.Invoke(delegate
-                {
-                    new LinkMessageBox($"An error was encountered when parsing the following skin: {Mesh}." +
-                        $"\n\nReport the issue, including the message below, here: ",
-                        new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
-                        .ShowDialog();
-                });
+                if (showErrors)
+                    Application.Current.Dispatcher.Invoke(delegate
+                    {
+                        new LinkMessageBox($"An error was encountered when parsing the following skin: {Mesh}." +
+                            $"\n\nReport the issue, including the message below, here: ",
+                            new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
+                            .ShowDialog();
+                    });
                 return;
             }
             var materialTextures = new Dictionary<string, MagickImage>();
@@ -260,13 +262,14 @@ namespace LeagueBulkConvert.Converter
                 }
                 catch (Exception e)
                 {
-                    Application.Current.Dispatcher.Invoke(delegate
-                    {
-                        new LinkMessageBox($"An error was encountered when parsing the following skeleton: {Skeleton}." +
-                            $"\n\nReport the issue, including the message below, here: ",
-                            new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
-                            .ShowDialog();
-                    });
+                    if (showErrors)
+                        Application.Current.Dispatcher.Invoke(delegate
+                        {
+                            new LinkMessageBox($"An error was encountered when parsing the following skeleton: {Skeleton}." +
+                                $"\n\nReport the issue, including the message below, here: ",
+                                new Uri("https://github.com/LoL-Fantome/Fantome.Libraries.League"), e.Message)
+                                .ShowDialog();
+                        });
                     return;
                 }
                 if (Animations is null)
@@ -278,7 +281,7 @@ namespace LeagueBulkConvert.Converter
             gltf.SaveGLB($"{folderPath}\\{Name}.glb");
         }
 
-        public Skin(string character, string name, BINFile file, bool includeAnimations, bool includeHiddenMeshes)
+        public Skin(string character, string name, BINFile file, bool includeAnimations, bool includeHiddenMeshes, bool showErrors)
         {
             Character = character;
             Name = name;
@@ -299,13 +302,14 @@ namespace LeagueBulkConvert.Converter
                     if (filePath.ToLower().Contains("/animations/"))
                         try
                         {
-                            AddAnimations(filePath.ToLower());
+                            AddAnimations(filePath.ToLower(), showErrors);
                         }
                         catch (Exception e)
                         {
-                            new LinkMessageBox($"Something went wrong when adding animations. " +
-                                $"Please let me know what skins you were converting when this happened " +
-                                $"and make sure to include the message below.\n\n{e.Message}").ShowDialog();
+                            if (showErrors)
+                                new LinkMessageBox($"Something went wrong when adding animations. " +
+                                    $"Please let me know what skins you were converting when this happened " +
+                                    $"and make sure to include the message below.\n\n{e.Message}").ShowDialog();
                         }
             }
 
