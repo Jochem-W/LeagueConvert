@@ -8,28 +8,20 @@ namespace LeagueBulkConvert.MVVM.ViewModels
 {
     class LoggingViewModel : INotifyPropertyChanged
     {
-        public void AddLine(string text, int indent = 0)
-        {
-            lines.Add(new string(' ', 4 * indent) + text);
-        }
+        private readonly ObservableCollection<string> lines = new ObservableCollection<string>();
 
         public bool AutoScroll { get; set; } = true;
 
-        private readonly ObservableCollection<string> lines;
-
         public string Log { get => string.Join('\n', lines.TakeLast(256)); }
 
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
+        public void AddLine(string text, int indent = 0) => lines.Add(new string(' ', 4 * indent) + text);
+
+        protected void OnPropertyChanged([CallerMemberName] string name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public LoggingViewModel()
-        {
-            lines = new ObservableCollection<string>();
+        public LoggingViewModel() =>
             lines.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => OnPropertyChanged("Log");
-        }
     }
 }

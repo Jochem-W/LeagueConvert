@@ -21,10 +21,7 @@ namespace LeagueBulkConvert.Converter
 
         public string Texture { get; set; }
 
-        public void Complete(BINEntry entry)
-        {
-            Texture = Utils.FindTexture(entry);
-        }
+        public void Complete(BINEntry entry) => Texture = Utils.FindTexture(entry);
 
         public Material(BINValue material, BINValue submesh, BINValue texture)
         {

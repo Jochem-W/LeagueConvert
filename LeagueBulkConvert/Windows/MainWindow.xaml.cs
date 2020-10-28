@@ -35,25 +35,21 @@ namespace LeagueBulkConvert.Windows
             return string.Empty;
         }
 
-        private void BrowseLeague(object sender, RoutedEventArgs e)
-        {
+        private void BrowseLeague(object sender, RoutedEventArgs e) =>
             viewModel.LeaguePath = Browse(viewModel.LeaguePath);
-        }
 
-        private void BrowseOutput(object sender, RoutedEventArgs e)
-        {
-            viewModel.OutPath = Browse(viewModel.OutPath);
-        }
+        private void BrowseOutput(object sender, RoutedEventArgs e) => viewModel.OutPath = Browse(viewModel.OutPath);
 
         private async void Convert(object sender, RoutedEventArgs e)
         {
-            ((Button)sender).IsEnabled = false;
+            var senderButton = (Button)sender;
+            senderButton.IsEnabled = false;
             viewModel.LoadingVisibility = Visibility.Visible;
             var loggingViewModel = new LoggingViewModel();
             new LoggingWindow { DataContext = loggingViewModel }.Show();
             await Task.Run(async () => await Converter.Converter.StartConversion(viewModel, loggingViewModel));
             viewModel.LoadingVisibility = Visibility.Hidden;
-            ((Button)sender).IsEnabled = true;
+            senderButton.IsEnabled = true;
         }
 
         private void EditConfig(object sender, RoutedEventArgs e)
@@ -63,10 +59,7 @@ namespace LeagueBulkConvert.Windows
                 new LinkMessageBox("Couldn't find config.json. This shouldn't be possible.").ShowDialog();
                 return;
             }
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo("config.json") { UseShellExecute = true }
-            };
+            var process = new Process { StartInfo = new ProcessStartInfo("config.json") { UseShellExecute = true } };
             process.Exited += (object sender, EventArgs e) => ((Process)sender).Dispose();
             try
             {
@@ -75,10 +68,7 @@ namespace LeagueBulkConvert.Windows
             catch (Exception)
             {
                 process.Dispose();
-                process = new Process
-                {
-                    StartInfo = new ProcessStartInfo("notepad.exe", "config.json") { UseShellExecute = true }
-                };
+                process = new Process { StartInfo = new ProcessStartInfo("notepad.exe", "config.json") };
                 process.Exited += (object sender, EventArgs e) => ((Process)sender).Dispose();
                 try
                 {
@@ -86,8 +76,9 @@ namespace LeagueBulkConvert.Windows
                 }
                 catch (Exception exception)
                 {
-                    new LinkMessageBox($"Couldn't open config.json\n\n{exception.Message}").ShowDialog();
                     process.Dispose();
+                    new LinkMessageBox($"Couldn't open config.json\n\n{exception.Message}").ShowDialog();
+
                 }
             }
         }

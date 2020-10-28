@@ -14,17 +14,21 @@ namespace LeagueBulkConvert.Converter
     {
         public static Config Config;
 
-        public static readonly IDictionary<string, IDictionary<ulong, string>> HashTables = new Dictionary<string, IDictionary<ulong, string>>();
+        public static readonly IDictionary<string, IDictionary<ulong, string>> HashTables =
+            new Dictionary<string, IDictionary<ulong, string>>();
 
-        public static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions { IgnoreNullValues = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        public static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
         public static async Task StartConversion(MainViewModel viewModel, LoggingViewModel loggingViewModel)
         {
             loggingViewModel.AddLine("Reading config.json");
             var fileStream = File.OpenRead("config.json");
             Config = await JsonSerializer.DeserializeAsync<Config>(fileStream, SerializerOptions);
-            Config.CalculateScale();
             await fileStream.DisposeAsync();
+            Config.CalculateScale();
             if (viewModel.IncludeSkeletons)
                 Config.ExtractFormats.Add(".skl");
             if (viewModel.IncludeAnimations)
@@ -34,19 +38,22 @@ namespace LeagueBulkConvert.Converter
             }
             var currentDirectory = Environment.CurrentDirectory;
             Directory.SetCurrentDirectory(viewModel.OutPath);
+            if (Directory.Exists("assets"))
+                Directory.Delete("assets", true);
+            if (Directory.Exists("data"))
+                Directory.Delete("data", true);
             loggingViewModel.AddLine("Reading hashtables");
             await Utils.ReadHashTables();
-            foreach (var path in Directory.EnumerateFiles($"{viewModel.LeaguePath}\\Game\\DATA\\FINAL\\Champions", "*.wad.client").Where(f => !f.Contains('_')))
+            foreach (var path in Directory.EnumerateFiles($"{viewModel.LeaguePath}\\Game\\DATA\\FINAL\\Champions", "*.wad.client")
+                                          .Where(f => !f.Contains('_')
+                                                      && (Config.IncludeOnly.Count == 0
+                                                      || Config.IncludeOnly.Contains(Path.GetFileName(f)))))
             {
-                if (Config.IncludeOnly.Count != 0 && !Config.IncludeOnly.Contains(Path.GetFileName(path)))
-                    continue;
-                var wad = Wad.Mount(path, true);
                 loggingViewModel.AddLine($"Extracting {path}");
+                var wad = Wad.Mount(path, true);
                 await Utils.ExtractWad(wad);
-                foreach (var entry in wad.Entries)
+                foreach (var entry in wad.Entries.Where(e => HashTables["game"].ContainsKey(e.Key)))
                 {
-                    if (!HashTables["game"].ContainsKey(entry.Key))
-                        continue;
                     var name = HashTables["game"][entry.Key].ToLower().Replace('/', '\\');
                     if (!name.EndsWith(".bin") || !name.Contains("\\skins\\") || name.Contains("root"))
                         continue;
@@ -56,7 +63,6 @@ namespace LeagueBulkConvert.Converter
                         continue;
                     loggingViewModel.AddLine($"Converting {string.Join('\\', splitName.TakeLast(3))}", 1);
                     var binFile = new BINFile(entry.Value.GetDataHandle().GetDecompressedStream());
-                    //await File.WriteAllTextAsync("current.json", Newtonsoft.Json.JsonConvert.SerializeObject(binFile, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore }));
                     var skin = new Skin(character, Path.GetFileNameWithoutExtension(name), binFile, viewModel, loggingViewModel);
                     if (!skin.Exists)
                         continue;
@@ -76,8 +82,6 @@ namespace LeagueBulkConvert.Converter
                 if (viewModel.IncludeAnimations)
                     Directory.Delete("data", true);
             }
-            //await CheckColours();
-            //await Json.Utils.Export();
             loggingViewModel.AddLine("Finished!");
             Directory.SetCurrentDirectory(currentDirectory);
         }

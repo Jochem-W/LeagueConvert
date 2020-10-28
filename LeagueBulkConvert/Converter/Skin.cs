@@ -4,12 +4,10 @@ using Fantome.Libraries.League.IO.SimpleSkinFile;
 using Fantome.Libraries.League.IO.SkeletonFile;
 using ImageMagick;
 using LeagueBulkConvert.MVVM.ViewModels;
-using LeagueBulkConvert.Windows;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows;
 
 namespace LeagueBulkConvert.Converter
 {
@@ -37,32 +35,24 @@ namespace LeagueBulkConvert.Converter
 
         public void AddAnimations(string binPath, LoggingViewModel viewModel)
         {
-            if (!File.Exists(binPath)) // assuming that the extraction is flawless, this shouldn't be a bad thing to do
-                return;
             var binFile = new BINFile(binPath);
             if (binFile.Entries.Count != 1)
                 throw new NotImplementedException();
             var animationValue = binFile.Entries[0].Values.FirstOrDefault(v => v.Property == 1172382456); //mClipDataMap
-            if (animationValue is null)
-                throw new NotImplementedException();
             foreach (var value in ((BINMap)animationValue.Value).Values)
             {
                 var structure = (BINStructure)value.Value.Value;
                 if (structure.Property != 1540989414) // AtomicClipData
                     continue;
                 var animationData = structure.Values.FirstOrDefault(v => v.Property == 3030349134); // mAnimationResourceData
-                if (animationData is null)
-                    throw new NotImplementedException();
                 var animationDataStructure = (BINStructure)animationData.Value;
                 var pathValue = animationDataStructure.Values.FirstOrDefault(v => v.Property == 53080535); // mAnimationFilePath
-                if (pathValue is null)
-                    throw new NotImplementedException();
                 var path = pathValue.Value.ToString().ToLower().Replace('/', '\\');
                 if (!File.Exists(path))
                     continue;
-                string name;
                 if (!ulong.TryParse(value.Key.Value.ToString(), out ulong key))
                     throw new NotImplementedException();
+                string name;
                 if (Converter.HashTables["binhashes"].ContainsKey(key))
                     name = Converter.HashTables["binhashes"][key];
                 else
@@ -77,24 +67,8 @@ namespace LeagueBulkConvert.Converter
                     viewModel.AddLine($"Couldn't parse {path}", 2);
                     continue;
                 }
-                Animations.Add((name, new Animation(path)));
+                Animations.Add((name, animation));
             }
-            /*var animationsPath = binPath.Replace("data", "assets");
-            var splitPath = animationsPath.Split('/');
-            animationsPath = $"{string.Join('/', splitPath.SkipLast(2))}/skins/";
-            var binFileName = splitPath[^1].Split('.')[0];
-            if (binFileName == "skin0")
-                animationsPath += "base/animations";
-            else
-            {
-                var match = Regex.Match(binFileName, @"\d+$", RegexOptions.RightToLeft);
-                if (!match.Success)
-                    throw new NotImplementedException();
-                animationsPath += $"skin{match.Value.PadLeft(2, '0')}/animations";
-            }
-            animationsPath = animationsPath.Replace('/', '\\');
-            foreach (var file in Directory.EnumerateFiles(animationsPath))
-                Animations.Add((file.Split('\\')[^1], new Animation(file)));*/
         }
 
         public void Clean()
@@ -108,7 +82,8 @@ namespace LeagueBulkConvert.Converter
                 if (material.Hash == 0 && string.IsNullOrWhiteSpace(material.Texture) && !RemoveMeshes.Contains(material.Name))
                     Materials[i].Texture = Texture;
                 if ((string.IsNullOrWhiteSpace(material.Texture)
-                     || material.Texture.Contains("empty32.dds")) && !RemoveMeshes.Contains(material.Name))
+                     || material.Texture.Contains("empty32.dds"))
+                     && !RemoveMeshes.Contains(material.Name))
                     RemoveMeshes.Add(material.Name);
                 if (!RemoveMeshes.Contains(material.Name))
                     continue;
@@ -146,13 +121,9 @@ namespace LeagueBulkConvert.Converter
                     ParseBinStructure((BINStructure)value.Value);
                     break;
                 case 2974586734: //skeleton
-                    if (!string.IsNullOrWhiteSpace(Skeleton))
-                        throw new NotImplementedException();
                     Skeleton = ((string)value.Value).ToLower().Replace('/', '\\');
                     break;
                 case 3600813558: //simpleSkin
-                    if (!string.IsNullOrWhiteSpace(Mesh))
-                        throw new NotImplementedException();
                     Mesh = ((string)value.Value).ToLower().Replace('/', '\\');
                     break;
                 case 1013213428: //texture
@@ -257,7 +228,6 @@ namespace LeagueBulkConvert.Converter
                 else
                     gltf = simpleSkin.ToGltf(skeleton, materialTextures, Animations);
             }
-
             gltf.SaveGLB($"{folderPath}\\{Name}.glb");
         }
 
@@ -279,16 +249,20 @@ namespace LeagueBulkConvert.Converter
             {
                 Animations = new List<(string, Animation)>();
                 foreach (var filePath in file.Dependencies)
-                    if (filePath.ToLower().Contains("/animations/"))
+                {
+                    var lowercase = filePath.ToLower();
+                    if (lowercase.Contains("/animations/") && File.Exists(lowercase))
                         try
                         {
-                            AddAnimations(filePath.ToLower(), loggingViewModel);
+                            AddAnimations(lowercase, loggingViewModel);
                         }
                         catch (Exception)
                         {
                             loggingViewModel.AddLine($"Couldn't add animations", 2);
                             return;
                         }
+                }
+
             }
 
         }

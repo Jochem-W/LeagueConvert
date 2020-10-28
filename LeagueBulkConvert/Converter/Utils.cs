@@ -82,7 +82,6 @@ namespace LeagueBulkConvert.Converter
                 if (!Converter.HashTables["game"].ContainsKey(entry.Key))
                     continue;
                 var path = Converter.HashTables["game"][entry.Key].ToLower().Replace('/', '\\');
-                var ext = Path.GetExtension(path);
                 if (!Converter.Config.ExtractFormats.Contains(Path.GetExtension(path)))
                     continue;
                 if (path.EndsWith(".bin") && !path.Contains("animations"))
@@ -130,15 +129,9 @@ namespace LeagueBulkConvert.Converter
             }
         }
 
-        public static string SimplifyKey(string key)
-        {
-            return key.Substring(key.Length - 3).TrimStart('0').PadLeft(1, '0');
-        }
+        public static string SimplifyKey(string key) => key.Substring(key.Length - 3).TrimStart('0').PadLeft(1, '0');
 
-        public static string SimplifyKey(int key)
-        {
-            return SimplifyKey(key.ToString());
-        }
+        public static string SimplifyKey(int key) => SimplifyKey(key.ToString());
 
         public static async Task UpdateHashes()
         {

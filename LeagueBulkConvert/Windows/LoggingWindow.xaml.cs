@@ -6,10 +6,7 @@ namespace LeagueBulkConvert.Windows
 {
     partial class LoggingWindow : Window
     {
-        public LoggingWindow()
-        {
-            InitializeComponent();
-        }
+        public LoggingWindow() => InitializeComponent();
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
