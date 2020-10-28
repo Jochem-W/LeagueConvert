@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace LeagueBulkConvert.Converter
+namespace LeagueBulkConvert.Conversion
 {
     static class Converter
     {
@@ -19,7 +19,6 @@ namespace LeagueBulkConvert.Converter
 
         public static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
         {
-            IgnoreNullValues = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 

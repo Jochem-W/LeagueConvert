@@ -9,7 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace LeagueBulkConvert.Converter
+namespace LeagueBulkConvert.Conversion
 {
     static class Utils
     {

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace LeagueBulkConvert.Converter
+namespace LeagueBulkConvert.Conversion
 {
     class Skin
     {

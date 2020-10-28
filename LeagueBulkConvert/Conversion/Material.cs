@@ -1,7 +1,7 @@
 ﻿using Fantome.Libraries.League.IO.BIN;
 using System;
 
-namespace LeagueBulkConvert.Converter
+namespace LeagueBulkConvert.Conversion
 {
     class Material
     {

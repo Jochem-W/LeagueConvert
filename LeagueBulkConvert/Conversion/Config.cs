@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Text.Json.Serialization;
 
-namespace LeagueBulkConvert.Converter
+namespace LeagueBulkConvert.Conversion
 {
     class Config
     {
