@@ -13,37 +13,6 @@ namespace LeagueBulkConvert.Conversion
 {
     static class Utils
     {
-        /* This needs to be updated to accomodate for the new UI
-        
-        public static void CheckMissing(IList<Json.Champion> champions)
-        {
-            foreach (var champion in champions)
-            {
-                var path = $"export\\assets\\{champion.Folder}";
-                if (!Directory.Exists(path))
-                {
-                    Console.WriteLine($"Missing {champion.Folder}");
-                    continue;
-                }
-                foreach (var skin in champion.Skins)
-                {
-                    if (skin.Chromas is null)
-                    {
-                        var skinPath = $"{path}\\skin{skin.Key}.glb";
-                        if (!File.Exists(skinPath))
-                            Console.WriteLine($"Missing {skinPath}");
-                        continue;
-                    }
-                    foreach (var chroma in skin.Chromas)
-                    {
-                        var chromaPath = $"{path}\\skin{chroma.Key}.glb";
-                        if (!File.Exists(chromaPath))
-                            Console.WriteLine($"Missing {chromaPath}");
-                    }
-                }
-            }
-        }*/
-
         public static async Task ExtractWad(Wad wad)
         {
             foreach (var entry in wad.Entries)
@@ -67,7 +36,7 @@ namespace LeagueBulkConvert.Conversion
         public static string FindTexture(BINEntry entry)
         {
             var values = entry.Values.FirstOrDefault(v => v.Property == 175050421); //samplerValues
-            if (values is null)
+            if (values == null)
                 return string.Empty;
             var samplerValues = (BINContainer)values.Value;
             foreach (var samplerValue in samplerValues.Values)
@@ -83,7 +52,7 @@ namespace LeagueBulkConvert.Conversion
         public static async Task ReadHashTables()
         {
             await UpdateHashes();
-            foreach (var file in Directory.EnumerateFiles($"{Environment.CurrentDirectory}\\hashes", "*.txt"))
+            foreach (var file in Directory.EnumerateFiles(@$"{Environment.CurrentDirectory}\hashes", "*.txt"))
             {
                 var lines = await File.ReadAllLinesAsync(file);
                 IDictionary<ulong, string> hashTable = new Dictionary<ulong, string>();
@@ -106,7 +75,7 @@ namespace LeagueBulkConvert.Conversion
             var files = await gitHubClient.Repository.Content.GetAllContents("CommunityDragon", "CDTB", "cdragontoolbox");
             foreach (var file in files.Where(c => c.Name.Contains("hashes") && c.Name.EndsWith(".txt")))
             {
-                var filePath = $"{Environment.CurrentDirectory}\\hashes\\{file.Name}";
+                var filePath = @$"{Environment.CurrentDirectory}\hashes\{file.Name}";
                 var shaFilePath = $"{filePath}.sha";
                 if (!File.Exists(filePath) || !File.Exists(shaFilePath) || await File.ReadAllTextAsync(shaFilePath) != file.Sha)
                 {

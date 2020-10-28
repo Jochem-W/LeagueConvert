@@ -45,7 +45,7 @@ namespace LeagueBulkConvert.Conversion
                 Directory.Delete("data", true);
             loggingViewModel.AddLine("Reading hashtables");
             await Utils.ReadHashTables();
-            foreach (var path in Directory.EnumerateFiles($"{viewModel.LeaguePath}\\Game\\DATA\\FINAL\\Champions", "*.wad.client")
+            foreach (var path in Directory.EnumerateFiles(@$"{viewModel.LeaguePath}\Game\DATA\FINAL\Champions", "*.wad.client")
                                           .Where(f => !f.Contains('_')
                                                       && (Config.IncludeOnly.Count == 0
                                                       || Config.IncludeOnly.Contains(Path.GetFileName(f)))))
@@ -56,7 +56,7 @@ namespace LeagueBulkConvert.Conversion
                 foreach (var entry in wad.Entries.Where(e => HashTables["game"].ContainsKey(e.Key)))
                 {
                     var name = HashTables["game"][entry.Key].ToLower().Replace('/', '\\');
-                    if (!name.EndsWith(".bin") || !name.Contains("\\skins\\") || name.Contains("root"))
+                    if (!name.EndsWith(".bin") || !name.Contains(@"\skins\") || name.Contains("root"))
                         continue;
                     var splitName = name.Split('\\');
                     var character = splitName[^3];

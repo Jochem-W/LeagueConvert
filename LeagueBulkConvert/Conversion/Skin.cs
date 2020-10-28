@@ -74,7 +74,7 @@ namespace LeagueBulkConvert.Conversion
         public void Clean()
         {
             var baseMaterial = Materials.FirstOrDefault(m => m.Hash == MaterialHash);
-            if (!(baseMaterial is null) && !(Texture is null) && !baseMaterial.IsComplete)
+            if (baseMaterial != null && Texture != null && !baseMaterial.IsComplete)
                 Materials[Materials.IndexOf(baseMaterial)].Texture = Texture;
             for (var i = 0; i < Materials.Count; i++)
             {
@@ -194,7 +194,7 @@ namespace LeagueBulkConvert.Conversion
                 }
                 var material = Materials.FirstOrDefault(m => m.Name == submesh.Name.ToLower());
                 string textureFile;
-                if (material is null)
+                if (material == null)
                     textureFile = Texture;
                 else
                     textureFile = material.Texture;
@@ -202,7 +202,7 @@ namespace LeagueBulkConvert.Conversion
                     textures[textureFile] = new MagickImage(textureFile);
                 materialTextures[submesh.Name] = textures[textureFile];
             }
-            var folderPath = $"export\\{Character}";
+            var folderPath = @$"export\{Character}";
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
             SharpGLTF.Schema2.ModelRoot gltf;
@@ -223,12 +223,12 @@ namespace LeagueBulkConvert.Conversion
                     loggingViewModel.AddLine($"Couldn't parse {Skeleton}", 2);
                     return;
                 }
-                if (Animations is null)
+                if (Animations == null)
                     gltf = simpleSkin.ToGltf(skeleton, materialTextures);
                 else
                     gltf = simpleSkin.ToGltf(skeleton, materialTextures, Animations);
             }
-            gltf.SaveGLB($"{folderPath}\\{Name}.glb");
+            gltf.SaveGLB(@$"{folderPath}\{Name}.glb");
         }
 
         public Skin(string character, string name, BINFile file, MainViewModel viewModel, LoggingViewModel loggingViewModel)

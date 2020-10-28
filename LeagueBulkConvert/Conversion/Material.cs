@@ -25,11 +25,11 @@ namespace LeagueBulkConvert.Conversion
 
         public Material(BINValue material, BINValue submesh, BINValue texture)
         {
-            if (submesh is null && texture is null)
+            if (submesh == null && texture == null)
                 throw new NotImplementedException();
-            else if (!(texture is null))
+            else if (texture != null)
                 Texture = ((string)texture.Value).ToLower().Replace('/', '\\');
-            if (!(material is null))
+            if (material != null)
                 Hash = (uint)material.Value;
             Name = ((string)submesh.Value).ToLower();
         }
