@@ -7,15 +7,15 @@ namespace LeagueBulkConvert.Windows
     {
         public MaterialMessageBox(BoxViewModel viewModel) : base()
         {
-            DataContext = viewModel;
             InitializeComponent();
+            DataContext = viewModel;
         }
 
         public MaterialMessageBox(BoxViewModel viewModel, Window owner) : base()
         {
+            InitializeComponent();
             DataContext = viewModel;
             Owner = owner;
-            InitializeComponent();
         }
 
         private void Ok(object sender, RoutedEventArgs e) => Close();

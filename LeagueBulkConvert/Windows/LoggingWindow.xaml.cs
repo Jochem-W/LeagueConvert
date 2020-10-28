@@ -33,10 +33,10 @@ namespace LeagueBulkConvert.Windows
 
         public LoggingWindow(LoggingViewModel viewModel, Window owner) : base()
         {
+            InitializeComponent();
             loggingViewModel = viewModel;
             DataContext = loggingViewModel;
             Owner = owner;
-            InitializeComponent();
         }
     }
 }

@@ -16,9 +16,9 @@ namespace LeagueBulkConvert.Windows
 
         public MainWindow()
         {
+            InitializeComponent();
             DataContext = viewModel;
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-            InitializeComponent();
         }
 
         private string Browse(string initialDirectory)
