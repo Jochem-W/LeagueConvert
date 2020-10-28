@@ -20,9 +20,7 @@ namespace LeagueBulkConvert.Windows
                     viewModel.AutoScroll = false;
             }
             else if (viewModel.AutoScroll && e.ExtentHeightChange != 0)
-            {
                 scrollViewer.ScrollToVerticalOffset(scrollViewer.ExtentHeight);
-            }
         }
     }
 }

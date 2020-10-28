@@ -46,7 +46,7 @@ namespace LeagueBulkConvert.Windows
             senderButton.IsEnabled = false;
             viewModel.LoadingVisibility = Visibility.Visible;
             var loggingViewModel = new LoggingViewModel();
-            new LoggingWindow { DataContext = loggingViewModel }.Show();
+            new LoggingWindow { DataContext = loggingViewModel, Owner = this }.Show();
             await Task.Run(async () => await Converter.Converter.StartConversion(viewModel, loggingViewModel));
             viewModel.LoadingVisibility = Visibility.Hidden;
             senderButton.IsEnabled = true;
@@ -54,11 +54,6 @@ namespace LeagueBulkConvert.Windows
 
         private void EditConfig(object sender, RoutedEventArgs e)
         {
-            if (!File.Exists("config.json"))
-            {
-                new LinkMessageBox("Couldn't find config.json. This shouldn't be possible.").ShowDialog();
-                return;
-            }
             var process = new Process { StartInfo = new ProcessStartInfo("config.json") { UseShellExecute = true } };
             process.Exited += (object sender, EventArgs e) => ((Process)sender).Dispose();
             try
@@ -77,8 +72,15 @@ namespace LeagueBulkConvert.Windows
                 catch (Exception exception)
                 {
                     process.Dispose();
-                    new LinkMessageBox($"Couldn't open config.json\n\n{exception.Message}").ShowDialog();
-
+                    new MaterialMessageBox
+                    {
+                        DataContext = new BoxViewModel
+                        {
+                            Message = $"Couldn't open config.json\n\n{exception.StackTrace}",
+                            Title = "Error"
+                        },
+                        Owner = this
+                    }.ShowDialog();
                 }
             }
         }

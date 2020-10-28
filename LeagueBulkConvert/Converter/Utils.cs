@@ -13,37 +13,6 @@ namespace LeagueBulkConvert.Converter
 {
     static class Utils
     {
-        /*public static async Task CheckColours()
-        {
-            var fileStream = File.OpenRead("colours.min.json");
-            var coloursIn = await JsonSerializer.DeserializeAsync<IDictionary<string, IList<IList<string>>>>(fileStream);
-            await fileStream.DisposeAsync();
-            var translatedColours = new List<IList<string>>();
-            foreach (var colours in coloursIn.Values)
-                foreach (var colour in colours)
-                    translatedColours.Add(colour);
-            var cDragonFileStream = File.OpenRead("skins.json");
-            var cDragonData = await JsonSerializer.DeserializeAsync<Dictionary<string, CommunityDragon.Skin>>(cDragonFileStream, SerializerOptions);
-            await cDragonFileStream.DisposeAsync();
-            foreach (var skin in cDragonData.Values.Where(s => !(s.Chromas is null)))
-                foreach (var chroma in skin.Chromas)
-                {
-                    if (translatedColours.FindIndex(c => c[0] == chroma.Colours[0] && c[1] == chroma.Colours[1]) != -1)
-                        continue;
-                    Console.WriteLine($"\"{chroma.Colours[0]}\",\n                    \"{chroma.Colours[1]}");
-                    var key = Console.ReadLine();
-                    Console.WriteLine();
-                    if (coloursIn.ContainsKey(key))
-                        coloursIn[key].Add(chroma.Colours);
-                    else
-                        coloursIn[key] = new List<IList<string>> { chroma.Colours };
-                    translatedColours.Add(chroma.Colours);
-                }
-            fileStream = File.Create("colours.min.json");
-            await JsonSerializer.SerializeAsync(fileStream, coloursIn, SerializerOptions);
-            await fileStream.DisposeAsync();
-        }*/
-
         /* This needs to be updated to accomodate for the new UI
         
         public static void CheckMissing(IList<Json.Champion> champions)
@@ -128,10 +97,6 @@ namespace LeagueBulkConvert.Converter
                 Converter.HashTables[Path.GetFileNameWithoutExtension(file).Split('.')[1]] = hashTable;
             }
         }
-
-        public static string SimplifyKey(string key) => key.Substring(key.Length - 3).TrimStart('0').PadLeft(1, '0');
-
-        public static string SimplifyKey(int key) => SimplifyKey(key.ToString());
 
         public static async Task UpdateHashes()
         {
