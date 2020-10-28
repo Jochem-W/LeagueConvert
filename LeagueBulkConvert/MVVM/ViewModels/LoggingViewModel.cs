@@ -11,7 +11,16 @@ namespace LeagueBulkConvert.MVVM.ViewModels
     {
         private readonly ObservableCollection<string> lines = new ObservableCollection<string>();
 
-        public bool AllowSave { get; set; } = false;
+        private bool allowSave = false;
+        public bool AllowSave
+        {
+            get => allowSave;
+            set
+            {
+                allowSave = value;
+                OnPropertyChanged();
+            }
+        }
 
         public bool AutoScroll { get; set; } = true;
 
