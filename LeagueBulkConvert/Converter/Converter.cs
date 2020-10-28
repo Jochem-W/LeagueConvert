@@ -19,6 +19,7 @@ namespace LeagueBulkConvert.Converter
 
         public static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
         {
+            IgnoreNullValues = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
