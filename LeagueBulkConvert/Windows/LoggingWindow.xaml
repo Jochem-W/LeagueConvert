@@ -9,7 +9,6 @@
         mc:Ignorable="d"
         Background="{DynamicResource MaterialDesignPaper}"
         ResizeMode="CanMinimize"
-        FontFamily="{materialDesign:MaterialDesignFont}"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
@@ -36,6 +35,7 @@
         <Button
                 Click="Save"
                 Content="Save to file"
+                FontFamily="{materialDesign:MaterialDesignFont}"
                 Grid.Row="1"
                 HorizontalAlignment="Right"
                 Margin="12"

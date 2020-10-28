@@ -13,7 +13,7 @@
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
-        Width="384"
+        Width="400"
         SizeToContent="Height"
         Title="League Bulk Convert">
 

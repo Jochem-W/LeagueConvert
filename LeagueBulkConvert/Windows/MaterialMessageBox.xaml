@@ -8,15 +8,13 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Background="{DynamicResource MaterialDesignPaper}"
-        MaxWidth="576"
-        MinWidth="324"
-        ResizeMode="CanMinimize"
         FontFamily="{materialDesign:MaterialDesignFont}"
-        SizeToContent="WidthAndHeight"
+        ResizeMode="CanMinimize"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
-        Title="{Binding Title}">
+        Title="{Binding Title}"
+        Width="400">
 
     <Window.DataContext>
         <local:BoxViewModel />
@@ -24,12 +22,11 @@
 
     <Grid Margin="6">
         <Grid.RowDefinitions>
-            <RowDefinition />
+            <RowDefinition MinHeight="200" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <TextBlock
                 Margin="6"
-                MinHeight="96"
                 Text="{Binding Message}"
                 TextWrapping="Wrap" />
         <Button
@@ -38,6 +35,6 @@
                 Grid.Row="1"
                 HorizontalAlignment="Right"
                 Margin="6"
-                Width="96" />
+                MinWidth="96" />
     </Grid>
 </Window>
