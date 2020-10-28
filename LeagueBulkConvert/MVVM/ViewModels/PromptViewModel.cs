@@ -1,6 +1,6 @@
 ﻿namespace LeagueBulkConvert.MVVM.ViewModels
 {
-    class PromptViewModel
+    public class PromptViewModel
     {
         public string ButtonText { get; set; } = "Confirm";
 

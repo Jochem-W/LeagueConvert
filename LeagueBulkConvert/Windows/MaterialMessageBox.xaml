@@ -19,23 +19,25 @@
         Title="{Binding Title}">
 
     <Window.DataContext>
-        <local:BoxViewModel/>
+        <local:BoxViewModel />
     </Window.DataContext>
 
-    <Grid Margin="12">
+    <Grid Margin="6">
         <Grid.RowDefinitions>
-            <RowDefinition MinHeight="96" />
-            <RowDefinition Height="12" />
-            <RowDefinition Height="36" />
+            <RowDefinition />
+            <RowDefinition />
         </Grid.RowDefinitions>
         <TextBlock
+                Margin="6"
+                MinHeight="96"
                 Text="{Binding Message}"
                 TextWrapping="Wrap" />
         <Button
                 Content="{Binding ButtonText}"
-                Click="Ok" 
-                Grid.Row="2"
+                Click="Ok"
+                Grid.Row="1"
                 HorizontalAlignment="Right"
+                Margin="6"
                 Width="96" />
     </Grid>
 </Window>

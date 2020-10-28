@@ -1,4 +1,5 @@
 ﻿using LeagueBulkConvert.MVVM.ViewModels;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -6,7 +7,7 @@ namespace LeagueBulkConvert.Windows
 {
     partial class LoggingWindow : Window
     {
-        public LoggingWindow() => InitializeComponent();
+        private readonly LoggingViewModel loggingViewModel;
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
@@ -21,6 +22,21 @@ namespace LeagueBulkConvert.Windows
             }
             else if (viewModel.AutoScroll && e.ExtentHeightChange != 0)
                 scrollViewer.ScrollToVerticalOffset(scrollViewer.ExtentHeight);
+        }
+
+        private void Save(object sender, RoutedEventArgs e)
+        {
+            var dialog = new CommonSaveFileDialog("LeagueBulkConvert.log");
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                loggingViewModel.WriteToFile(dialog.FileName);
+        }
+
+        public LoggingWindow(LoggingViewModel viewModel, Window owner) : base()
+        {
+            loggingViewModel = viewModel;
+            DataContext = loggingViewModel;
+            Owner = owner;
+            InitializeComponent();
         }
     }
 }

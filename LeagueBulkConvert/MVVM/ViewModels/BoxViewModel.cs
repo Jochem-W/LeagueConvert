@@ -1,6 +1,6 @@
 ﻿namespace LeagueBulkConvert.MVVM.ViewModels
 {
-    class BoxViewModel
+    public class BoxViewModel
     {
         public string ButtonText { get; set; } = "Ok";
 

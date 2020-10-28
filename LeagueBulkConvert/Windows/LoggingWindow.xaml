@@ -10,7 +10,6 @@
         Background="{DynamicResource MaterialDesignPaper}"
         ResizeMode="CanMinimize"
         FontFamily="{materialDesign:MaterialDesignFont}"
-        Height="540"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
@@ -22,10 +21,24 @@
     </Window.DataContext>
 
     <Grid>
-        <ScrollViewer ScrollChanged="ScrollViewer_ScrollChanged" >
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <ScrollViewer
+                Height="500"
+                ScrollChanged="ScrollViewer_ScrollChanged">
             <TextBlock
+                    FontFamily="Consolas"
                     Text="{Binding Log}"
-                    TextWrapping="Wrap"/>
+                    TextWrapping="Wrap" />
         </ScrollViewer>
+        <Button
+                Click="Save"
+                Content="Save to file"
+                Grid.Row="1"
+                HorizontalAlignment="Right"
+                Margin="12"
+                Width="192" />
     </Grid>
 </Window>

@@ -16,9 +16,9 @@ namespace LeagueBulkConvert.Windows
 
         public MainWindow()
         {
-            InitializeComponent();
             DataContext = viewModel;
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+            InitializeComponent();
         }
 
         private string Browse(string initialDirectory)
@@ -46,7 +46,7 @@ namespace LeagueBulkConvert.Windows
             senderButton.IsEnabled = false;
             viewModel.LoadingVisibility = Visibility.Visible;
             var loggingViewModel = new LoggingViewModel();
-            new LoggingWindow { DataContext = loggingViewModel, Owner = this }.Show();
+            new LoggingWindow(loggingViewModel, this).Show();
             await Task.Run(async () => await Conversion.Converter.StartConversion(viewModel, loggingViewModel));
             viewModel.LoadingVisibility = Visibility.Hidden;
             senderButton.IsEnabled = true;
@@ -72,15 +72,11 @@ namespace LeagueBulkConvert.Windows
                 catch (Exception exception)
                 {
                     process.Dispose();
-                    new MaterialMessageBox
+                    new MaterialMessageBox(new BoxViewModel
                     {
-                        DataContext = new BoxViewModel
-                        {
-                            Message = $"Couldn't open config.json\n\n{exception.StackTrace}",
-                            Title = "Error"
-                        },
-                        Owner = this
-                    }.ShowDialog();
+                        Message = $"Couldn't open config.json\n\n{exception.StackTrace}",
+                        Title = "Error"
+                    }, this).ShowDialog();
                 }
             }
         }
