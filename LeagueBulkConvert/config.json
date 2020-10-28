@@ -1,11 +1,15 @@
 {
-  "extractFormats": [
-    ".dds",
-    ".skn",
-    ".png",
-    ".jpg",
-    ".tga"
-  ],
+  "includeOnly": [],
+  "ignoreMeshes": {
+    "aatrox": {
+      "skin7": [
+        "shadow_form"
+      ],
+      "skin8": [
+        "shadow_form"
+      ]
+    }
+  },
   "ignoreCharacters": [
     "aniviaegg",
     "aniviaiceblock",
@@ -123,17 +127,18 @@
     "zyraseed",
     "zyrathornplant"
   ],
-  "ignoreMeshes": {
-    "aatrox": {
-      "skin7": [
-        "shadow_form"
-      ],
-      "skin8": [
-        "shadow_form"
-      ]
-    }
-  },
-  "includeOnly": [],
+  "scaleList": [
+    0.012389,
+    0.013202,
+    0.011622
+  ],
+  "extractFormats": [
+    ".dds",
+    ".skn",
+    ".png",
+    ".jpg",
+    ".tga"
+  ],
   "samplerNames": [
     "Diffuse_Texture",
     "DiffuseTexture",
@@ -141,10 +146,5 @@
     "Diffuse_Sword_Texture",
     "Color_Texture",
     "Diffuse_Color"
-  ],
-  "scaleList": [
-    0.012389,
-    0.013202,
-    0.011622
   ]
 }
