@@ -38,6 +38,7 @@ namespace LeagueBulkConvert.Conversion
             }
             var currentDirectory = Environment.CurrentDirectory;
             Directory.SetCurrentDirectory(viewModel.OutPath);
+            loggingViewModel.AddLine("Cleaning");
             if (Directory.Exists("assets"))
                 Directory.Delete("assets", true);
             if (Directory.Exists("data"))
