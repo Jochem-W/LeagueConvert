@@ -21,17 +21,17 @@ Easily convert champion models from League of Legends to glTF.
 `Include hidden meshes`: include meshes that would normally be hidden, like meshes used for the recall animation
 
 ## config.json
-`extractFormats`: files with these extensions will be extracted (you probably don't need to change this)
-
-`ignoreCharacters`: a list of characters that are ignored (you probably don't need to change this)
+`includeOnly`: a list of wad.client filenames that should be extracted (you want this to be as small as possible, e.g. `includeOnly: ["Aatrox.wad.client"]`)
 
 `ignoreMeshes`: here you can specify individual meshes to be ignored for specific skins (an example is given in the default config)
 
-`includeOnly`: a list of wad.client filenames that should be extracted (you want this to be as small as possible, e.g. `includeOnly: ["Aatrox.wad.client"]`)
-
-`samplerNames`: samplers with these names will be read to see if there is a texture (you probably don't need to change this)
+`ignoreCharacters`: a list of characters that are ignored (you probably don't need to change this)
 
 `scaleList`: a list of scales I've calculated from the champion's official confirmed heights to resize the model to real life size (you probably don't need to change this)
+
+`extractFormats`: files with these extensions will be extracted (you probably don't need to change this)
+
+`samplerNames`: samplers with these names will be read to see if there is a texture (you probably don't need to change this)
 
 ## Troubleshooting
 * You need to be connected to the internet to use this program, since it downloads textfiles from GitHub
