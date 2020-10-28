@@ -26,7 +26,7 @@ namespace LeagueBulkConvert.Windows
 
         private void Save(object sender, RoutedEventArgs e)
         {
-            var dialog = new CommonSaveFileDialog("LeagueBulkConvert.log");
+            var dialog = new CommonSaveFileDialog("Export log file") { DefaultFileName = "LeagueBulkConvert.log" };
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 loggingViewModel.WriteToFile(dialog.FileName);
         }

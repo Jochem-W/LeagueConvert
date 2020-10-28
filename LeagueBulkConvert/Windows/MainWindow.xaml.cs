@@ -48,6 +48,7 @@ namespace LeagueBulkConvert.Windows
             var loggingViewModel = new LoggingViewModel();
             new LoggingWindow(loggingViewModel, this).Show();
             await Task.Run(async () => await Conversion.Converter.StartConversion(viewModel, loggingViewModel));
+            loggingViewModel.AllowSave = true;
             viewModel.LoadingVisibility = Visibility.Hidden;
             senderButton.IsEnabled = true;
         }

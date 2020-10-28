@@ -9,11 +9,11 @@
         mc:Ignorable="d"
         Background="{DynamicResource MaterialDesignPaper}"
         ResizeMode="CanMinimize"
+        SizeToContent="WidthAndHeight"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
-        Title="League Bulk Convert - Log"
-        Width="960">
+        Title="League Bulk Convert - Log">
 
     <Window.DataContext>
         <local:LoggingViewModel />
@@ -21,12 +21,12 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition />
+            <RowDefinition Height="500"/>
             <RowDefinition />
         </Grid.RowDefinitions>
         <ScrollViewer
-                Height="500"
-                ScrollChanged="ScrollViewer_ScrollChanged">
+                ScrollChanged="ScrollViewer_ScrollChanged"
+                Width="960">
             <TextBlock
                     FontFamily="Consolas"
                     Text="{Binding Log}"
@@ -38,6 +38,7 @@
                 FontFamily="{materialDesign:MaterialDesignFont}"
                 Grid.Row="1"
                 HorizontalAlignment="Right"
+                IsEnabled="{Binding AllowSave}"
                 Margin="12"
                 Width="192" />
     </Grid>

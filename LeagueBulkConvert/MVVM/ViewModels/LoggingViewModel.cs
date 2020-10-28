@@ -11,6 +11,8 @@ namespace LeagueBulkConvert.MVVM.ViewModels
     {
         private readonly ObservableCollection<string> lines = new ObservableCollection<string>();
 
+        public bool AllowSave { get; set; } = false;
+
         public bool AutoScroll { get; set; } = true;
 
         public string Log { get => string.Join('\n', lines.TakeLast(256)); }
