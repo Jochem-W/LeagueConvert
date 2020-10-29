@@ -1,4 +1,4 @@
-﻿namespace LeagueBulkConvert.MVVM.ViewModels
+﻿namespace LeagueBulkConvert.ViewModels
 {
     public class BoxViewModel
     {

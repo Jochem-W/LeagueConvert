@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
-namespace LeagueBulkConvert.MVVM.ViewModels
+namespace LeagueBulkConvert.ViewModels
 {
     class MainViewModel : INotifyPropertyChanged
     {

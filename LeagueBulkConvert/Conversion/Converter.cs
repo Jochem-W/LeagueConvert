@@ -1,6 +1,6 @@
 ﻿using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.WadFile;
-using LeagueBulkConvert.MVVM.ViewModels;
+using LeagueBulkConvert.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;

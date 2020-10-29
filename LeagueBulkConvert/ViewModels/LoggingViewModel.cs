@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace LeagueBulkConvert.MVVM.ViewModels
+namespace LeagueBulkConvert.ViewModels
 {
     public class LoggingViewModel : INotifyPropertyChanged
     {

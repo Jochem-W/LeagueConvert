@@ -1,4 +1,4 @@
-﻿using LeagueBulkConvert.MVVM.ViewModels;
+﻿using LeagueBulkConvert.ViewModels;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Diagnostics;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace LeagueBulkConvert.Windows
+namespace LeagueBulkConvert.Views
 {
     partial class MainWindow : Window
     {

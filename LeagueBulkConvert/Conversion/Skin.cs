@@ -3,7 +3,7 @@ using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.SimpleSkinFile;
 using Fantome.Libraries.League.IO.SkeletonFile;
 using ImageMagick;
-using LeagueBulkConvert.MVVM.ViewModels;
+using LeagueBulkConvert.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
