@@ -1,6 +1,6 @@
 {
-  "includeOnly": [],
-  "ignoreMeshes": {
+  "IncludeOnly": [],
+  "IgnoreMeshes": {
     "aatrox": {
       "skin7": [
         "shadow_form"
@@ -10,7 +10,7 @@
       ]
     }
   },
-  "ignoreCharacters": [
+  "IgnoreCharacters": [
     "aniviaegg",
     "aniviaiceblock",
     "annietibbers",
@@ -127,19 +127,19 @@
     "zyraseed",
     "zyrathornplant"
   ],
-  "scaleList": [
+  "ScaleList": [
     0.012389,
     0.013202,
     0.011622
   ],
-  "extractFormats": [
+  "ExtractFormats": [
     ".dds",
     ".skn",
     ".png",
     ".jpg",
     ".tga"
   ],
-  "samplerNames": [
+  "SamplerNames": [
     "Diffuse_Texture",
     "DiffuseTexture",
     "Main_Texture",

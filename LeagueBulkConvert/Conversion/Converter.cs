@@ -17,16 +17,11 @@ namespace LeagueBulkConvert.Conversion
         public static readonly IDictionary<string, IDictionary<ulong, string>> HashTables =
             new Dictionary<string, IDictionary<ulong, string>>();
 
-        public static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
         public static async Task StartConversion(MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
         {
             loggingViewModel.AddLine("Reading config.json");
             var fileStream = File.OpenRead("config.json");
-            Config = await JsonSerializer.DeserializeAsync<Config>(fileStream, SerializerOptions);
+            Config = await JsonSerializer.DeserializeAsync<Config>(fileStream);
             await fileStream.DisposeAsync();
             Config.CalculateScale();
             if (viewModel.IncludeSkeletons)

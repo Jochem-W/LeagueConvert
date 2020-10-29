@@ -1,4 +1,5 @@
-﻿using LeagueBulkConvert.Views;
+﻿using LeagueBulkConvert.Conversion;
+using LeagueBulkConvert.Views;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.ComponentModel;
@@ -143,7 +144,7 @@ namespace LeagueBulkConvert.ViewModels
             LoadingVisibility = Visibility.Visible;
             var viewModel = new LoggingWindowViewModel();
             new LoggingWindow(viewModel).Show();
-            await Task.Run(async () => await Conversion.Converter.StartConversion(this, viewModel));
+            await Task.Run(async () => await Converter.StartConversion(this, viewModel));
             viewModel.AllowSave = true;
             LoadingVisibility = Visibility.Hidden;
             AllowConversion = true;
