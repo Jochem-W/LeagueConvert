@@ -11,7 +11,7 @@ using System.Windows.Input;
 
 namespace LeagueBulkConvert.ViewModels
 {
-    class MainViewModel : INotifyPropertyChanged
+    class MainWindowViewModel : INotifyPropertyChanged
     {
         public ICommand BrowseLeague { get; }
 
@@ -180,7 +180,7 @@ namespace LeagueBulkConvert.ViewModels
             }
         }
 
-        public MainViewModel()
+        public MainWindowViewModel()
         {
             BrowseLeague = new Command(p => LeaguePath = Browse(LeaguePath), () => true);
             BrowseOutput = new Command(p => OutPath = Browse(OutPath), () => true);
@@ -188,6 +188,6 @@ namespace LeagueBulkConvert.ViewModels
             EditConfigCommand = new Command(p => EditConfig(), () => true);
         }
 
-        public MainViewModel(Window owner) : base() => Owner = owner;
+        public MainWindowViewModel(Window owner) : base() => Owner = owner;
     }
 }
