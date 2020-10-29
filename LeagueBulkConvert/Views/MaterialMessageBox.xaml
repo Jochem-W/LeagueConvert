@@ -36,7 +36,6 @@
                 Content="{Binding ButtonText}"
                 Grid.Row="1"
                 HorizontalAlignment="Right"
-                Margin="6"
-                MinWidth="96" />
+                Margin="6" />
     </Grid>
 </Window>

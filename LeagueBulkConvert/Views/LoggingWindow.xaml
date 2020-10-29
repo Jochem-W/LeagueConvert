@@ -39,7 +39,6 @@
                 FontFamily="{materialDesign:MaterialDesignFont}"
                 Grid.Row="1"
                 HorizontalAlignment="Right"
-                Margin="12"
-                Width="192" />
+                Margin="12" />
     </Grid>
 </Window>

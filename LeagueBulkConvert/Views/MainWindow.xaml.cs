@@ -7,8 +7,8 @@ namespace LeagueBulkConvert.Views
     {
         public MainWindow()
         {
-            DataContext = new MainWindowViewModel(this);
             InitializeComponent();
+            DataContext = new MainWindowViewModel();
         }
     }
 }

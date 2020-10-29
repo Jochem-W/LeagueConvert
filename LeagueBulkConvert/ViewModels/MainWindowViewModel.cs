@@ -120,8 +120,6 @@ namespace LeagueBulkConvert.ViewModels
 
         public bool ShowErrors { get; set; }
 
-        private readonly Window window;
-
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
@@ -144,7 +142,7 @@ namespace LeagueBulkConvert.ViewModels
             AllowConversion = false;
             LoadingVisibility = Visibility.Visible;
             var viewModel = new LoggingWindowViewModel();
-            new LoggingWindow(viewModel, window).Show();
+            new LoggingWindow(viewModel).Show();
             await Task.Run(async () => await Conversion.Converter.StartConversion(this, viewModel));
             viewModel.AllowSave = true;
             LoadingVisibility = Visibility.Hidden;
@@ -187,7 +185,5 @@ namespace LeagueBulkConvert.ViewModels
             ConvertCommand = new Command(async p => await Convert(), () => AllowConversion);
             EditConfigCommand = new Command(p => EditConfig(), () => true);
         }
-
-        public MainWindowViewModel(MainWindow window) : base() => this.window = window;
     }
 }

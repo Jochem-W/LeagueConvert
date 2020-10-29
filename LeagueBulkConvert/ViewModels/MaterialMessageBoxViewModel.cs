@@ -19,10 +19,5 @@ namespace LeagueBulkConvert.ViewModels
         {
             Ok = new Command(p => Owner.Close(), () => true);
         }
-
-        public MaterialMessageBoxViewModel(Window owner) : base()
-        {
-            Owner = owner;
-        }
     }
 }

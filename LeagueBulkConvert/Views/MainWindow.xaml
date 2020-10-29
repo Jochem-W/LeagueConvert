@@ -13,15 +13,16 @@
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
-        Width="400"
-        SizeToContent="Height"
+        SizeToContent="WidthAndHeight"
         Title="League Bulk Convert">
 
     <Window.DataContext>
         <local:MainWindowViewModel />
     </Window.DataContext>
 
-    <Grid Margin="6">
+    <Grid
+            Margin="6"
+            Width="400">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
             <ColumnDefinition />

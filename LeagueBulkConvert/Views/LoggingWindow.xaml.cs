@@ -8,7 +8,7 @@ namespace LeagueBulkConvert.Views
     {
         private bool autoScroll = true;
 
-        private void ScrollViewer_ScrollChanged(object sender, System.Windows.Controls.ScrollChangedEventArgs e)
+        private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             var scrollViewer = (ScrollViewer)sender;
             if (e.ExtentHeightChange == 0)
@@ -22,11 +22,10 @@ namespace LeagueBulkConvert.Views
                 scrollViewer.ScrollToVerticalOffset(scrollViewer.ExtentHeight);
         }
 
-        public LoggingWindow(LoggingWindowViewModel viewModel, Window owner) : base()
+        public LoggingWindow(LoggingWindowViewModel viewModel) : base()
         {
             InitializeComponent();
             DataContext = viewModel;
-            Owner = owner;
         }
     }
 }
