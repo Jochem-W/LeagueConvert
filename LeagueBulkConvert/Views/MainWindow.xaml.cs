@@ -12,7 +12,7 @@ namespace LeagueBulkConvert.Views
 {
     partial class MainWindow : Window
     {
-        private readonly MainViewModel viewModel = new MainViewModel();
+        private readonly MainWindowViewModel viewModel = new MainWindowViewModel();
 
         public MainWindow()
         {

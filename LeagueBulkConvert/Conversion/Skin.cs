@@ -167,7 +167,7 @@ namespace LeagueBulkConvert.Conversion
                 ParseBinStructure((BINStructure)value.Value);
         }
 
-        public void Save(MainViewModel viewModel, LoggingViewModel loggingViewModel)
+        public void Save(MainWindowViewModel viewModel, LoggingViewModel loggingViewModel)
         {
             if (!File.Exists(Mesh))
                 return;
@@ -231,7 +231,7 @@ namespace LeagueBulkConvert.Conversion
             gltf.SaveGLB(@$"{folderPath}\{Name}.glb");
         }
 
-        public Skin(string character, string name, BINFile file, MainViewModel viewModel, LoggingViewModel loggingViewModel)
+        public Skin(string character, string name, BINFile file, MainWindowViewModel viewModel, LoggingViewModel loggingViewModel)
         {
             Character = character;
             Name = name;

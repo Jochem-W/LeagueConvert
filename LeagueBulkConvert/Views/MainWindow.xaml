@@ -18,7 +18,7 @@
         Title="League Bulk Convert">
 
     <Window.DataContext>
-        <local:MainViewModel />
+        <local:MainWindowViewModel />
     </Window.DataContext>
 
     <Grid Margin="6">
