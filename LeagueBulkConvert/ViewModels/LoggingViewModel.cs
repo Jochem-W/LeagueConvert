@@ -1,15 +1,17 @@
-﻿using System.Collections.ObjectModel;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LeagueBulkConvert.ViewModels
 {
-    public class LoggingViewModel : INotifyPropertyChanged
+    class LoggingViewModel : INotifyPropertyChanged
     {
-        private readonly ObservableCollection<string> lines = new ObservableCollection<string>();
+        public Command SaveCommand { get; }
 
         private bool allowSave = false;
         public bool AllowSave
@@ -18,12 +20,11 @@ namespace LeagueBulkConvert.ViewModels
             set
             {
                 allowSave = value;
-                OnPropertyChanged();
+                SaveCommand.RaiseCanExecuteChanged();
             }
         }
 
-        public bool AutoScroll { get; set; } = true;
-
+        private readonly ObservableCollection<string> lines = new ObservableCollection<string>();
         public string Log { get => string.Join('\n', lines.TakeLast(256)); }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -33,15 +34,26 @@ namespace LeagueBulkConvert.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-        public async void WriteToFile(string filename)
+        private async Task Save()
         {
-            var writer = File.CreateText(filename);
-            foreach (var line in lines)
-                await writer.WriteLineAsync(line);
-            await writer.DisposeAsync();
+            var dialog = new CommonSaveFileDialog("Save log file")
+            {
+                DefaultExtension = "log",
+                DefaultFileName = "LeagueBulkConvert"
+            };
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                var writer = File.CreateText(dialog.FileName);
+                foreach (var line in lines)
+                    await writer.WriteLineAsync(line);
+                await writer.DisposeAsync();
+            }
         }
 
-        public LoggingViewModel() =>
+        public LoggingViewModel()
+        {
             lines.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => OnPropertyChanged("Log");
+            SaveCommand = new Command(async p => await Save(), () => AllowSave);
+        }
     }
 }

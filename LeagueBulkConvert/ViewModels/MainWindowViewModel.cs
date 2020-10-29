@@ -144,7 +144,7 @@ namespace LeagueBulkConvert.ViewModels
             AllowConversion = false;
             LoadingVisibility = Visibility.Visible;
             var loggingViewModel = new LoggingViewModel();
-            new LoggingWindow(loggingViewModel, Owner).Show();
+            new LoggingWindow { DataContext = loggingViewModel, Owner = Owner }.Show();
             await Task.Run(async () => await Conversion.Converter.StartConversion(this, loggingViewModel));
             loggingViewModel.AllowSave = true;
             LoadingVisibility = Visibility.Hidden;

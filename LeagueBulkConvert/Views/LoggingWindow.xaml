@@ -33,12 +33,11 @@
                     TextWrapping="Wrap" />
         </ScrollViewer>
         <Button
-                Click="Save"
+                Command="{Binding SaveCommand}"
                 Content="Save to file"
                 FontFamily="{materialDesign:MaterialDesignFont}"
                 Grid.Row="1"
                 HorizontalAlignment="Right"
-                IsEnabled="{Binding AllowSave}"
                 Margin="12"
                 Width="192" />
     </Grid>
