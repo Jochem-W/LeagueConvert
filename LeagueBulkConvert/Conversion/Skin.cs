@@ -33,7 +33,7 @@ namespace LeagueBulkConvert.Conversion
 
         public string Texture { get; set; }
 
-        public void AddAnimations(string binPath, LoggingViewModel viewModel)
+        public void AddAnimations(string binPath, LoggingWindowViewModel viewModel)
         {
             var binFile = new BINFile(binPath);
             if (binFile.Entries.Count != 1)
@@ -167,7 +167,7 @@ namespace LeagueBulkConvert.Conversion
                 ParseBinStructure((BINStructure)value.Value);
         }
 
-        public void Save(MainWindowViewModel viewModel, LoggingViewModel loggingViewModel)
+        public void Save(MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
         {
             if (!File.Exists(Mesh))
                 return;
@@ -231,7 +231,7 @@ namespace LeagueBulkConvert.Conversion
             gltf.SaveGLB(@$"{folderPath}\{Name}.glb");
         }
 
-        public Skin(string character, string name, BINFile file, MainWindowViewModel viewModel, LoggingViewModel loggingViewModel)
+        public Skin(string character, string name, BINFile file, MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
         {
             Character = character;
             Name = name;

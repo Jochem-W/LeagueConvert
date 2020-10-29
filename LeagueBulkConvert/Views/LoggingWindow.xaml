@@ -16,7 +16,7 @@
         Title="League Bulk Convert - Log">
 
     <Window.DataContext>
-        <local:LoggingViewModel />
+        <local:LoggingWindowViewModel />
     </Window.DataContext>
 
     <Grid>

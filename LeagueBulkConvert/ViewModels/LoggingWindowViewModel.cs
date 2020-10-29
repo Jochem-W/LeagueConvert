@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace LeagueBulkConvert.ViewModels
 {
-    class LoggingViewModel : INotifyPropertyChanged
+    class LoggingWindowViewModel : INotifyPropertyChanged
     {
         public Command SaveCommand { get; }
 
@@ -50,7 +50,7 @@ namespace LeagueBulkConvert.ViewModels
             }
         }
 
-        public LoggingViewModel()
+        public LoggingWindowViewModel()
         {
             lines.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => OnPropertyChanged("Log");
             SaveCommand = new Command(async p => await Save(), () => AllowSave);

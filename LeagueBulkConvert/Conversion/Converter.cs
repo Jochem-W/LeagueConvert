@@ -22,7 +22,7 @@ namespace LeagueBulkConvert.Conversion
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public static async Task StartConversion(MainWindowViewModel viewModel, LoggingViewModel loggingViewModel)
+        public static async Task StartConversion(MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
         {
             loggingViewModel.AddLine("Reading config.json");
             var fileStream = File.OpenRead("config.json");
