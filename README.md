@@ -38,3 +38,4 @@ Easily convert champion models from League of Legends to glTF.
 * You should select an empty directory for the converted files, since the program automatically creates and deletes entire directories recursively
 * Some files cannot be parsed because [LoL-Fantome/Fantome.Libraries.League](https://github.com/LoL-Fantome/Fantome.Libraries.League) doesn't support them. Please report these issues there!
 * Some skins cannot be saved with a skeleton or with animations, either because of issues in [LoL-Fantome/Fantome.Libraries.League](https://github.com/LoL-Fantome/Fantome.Libraries.League) or [vpenades/SharpGLTF](https://github.com/vpenades/SharpGLTF) (probably the latter.) I'll look into this later.
+* The config.json file is case-sensitive!
