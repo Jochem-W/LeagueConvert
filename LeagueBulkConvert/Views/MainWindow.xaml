@@ -42,7 +42,7 @@
                 Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
                 Text="{Binding LeaguePath}" />
         <Button
-                Click="BrowseLeague"
+                Command="{Binding BrowseLeague}"
                 Content="Browse"
                 Grid.Column="2"
                 Margin="6" />
@@ -54,7 +54,7 @@
                 Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
                 Text="{Binding OutPath}" />
         <Button
-                Click="BrowseOutput"
+                Command="{Binding BrowseOutput}"
                 Content="Browse"
                 Grid.Column="2"
                 Grid.Row="1"
@@ -91,13 +91,12 @@
                 IsChecked="{Binding IncludeHiddenMeshes}"
                 Margin="6" />
         <Button
-                Click="Convert"
+                Command="{Binding ConvertCommand}"
                 Content="Convert"
                 Grid.Row="5"
-                IsEnabled="{Binding AllowConversion}"
                 Margin="6" />
         <Button
-                Click="EditConfig"
+                Command="{Binding EditConfigCommand}"
                 Content="Edit config"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
