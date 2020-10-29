@@ -13,14 +13,6 @@ namespace LeagueBulkConvert.ViewModels
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
-        public ICommand BrowseLeague { get; }
-
-        public ICommand BrowseOutput { get; }
-
-        public Command ConvertCommand { get; }
-
-        public ICommand EditConfigCommand { get; }
-
         private bool allowConversion;
         public bool AllowConversion
         {
@@ -32,6 +24,14 @@ namespace LeagueBulkConvert.ViewModels
                 ConvertCommand.RaiseCanExecuteChanged();
             }
         }
+
+        public ICommand BrowseLeague { get; }
+
+        public ICommand BrowseOutput { get; }
+
+        public Command ConvertCommand { get; }
+
+        public ICommand EditConfigCommand { get; }
 
         private bool enableSkeletonCheckbox = true;
         public bool EnableSkeletonCheckbox
@@ -116,11 +116,11 @@ namespace LeagueBulkConvert.ViewModels
             }
         }
 
-        public Window Owner { get; }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         public bool ShowErrors { get; set; }
+
+        private readonly Window window;
 
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -143,10 +143,10 @@ namespace LeagueBulkConvert.ViewModels
         {
             AllowConversion = false;
             LoadingVisibility = Visibility.Visible;
-            var loggingViewModel = new LoggingWindowViewModel();
-            new LoggingWindow { DataContext = loggingViewModel, Owner = Owner }.Show();
-            await Task.Run(async () => await Conversion.Converter.StartConversion(this, loggingViewModel));
-            loggingViewModel.AllowSave = true;
+            var viewModel = new LoggingWindowViewModel();
+            new LoggingWindow(viewModel, window).Show();
+            await Task.Run(async () => await Conversion.Converter.StartConversion(this, viewModel));
+            viewModel.AllowSave = true;
             LoadingVisibility = Visibility.Hidden;
             AllowConversion = true;
         }
@@ -171,9 +171,9 @@ namespace LeagueBulkConvert.ViewModels
                 catch (Exception exception)
                 {
                     process.Dispose();
-                    new MaterialMessageBox(new BoxViewModel
+                    new MaterialMessageBox(new MaterialMessageBoxViewModel
                     {
-                        Message = $"Couldn't open config.json\n\n{exception.StackTrace}",
+                        Message = $"Couldn't open config.json\n\n{exception.Message}",
                         Title = "Error"
                     }).ShowDialog();
                 }
@@ -188,6 +188,6 @@ namespace LeagueBulkConvert.ViewModels
             EditConfigCommand = new Command(p => EditConfig(), () => true);
         }
 
-        public MainWindowViewModel(Window owner) : base() => Owner = owner;
+        public MainWindowViewModel(MainWindow window) : base() => this.window = window;
     }
 }

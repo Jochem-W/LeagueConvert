@@ -1,5 +1,4 @@
-﻿using LeagueBulkConvert.ViewModels;
-using LeagueBulkConvert.Views;
+﻿using LeagueBulkConvert.Views;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -11,7 +10,7 @@ namespace LeagueBulkConvert
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-            new MainWindow { DataContext = new MainWindowViewModel() }.Show();
+            new MainWindow().Show();
         }
     }
 }

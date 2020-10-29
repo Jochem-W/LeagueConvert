@@ -106,6 +106,7 @@
                 Grid.ColumnSpan="3"
                 Grid.RowSpan="6"
                 Fill="Black"
+                Margin="-6"
                 Opacity="0.5"
                 Visibility="{Binding LoadingVisibility}" />
         <ProgressBar

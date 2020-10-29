@@ -21,11 +21,12 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="500"/>
+            <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
         <ScrollViewer
                 ScrollChanged="ScrollViewer_ScrollChanged"
+                Height="500"
                 Width="960">
             <TextBlock
                     FontFamily="Consolas"

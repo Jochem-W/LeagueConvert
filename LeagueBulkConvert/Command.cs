@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace LeagueBulkConvert
 {
-    class Command : ICommand
+    public class Command : ICommand
     {
         private Action<object> action;
 

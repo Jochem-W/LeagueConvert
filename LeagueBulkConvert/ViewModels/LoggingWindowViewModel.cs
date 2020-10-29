@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace LeagueBulkConvert.ViewModels
 {
-    class LoggingWindowViewModel : INotifyPropertyChanged
+    public class LoggingWindowViewModel : INotifyPropertyChanged
     {
         public Command SaveCommand { get; }
 
