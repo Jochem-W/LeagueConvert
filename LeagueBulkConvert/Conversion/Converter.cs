@@ -58,8 +58,8 @@ namespace LeagueBulkConvert.Conversion
                     if (Config.IgnoreCharacters.Contains(character))
                         continue;
                     loggingViewModel.AddLine($"Converting {string.Join('\\', splitName.TakeLast(3))}", 1);
-                    var binFile = new BinTree(entry.Value.GetDataHandle().GetDecompressedStream());
-                    var skin = new Skin(character, Path.GetFileNameWithoutExtension(name), binFile, viewModel, loggingViewModel);
+                    var binTree = new BinTree(entry.Value.GetDataHandle().GetDecompressedStream());
+                    var skin = new Skin(character, Path.GetFileNameWithoutExtension(name), binTree, viewModel, loggingViewModel);
                     if (!skin.Exists)
                         continue;
                     skin.Clean();
