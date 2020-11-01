@@ -1,5 +1,6 @@
-﻿using Fantome.Libraries.League.IO.BIN;
-using Fantome.Libraries.League.IO.WadFile;
+﻿using LeagueToolkit.IO.PropertyBin;
+using LeagueToolkit.IO.PropertyBin.Properties;
+using LeagueToolkit.IO.WadFile;
 using Octokit;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace LeagueBulkConvert.Conversion
 {
     static class Utils
     {
-        public static async Task ExtractWad(Wad wad)
+        internal static async Task ExtractWad(Wad wad)
         {
             foreach (var entry in wad.Entries)
             {
@@ -33,23 +34,30 @@ namespace LeagueBulkConvert.Conversion
             }
         }
 
-        public static string FindTexture(BINEntry entry)
+        internal static bool FindTexture(BinTreeObject treeObject, out string texture)
         {
-            var values = entry.Values.FirstOrDefault(v => v.Property == 175050421); //samplerValues
-            if (values == null)
-                return string.Empty;
-            var samplerValues = (BINContainer)values.Value;
-            foreach (var samplerValue in samplerValues.Values)
+            texture = string.Empty;
+            var samplers = treeObject.Properties.FirstOrDefault(p => p.NameHash == 175050421); //samplerValues
+            if (samplers == null)
+                return false;
+            foreach (BinTreeEmbedded sampler in ((BinTreeContainer)samplers).Properties)
             {
-                var things = ((BINStructure)samplerValue.Value).Values;
-                var textureType = (string)things.FirstOrDefault(v => v.Property == 48757580).Value; //samplerName
-                if (Converter.Config.SamplerNames.Contains(textureType))
-                    return ((string)things.First(v => v.Property == 3004290287).Value).ToLower().Replace('/', '\\'); //textureName
+                var samplerNameProperty = sampler.Properties.FirstOrDefault(p => p.NameHash == 48757580); //samplerName
+                if (samplerNameProperty == null)
+                    continue;
+                var textureProperty = sampler.Properties.FirstOrDefault(p => p.NameHash == 3004290287); //textureName
+                if (textureProperty == null)
+                    continue;
+                var samplerName = ((BinTreeString)samplerNameProperty).Value;
+                if (!Converter.Config.SamplerNames.Contains(samplerName))
+                    continue;
+                texture = ((BinTreeString)textureProperty).Value.ToLower().Replace('/', '\\');
+                return true;
             }
-            return string.Empty;
+            return false;
         }
 
-        public static async Task ReadHashTables()
+        internal static async Task ReadHashTables()
         {
             await UpdateHashes();
             foreach (var file in Directory.EnumerateFiles(@$"{Environment.CurrentDirectory}\hashes", "*.txt"))
@@ -67,7 +75,7 @@ namespace LeagueBulkConvert.Conversion
             }
         }
 
-        public static async Task UpdateHashes()
+        internal static async Task UpdateHashes()
         {
             if (!Directory.Exists("hashes"))
                 Directory.CreateDirectory("hashes");

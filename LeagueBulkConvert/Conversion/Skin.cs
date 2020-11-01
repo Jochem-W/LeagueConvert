@@ -1,9 +1,10 @@
-﻿using Fantome.Libraries.League.IO.AnimationFile;
-using Fantome.Libraries.League.IO.BIN;
-using Fantome.Libraries.League.IO.SimpleSkinFile;
-using Fantome.Libraries.League.IO.SkeletonFile;
-using ImageMagick;
+﻿using ImageMagick;
 using LeagueBulkConvert.ViewModels;
+using LeagueToolkit.IO.AnimationFile;
+using LeagueToolkit.IO.PropertyBin;
+using LeagueToolkit.IO.PropertyBin.Properties;
+using LeagueToolkit.IO.SimpleSkinFile;
+using LeagueToolkit.IO.SkeletonFile;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,26 +36,30 @@ namespace LeagueBulkConvert.Conversion
 
         public void AddAnimations(string binPath, LoggingWindowViewModel viewModel)
         {
-            var binFile = new BINFile(binPath);
-            if (binFile.Entries.Count != 1)
+            var binTree = new BinTree(binPath);
+            if (binTree.Objects.Count != 1)
                 throw new NotImplementedException();
-            var animationValue = binFile.Entries[0].Values.FirstOrDefault(v => v.Property == 1172382456); //mClipDataMap
-            foreach (var value in ((BINMap)animationValue.Value).Values)
+            var animations = (BinTreeMap)binTree.Objects[0].Properties.FirstOrDefault(p => p.NameHash == 1172382456); //mClipDataMap
+            if (animations == null)
+                return;
+            foreach (var keyValuePair in animations.Map)
             {
-                var structure = (BINStructure)value.Value.Value;
-                if (structure.Property != 1540989414) // AtomicClipData
+                var structure = (BinTreeStructure)keyValuePair.Value;
+                if (structure.MetaClassHash != 1540989414) //AtomicClipData
                     continue;
-                var animationData = structure.Values.FirstOrDefault(v => v.Property == 3030349134); // mAnimationResourceData
-                var animationDataStructure = (BINStructure)animationData.Value;
-                var pathValue = animationDataStructure.Values.FirstOrDefault(v => v.Property == 53080535); // mAnimationFilePath
-                var path = pathValue.Value.ToString().ToLower().Replace('/', '\\');
+                var animationData = (BinTreeEmbedded)structure.Properties.FirstOrDefault(p => p.NameHash == 3030349134); //mAnimationResourceData
+                if (animationData == null)
+                    continue;
+                var pathProperty = (BinTreeString)animationData.Properties.FirstOrDefault(p => p.NameHash == 53080535); //mAnimationFilePath
+                if (pathProperty == null)
+                    continue;
+                var path = pathProperty.Value.ToString().ToLower().Replace('/', '\\');
                 if (!File.Exists(path))
                     continue;
-                if (!ulong.TryParse(value.Key.Value.ToString(), out ulong key))
-                    throw new NotImplementedException();
+                var hash = ((BinTreeHash)keyValuePair.Key).Value;
                 string name;
-                if (Converter.HashTables["binhashes"].ContainsKey(key))
-                    name = Converter.HashTables["binhashes"][key];
+                if (Converter.HashTables["binhashes"].ContainsKey(hash))
+                    name = Converter.HashTables["binhashes"][hash];
                 else
                     name = Path.GetFileNameWithoutExtension(path);
                 Animation animation;
@@ -92,79 +97,86 @@ namespace LeagueBulkConvert.Conversion
             }
         }
 
-        private void ParseBinEntry(BINEntry entry)
+        private void ParseBinTree(BinTree tree)
         {
-            switch (entry.Class)
-            {
-                case 2607278582: //SkinCharacterDataProperties
-                    foreach (var value in entry.Values)
-                        ParseBinValue(value);
-                    break;
-                case 4288492553: //StaticMaterialDef
-                    if (entry.Property == MaterialHash)
-                    {
-                        var foundTexture = Utils.FindTexture(entry);
-                        if (!string.IsNullOrEmpty(foundTexture))
-                            Texture = foundTexture;
-                    }
-                    foreach (var material in Materials.Where(m => m.Hash == entry.Property && !m.IsComplete))
-                        Materials[Materials.IndexOf(material)].Complete(entry);
-                    break;
-            }
+            foreach (var binTreeObject in tree.Objects)
+                ParseBinTreeObject(binTreeObject);
         }
 
-        private void ParseBinValue(BINValue value)
+        private void ParseBinTreeContainer(BinTreeContainer container)
         {
-            switch (value.Property)
-            {
-                case 1174362372: //skinMeshProperties
-                    ParseBinStructure((BINStructure)value.Value);
-                    break;
-                case 2974586734: //skeleton
-                    Skeleton = ((string)value.Value).ToLower().Replace('/', '\\');
-                    break;
-                case 3600813558: //simpleSkin
-                    Mesh = ((string)value.Value).ToLower().Replace('/', '\\');
-                    break;
-                case 1013213428: //texture
-                    Texture = ((string)value.Value).ToLower().Replace('/', '\\');
-                    break;
-                case 2159540111: //initialSubmeshToHide
-                    foreach (var mesh in ((string)value.Value).Replace(',', ' ').Split(' ', StringSplitOptions.RemoveEmptyEntries))
-                        RemoveMeshes.Add(mesh.ToLower());
-                    break;
-                case 611473680: //materialOverride
-                    ParseBinContainer((BINContainer)value.Value);
-                    break;
-                case 3538210912: //material
-                    if (((BINStructure)value.Parent).Property == 1628559524) //SkinMeshDataProperties
-                        MaterialHash = (uint)value.Value;
-                    break;
-            }
+            foreach (var property in container.Properties)
+                ParseBinTreeEmbedded((BinTreeEmbedded)property);
         }
 
-        private void ParseBinStructure(BINStructure structure)
+        private void ParseBinTreeEmbedded(BinTreeEmbedded tree)
         {
-            switch (structure.Property)
+            switch (tree.MetaClassHash)
             {
                 case 1628559524: //SkinMeshDataProperties
-                    foreach (var value in structure.Values)
-                        ParseBinValue(value);
+                    foreach (var property in tree.Properties)
+                        ParseBinTreeProperty(property);
                     break;
                 case 2340045716: //SkinMeshDataProperties_MaterialOverride
-                    var material = structure.Values.FirstOrDefault(v => v.Property == 3538210912); //material
-                    var submesh = structure.Values.FirstOrDefault(v => v.Property == 2866241836); //submesh
-                    var texture = structure.Values.FirstOrDefault(v => v.Property == 1013213428); //texture
-                    Materials.Add(new Material(material, submesh, texture));
+                    var materialProperty = tree.Properties.FirstOrDefault(p => p.NameHash == 3538210912); //material
+                    var submeshProperty = tree.Properties.FirstOrDefault(p => p.NameHash == 2866241836); //submesh
+                    var textureProperty = tree.Properties.FirstOrDefault(p => p.NameHash == 1013213428); //texture
+                    Materials.Add(new Material(materialProperty, submeshProperty, textureProperty));
                     break;
             }
 
         }
 
-        private void ParseBinContainer(BINContainer container)
+        private void ParseBinTreeObject(BinTreeObject treeObject)
         {
-            foreach (var value in container.Values)
-                ParseBinStructure((BINStructure)value.Value);
+            switch (treeObject.MetaClassHash)
+            {
+                case 2607278582: //SkinCharacterDataProperties
+                    foreach (var property in treeObject.Properties)
+                        ParseBinTreeProperty(property);
+                    break;
+                // the following code is kind of weird
+                case 4288492553: //StaticMaterialDef
+                    if (treeObject.PathHash == MaterialHash)
+                    {
+                        if (Utils.FindTexture(treeObject, out var texture))
+                            Texture = texture;
+                    }
+                    foreach (var material in Materials.Where(m => m.Hash == treeObject.PathHash && !m.IsComplete))
+                        material.Complete(treeObject);
+                    break;
+            }
+        }
+
+        private void ParseBinTreeProperty(BinTreeProperty property)
+        {
+            switch (property.NameHash)
+            {
+                case 1174362372: //skinMeshProperties
+                    ParseBinTreeEmbedded((BinTreeEmbedded)property);
+                    break;
+                case 2974586734: //skeleton
+                    Skeleton = ((BinTreeString)property).Value.ToLower().Replace('/', '\\');
+                    break;
+                case 3600813558: //simpleSkin
+                    Mesh = ((BinTreeString)property).Value.ToLower().Replace('/', '\\');
+                    break;
+                case 1013213428: //texture
+                    Texture = ((BinTreeString)property).Value.ToLower().Replace('/', '\\');
+                    break;
+                case 2159540111: //initialSubmeshToHide
+                    foreach (var submesh in ((BinTreeString)property).Value.Replace(',', ' ').Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                        RemoveMeshes.Add(submesh.ToLower());
+                    break;
+                case 611473680: //materialOverride
+                    ParseBinTreeContainer((BinTreeContainer)property);
+                    break;
+                case 3538210912: //material
+                    if (((BinTreeEmbedded)property.Parent).MetaClassHash != 1628559524) //SkinMeshDataProperties
+                        throw new NotImplementedException();
+                    MaterialHash = ((BinTreeObjectLink)property).Value;
+                    break;
+            }
         }
 
         public void Save(MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
@@ -231,7 +243,7 @@ namespace LeagueBulkConvert.Conversion
             gltf.SaveGLB(@$"{folderPath}\{Name}.glb");
         }
 
-        public Skin(string character, string name, BINFile file, MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
+        public Skin(string character, string name, BinTree tree, MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
         {
             Character = character;
             Name = name;
@@ -241,20 +253,18 @@ namespace LeagueBulkConvert.Conversion
                 RemoveMeshes = new List<string>(Converter.Config.IgnoreMeshes[character][name]);
             else
                 RemoveMeshes = new List<string>();
-            foreach (var entry in file.Entries)
-                ParseBinEntry(entry);
+            ParseBinTree(tree);
             if (viewModel.IncludeHiddenMeshes)
                 RemoveMeshes = new List<string>();
             if (viewModel.IncludeAnimations)
             {
                 Animations = new List<(string, Animation)>();
-                foreach (var filePath in file.Dependencies)
+                foreach (var filePath in tree.Dependencies)
                 {
-                    var lowercase = filePath.ToLower();
-                    if (lowercase.Contains("/animations/") && File.Exists(lowercase))
+                    if (filePath.ToLower().Contains("/animations/") && File.Exists(filePath))
                         try
                         {
-                            AddAnimations(lowercase, loggingViewModel);
+                            AddAnimations(filePath, loggingViewModel);
                         }
                         catch (Exception)
                         {
@@ -262,10 +272,7 @@ namespace LeagueBulkConvert.Conversion
                             return;
                         }
                 }
-
             }
-
         }
     }
-
 }

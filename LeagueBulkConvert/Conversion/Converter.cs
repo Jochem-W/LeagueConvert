@@ -1,6 +1,6 @@
-﻿using Fantome.Libraries.League.IO.BIN;
-using Fantome.Libraries.League.IO.WadFile;
-using LeagueBulkConvert.ViewModels;
+﻿using LeagueBulkConvert.ViewModels;
+using LeagueToolkit.IO.PropertyBin;
+using LeagueToolkit.IO.WadFile;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,9 +12,9 @@ namespace LeagueBulkConvert.Conversion
 {
     static class Converter
     {
-        public static Config Config;
+        internal static Config Config;
 
-        public static readonly IDictionary<string, IDictionary<ulong, string>> HashTables =
+        internal static readonly IDictionary<string, IDictionary<ulong, string>> HashTables =
             new Dictionary<string, IDictionary<ulong, string>>();
 
         public static async Task StartConversion(MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
@@ -58,7 +58,7 @@ namespace LeagueBulkConvert.Conversion
                     if (Config.IgnoreCharacters.Contains(character))
                         continue;
                     loggingViewModel.AddLine($"Converting {string.Join('\\', splitName.TakeLast(3))}", 1);
-                    var binFile = new BINFile(entry.Value.GetDataHandle().GetDecompressedStream());
+                    var binFile = new BinTree(entry.Value.GetDataHandle().GetDecompressedStream());
                     var skin = new Skin(character, Path.GetFileNameWithoutExtension(name), binFile, viewModel, loggingViewModel);
                     if (!skin.Exists)
                         continue;

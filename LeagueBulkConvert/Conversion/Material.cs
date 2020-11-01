@@ -1,5 +1,5 @@
-﻿using Fantome.Libraries.League.IO.BIN;
-using System;
+﻿using LeagueToolkit.IO.PropertyBin;
+using LeagueToolkit.IO.PropertyBin.Properties;
 
 namespace LeagueBulkConvert.Conversion
 {
@@ -21,17 +21,20 @@ namespace LeagueBulkConvert.Conversion
 
         public string Texture { get; set; }
 
-        public void Complete(BINEntry entry) => Texture = Utils.FindTexture(entry);
-
-        public Material(BINValue material, BINValue submesh, BINValue texture)
+        public void Complete(BinTreeObject treeObject)
         {
-            if (submesh == null && texture == null)
-                throw new NotImplementedException();
-            else if (texture != null)
-                Texture = ((string)texture.Value).ToLower().Replace('/', '\\');
-            if (material != null)
-                Hash = (uint)material.Value;
-            Name = ((string)submesh.Value).ToLower();
+            if (Utils.FindTexture(treeObject, out var texture))
+                Texture = texture;
+        }
+
+        public Material(BinTreeProperty materialProperty, BinTreeProperty submeshProperty, BinTreeProperty textureProperty)
+        {
+            if (materialProperty != null)
+                Hash = ((BinTreeObjectLink)materialProperty).Value;
+            if (submeshProperty != null)
+                Name = ((BinTreeString)submeshProperty).Value.ToLower().Replace('/', '\\');
+            if (textureProperty != null)
+                Texture = ((BinTreeString)textureProperty).Value.ToLower().Replace('/', '\\');
         }
     }
 }
