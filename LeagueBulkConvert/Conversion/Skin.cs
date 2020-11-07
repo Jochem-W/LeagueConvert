@@ -214,9 +214,6 @@ namespace LeagueBulkConvert.Conversion
                     textures[textureFile] = new MagickImage(textureFile);
                 materialTextures[submesh.Name] = textures[textureFile];
             }
-            var folderPath = @$"export\{Character}";
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
             SharpGLTF.Schema2.ModelRoot gltf;
             if (!viewModel.IncludeSkeletons)
             {
@@ -240,7 +237,18 @@ namespace LeagueBulkConvert.Conversion
                 else
                     gltf = simpleSkin.ToGltf(skeleton, materialTextures, Animations);
             }
-            gltf.SaveGLB(@$"{folderPath}\{Name}.glb");
+            var directory = $"export\\{Character}";
+            string exportPath;
+            if (viewModel.SaveAsGlTF)
+            {
+                directory += $"\\{Name}";
+                exportPath = $"{directory}\\{Name}.gltf";
+            }
+            else
+                exportPath = $"{directory}\\{Name}.glb";
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+            gltf.Save(exportPath);
         }
 
         public Skin(string character, string name, BinTree tree, MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)

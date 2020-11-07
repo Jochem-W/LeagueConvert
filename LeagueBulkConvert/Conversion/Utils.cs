@@ -60,7 +60,7 @@ namespace LeagueBulkConvert.Conversion
         internal static async Task ReadHashTables()
         {
             await UpdateHashes();
-            foreach (var file in Directory.EnumerateFiles(@$"{Environment.CurrentDirectory}\hashes", "*.txt"))
+            foreach (var file in Directory.EnumerateFiles($"{Environment.CurrentDirectory}\\hashes", "*.txt"))
             {
                 var lines = await File.ReadAllLinesAsync(file);
                 IDictionary<ulong, string> hashTable = new Dictionary<ulong, string>();
