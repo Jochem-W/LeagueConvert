@@ -1,13 +1,17 @@
 # LeagueBulkConvert
 Easily convert champion models from League of Legends to glTF.
 
-## How do I use it?
+## How to use
 1. Extract the .zip file
 2. Run LeagueBulkConvert.exe
 3. Select your League of Legends installation directory
 4. Select an output directory
 5. Optionally edit the config file
 6. Click convert
+
+## To-do
+* Add a GUI for editing the configuration
+* Allow the conversion to be cancelled
 
 ## Options
 `League install directory`: the path to the "League of Legends" folder, e.g. "C:\Riot Games\League of Legends"
@@ -19,6 +23,8 @@ Easily convert champion models from League of Legends to glTF.
 `Include animations`: include the skin's animations, which requires the skeleton
 
 `Include hidden meshes`: include meshes that would normally be hidden, like meshes used for the recall animation
+
+`Save binary files and textures separately`: save the model as a .gltf, with separate .bin and .png files
 
 ## config.json
 `IncludeOnly`: a list of wad.client filenames that should be extracted (you want this to be as small as possible, e.g. `includeOnly: ["Aatrox.wad.client"]`)
