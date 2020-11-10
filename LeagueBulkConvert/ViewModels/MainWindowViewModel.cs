@@ -126,7 +126,7 @@ namespace LeagueBulkConvert.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-        private string Browse(string initialDirectory)
+        private static string Browse(string initialDirectory)
         {
             if (string.IsNullOrWhiteSpace(initialDirectory))
                 initialDirectory = "C:";
@@ -152,7 +152,7 @@ namespace LeagueBulkConvert.ViewModels
             AllowConversion = true;
         }
 
-        private void EditConfig()
+        private static void EditConfig()
         {
             var process = new Process { StartInfo = new ProcessStartInfo("config.json") { UseShellExecute = true } };
             process.Exited += (object sender, EventArgs e) => ((Process)sender).Dispose();

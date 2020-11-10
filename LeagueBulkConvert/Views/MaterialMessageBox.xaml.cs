@@ -9,6 +9,7 @@ namespace LeagueBulkConvert.Views
         {
             InitializeComponent();
             DataContext = viewModel;
+            viewModel.Owner = this;
         }
     }
 }
