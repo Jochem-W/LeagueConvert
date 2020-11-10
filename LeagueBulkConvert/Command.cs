@@ -5,26 +5,17 @@ namespace LeagueBulkConvert
 {
     public class Command : ICommand
     {
-        private Action<object> action;
+        private readonly Action<object> action;
 
-        private Func<bool> predicate;
+        private readonly Func<bool> predicate;
 
         public event EventHandler CanExecuteChanged;
 
-        public bool CanExecute(object parameter)
-        {
-            return predicate();
-        }
+        public bool CanExecute(object parameter) => predicate();
 
-        public void Execute(object parameter)
-        {
-            action(parameter);
-        }
+        public void Execute(object parameter) => action(parameter);
 
-        public void RaiseCanExecuteChanged()
-        {
-            CanExecuteChanged(this, null);
-        }
+        public void RaiseCanExecuteChanged() => CanExecuteChanged(this, null);
 
         public Command(Action<object> action, Func<bool> predicate)
         {
