@@ -1,5 +1,5 @@
 # LeagueBulkConvert
-Easily convert champion models from League of Legends to glTF.
+Convert champion models from League of Legends to glTF, with automatic textures and animations.
 
 ## How to use
 1. Extract the .zip file
@@ -12,6 +12,7 @@ Easily convert champion models from League of Legends to glTF.
 ## To-do
 * Add a GUI for editing the configuration
 * Allow the conversion to be cancelled
+* Automatically search for a League installation directory
 
 ## Options
 `League install directory`: the path to the "League of Legends" folder, e.g. "C:\Riot Games\League of Legends"
