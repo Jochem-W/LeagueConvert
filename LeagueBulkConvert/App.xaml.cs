@@ -1,5 +1,6 @@
 ﻿using LeagueBulkConvert.ViewModels;
 using LeagueBulkConvert.Views;
+using System;
 using System.IO;
 using System.Windows;
 
@@ -9,7 +10,7 @@ namespace LeagueBulkConvert
     {
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            if (!File.Exists("config.json") || !File.Exists("libzstd.dll") || !File.Exists("Magick.Native-Q16-x64.dll"))
+            if (!File.Exists("config.json") || !File.Exists("libzstd.dll"))
             {
                 new MaterialMessageBox(new MaterialMessageBoxViewModel
                 {
