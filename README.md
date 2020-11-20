@@ -23,7 +23,7 @@ Convert champion models from League of Legends to glTF, with automatic textures 
 
 `Include animations`: include the skin's animations, which requires the skeleton
 
-`Include hidden meshes`: include meshes that would normally be hidden, like meshes used for the recall animation
+`Include hidden meshes`: include meshes that would normally be hidden, like meshes used for the recall animation and also includes any meshes that are in "IgnoreMeshes" in the config file
 
 `Save binary files and textures separately`: save the model as a .gltf, with separate .bin and .png files
 
