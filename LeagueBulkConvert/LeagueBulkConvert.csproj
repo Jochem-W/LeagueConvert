@@ -8,7 +8,7 @@
     <StartupObject>LeagueBulkConvert.App</StartupObject>
     <Product>LeagueBulkConvert</Product>
     <Authors>Jochem-W</Authors>
-    <Version>1.6.0-pre1</Version>
+    <Version>1.6.0</Version>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/Jochem-W/LeagueBulkConvert</RepositoryUrl>
     <NeutralLanguage>en-GB</NeutralLanguage>
