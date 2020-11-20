@@ -28,9 +28,9 @@ Convert champion models from League of Legends to glTF, with automatic textures 
 `Save binary files and textures separately`: save the model as a .gltf, with separate .bin and .png files
 
 ## config.json
-`IncludeOnly`: a list of wad.client filenames that should be extracted (you want this to be as small as possible, e.g. `includeOnly: ["Aatrox.wad.client"]`)
+`IncludeOnly`: a list of wad.client filenames that should be extracted, extracts everything by default (the smaller this list the faster the conversion, e.g. `includeOnly: ["Aatrox.wad.client"]`)
 
-`IgnoreMeshes`: here you can specify individual meshes to be ignored for specific skins (an example is given in the default config)
+`IgnoreMeshes`: here you can specify individual meshes to be ignored for specific skins (an example is given in the default config, enabling "Include hidden meshes" overrides this)
 
 `IgnoreCharacters`: a list of characters that are ignored (you probably don't need to change this)
 
@@ -41,7 +41,7 @@ Convert champion models from League of Legends to glTF, with automatic textures 
 `SamplerNames`: samplers with these names will be read to see if there is a texture (you probably don't need to change this)
 
 ## Troubleshooting
-* You need to be connected to the internet to use this program, since it downloads textfiles from GitHub
+* You need to be connected to the internet to use this program, since it downloads textfiles from GitHub (will be fixed soon)
 * You should select an empty directory for the converted files, since the program automatically creates and deletes entire directories recursively
 * Some files cannot be parsed because [LoL-Fantome/LeagueToolkit](https://github.com/LoL-Fantome/LeagueToolkit) doesn't support them. Please report these issues there!
 * Some skins cannot be saved with a skeleton or with animations, either because of issues in [LoL-Fantome/LeagueToolkit](https://github.com/LoL-Fantome/LeagueToolkit) or [vpenades/SharpGLTF](https://github.com/vpenades/SharpGLTF) (probably the latter.) I'll look into this later.
