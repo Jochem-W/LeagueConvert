@@ -142,14 +142,25 @@ namespace LeagueBulkConvert.ViewModels
 
         private async Task Convert()
         {
-            AllowConversion = false;
-            LoadingVisibility = Visibility.Visible;
-            var viewModel = new LoggingWindowViewModel();
-            new LoggingWindow(viewModel).Show();
-            await Task.Run(async () => await Converter.StartConversion(this, viewModel));
-            viewModel.AllowSave = true;
-            LoadingVisibility = Visibility.Hidden;
-            AllowConversion = true;
+            try
+            {
+                AllowConversion = false;
+                LoadingVisibility = Visibility.Visible;
+                var viewModel = new LoggingWindowViewModel();
+                new LoggingWindow(viewModel).Show();
+                await Task.Run(async () => await Converter.StartConversion(this, viewModel));
+                viewModel.AllowSave = true;
+                LoadingVisibility = Visibility.Hidden;
+                AllowConversion = true;
+            }
+            catch (Exception exception)
+            {
+                new MaterialMessageBox(new MaterialMessageBoxViewModel
+                {
+                    Message = exception.Message,
+                    Title = "Error"
+                }).ShowDialog();
+            }
         }
 
         private static void EditConfig()
