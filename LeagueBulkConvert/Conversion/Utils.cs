@@ -79,17 +79,18 @@ namespace LeagueBulkConvert.Conversion
         {
             if (!Directory.Exists("hashes"))
                 Directory.CreateDirectory("hashes");
-            IGitHubClient gitHubClient = new GitHubClient(new ProductHeaderValue("Jochem-W"));
-            var files = await gitHubClient.Repository.Content.GetAllContents("CommunityDragon", "CDTB", "cdragontoolbox");
-            foreach (var file in files.Where(c => c.Name.Contains("hashes") && c.Name.EndsWith(".txt")))
+            var repositoryClient = new GitHubClient(new ProductHeaderValue("LeagueBulkConvert")).Repository.Content;
+            var httpClient = new HttpClient();
+            foreach (var file in (await repositoryClient.GetAllContents("CommunityDragon", "CDTB", "cdragontoolbox"))
+                .Where(f => f.Name == "hashes.binhashes.txt" || f.Name == "hashes.game.txt"))
             {
-                var filePath = @$"{Environment.CurrentDirectory}\hashes\{file.Name}";
+                var filePath = @$"hashes\{file.Name}";
                 var shaFilePath = $"{filePath}.sha";
                 if (!File.Exists(filePath) || !File.Exists(shaFilePath) || await File.ReadAllTextAsync(shaFilePath) != file.Sha)
                 {
-                    var httpClient = new HttpClient();
-                    await File.WriteAllTextAsync(filePath, await httpClient.GetStringAsync(file.DownloadUrl));
-                    httpClient.Dispose();
+                    var tempFilePath = $"{filePath}.tmp";
+                    await File.WriteAllTextAsync(tempFilePath, await httpClient.GetStringAsync(file.DownloadUrl));
+                    File.Move(tempFilePath, filePath);
                     await File.WriteAllTextAsync(shaFilePath, file.Sha);
                 }
             }
