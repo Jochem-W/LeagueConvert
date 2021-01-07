@@ -119,9 +119,9 @@ namespace LeagueBulkConvert.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool SaveAsGlTF { get; set; }
+        public bool ReadVersion3 { get; set; } = true;
 
-        public bool ShowErrors { get; set; }
+        public bool SaveAsGlTF { get; set; }
 
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

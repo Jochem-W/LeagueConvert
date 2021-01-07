@@ -37,6 +37,7 @@
             <RowDefinition />
             <RowDefinition />
             <RowDefinition />
+            <RowDefinition />
         </Grid.RowDefinitions>
         <TextBox
                 materialDesign:HintAssist.Hint="League install directory"
@@ -104,21 +105,32 @@
                 HorizontalAlignment="Center"
                 IsChecked="{Binding SaveAsGlTF}"
                 Margin="6" />
+        <Label
+                Content="(EXPERIMENTAL) Read version 3 .bins"
+                Grid.ColumnSpan="2"
+                Grid.Row="6"
+                Margin="6" />
+        <CheckBox
+                Grid.Column="2"
+                Grid.Row="6"
+                HorizontalAlignment="Center"
+                IsChecked="{Binding ReadVersion3}"
+                Margin="6" />
         <Button
                 Command="{Binding ConvertCommand}"
                 Content="Convert"
-                Grid.Row="6"
+                Grid.Row="7"
                 Margin="6" />
         <Button
                 Command="{Binding EditConfigCommand}"
                 Content="Edit config"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
-                Grid.Row="6"
+                Grid.Row="7"
                 Margin="6" />
         <Rectangle
                 Grid.ColumnSpan="3"
-                Grid.RowSpan="7"
+                Grid.RowSpan="8"
                 Fill="Black"
                 Margin="-6"
                 Opacity="0.5"
@@ -126,7 +138,7 @@
         <ProgressBar
                 Style="{DynamicResource MaterialDesignCircularProgressBar}"
                 Grid.ColumnSpan="3"
-                Grid.RowSpan="7"
+                Grid.RowSpan="8"
                 Height="200"
                 IsIndeterminate="True"
                 Width="200"
