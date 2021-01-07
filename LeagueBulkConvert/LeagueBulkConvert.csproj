@@ -19,8 +19,8 @@
     <PackageReference Include="LeagueToolkit" Version="2.1.0" />
     <PackageReference Include="MaterialDesignThemes" Version="3.2.0" />
     <PackageReference Include="Octokit" Version="0.48.0" />
-    <PackageReference Include="ShowMeTheXAML" Version="2.0.0" />
-    <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="2.0.1" />
+    <PackageReference Include="ShowMeTheXAML.MSBuild" Version="2.0.0" />
+    <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="2.1.0" />
     <PackageReference Include="ZstdSharp" Version="0.7.1" />
   </ItemGroup>
 
