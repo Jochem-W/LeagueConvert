@@ -38,7 +38,7 @@ namespace LeagueBulkConvert.Conversion
             if (Directory.Exists("data"))
                 Directory.Delete("data", true);
             loggingViewModel.AddLine("Reading hashtables");
-            await Utils.ReadHashTables();
+            await Utils.ReadHashTables(viewModel);
             foreach (var path in Directory.EnumerateFiles(@$"{viewModel.LeaguePath}\Game\DATA\FINAL\Champions", "*.wad.client")
                                           .Where(f => !f.Contains('_')
                                                       && (Config.IncludeOnly.Count == 0

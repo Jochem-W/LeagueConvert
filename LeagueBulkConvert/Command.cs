@@ -17,6 +17,11 @@ namespace LeagueBulkConvert
 
         public void RaiseCanExecuteChanged() => CanExecuteChanged(this, null);
 
+        public Command(Action<object> action)
+        {
+            this.action = action;
+            predicate = () => true;
+        }
         public Command(Action<object> action, Func<bool> predicate)
         {
             this.action = action;

@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:LeagueBulkConvert.ViewModels"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance IsDesignTimeCreatable=True, Type=local:MaterialMessageBoxViewModel}"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{materialDesign:MaterialDesignFont}"
         ResizeMode="CanMinimize"
@@ -15,10 +16,6 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         Title="{Binding Title}">
-
-    <Window.DataContext>
-        <local:MaterialMessageBoxViewModel />
-    </Window.DataContext>
 
     <Grid Margin="6">
         <Grid.RowDefinitions>

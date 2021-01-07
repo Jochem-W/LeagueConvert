@@ -1,10 +1,13 @@
 ﻿using LeagueBulkConvert.Conversion;
 using LeagueBulkConvert.Views;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Octokit;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -44,6 +47,10 @@ namespace LeagueBulkConvert.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        public GitHubClient GitHubClient = new GitHubClient(new ProductHeaderValue("LeagueBulkConvert"));
+
+        public HttpClient HttpClient = new HttpClient();
 
         private bool includeAnimations;
         public bool IncludeAnimations
@@ -192,12 +199,33 @@ namespace LeagueBulkConvert.ViewModels
             }
         }
 
+        private async Task CheckForUpdates()
+        {
+            var latestVersion = new Version((await GitHubClient.Repository.GetAllTags("Jochem-W", "LeagueBulkConvert"))[0].Name.Remove(0, 1));
+            if (Assembly.GetExecutingAssembly().GetName().Version.CompareTo(latestVersion) < 0)
+            {
+                var processStartInfo = new ProcessStartInfo
+                {
+                    FileName = "https://github.com/Jochem-W/LeagueBulkConvert/releases",
+                    UseShellExecute = true
+                };
+                var messageBoxViewModel = new MaterialMessageBoxViewModel(new Command(_ => Process.Start(processStartInfo)))
+                {
+                    Message = "A new version of LeagueBulkConvert is available\n" +
+                              "Clicking the 'Ok' button will take you to the downloads.",
+                    Title = "Update available"
+                };
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => new MaterialMessageBox(messageBoxViewModel).ShowDialog());
+            }
+        }
+
         public MainWindowViewModel()
         {
-            BrowseLeague = new Command(p => LeaguePath = Browse(LeaguePath), () => true);
-            BrowseOutput = new Command(p => OutPath = Browse(OutPath), () => true);
-            ConvertCommand = new Command(async p => await Convert(), () => AllowConversion);
-            EditConfigCommand = new Command(p => EditConfig(), () => true);
+            BrowseLeague = new Command(_ => LeaguePath = Browse(LeaguePath));
+            BrowseOutput = new Command(_ => OutPath = Browse(OutPath));
+            ConvertCommand = new Command(async _ => await Convert(), () => AllowConversion);
+            EditConfigCommand = new Command(_ => EditConfig());
+            Task.Run(CheckForUpdates);
         }
     }
 }

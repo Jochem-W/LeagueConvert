@@ -53,7 +53,7 @@ namespace LeagueBulkConvert.ViewModels
         public LoggingWindowViewModel()
         {
             lines.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => OnPropertyChanged("Log");
-            SaveCommand = new Command(async p => await Save(), () => AllowSave);
+            SaveCommand = new Command(async _ => await Save(), () => AllowSave);
         }
     }
 }

@@ -1,13 +1,12 @@
-﻿using LeagueToolkit.IO.PropertyBin;
+﻿using LeagueBulkConvert.ViewModels;
+using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.PropertyBin.Properties;
 using LeagueToolkit.IO.WadFile;
-using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace LeagueBulkConvert.Conversion
@@ -57,9 +56,9 @@ namespace LeagueBulkConvert.Conversion
             return false;
         }
 
-        internal static async Task ReadHashTables()
+        internal static async Task ReadHashTables(MainWindowViewModel viewModel)
         {
-            await UpdateHashes();
+            await UpdateHashes(viewModel);
             foreach (var file in Directory.EnumerateFiles($"{Environment.CurrentDirectory}\\hashes", "*.txt"))
             {
                 var lines = await File.ReadAllLinesAsync(file);
@@ -75,13 +74,11 @@ namespace LeagueBulkConvert.Conversion
             }
         }
 
-        internal static async Task UpdateHashes()
+        internal static async Task UpdateHashes(MainWindowViewModel viewModel)
         {
             if (!Directory.Exists("hashes"))
                 Directory.CreateDirectory("hashes");
-            var repositoryClient = new GitHubClient(new ProductHeaderValue("LeagueBulkConvert")).Repository.Content;
-            var httpClient = new HttpClient();
-            foreach (var file in (await repositoryClient.GetAllContents("CommunityDragon", "CDTB", "cdragontoolbox"))
+            foreach (var file in (await viewModel.GitHubClient.Repository.Content.GetAllContents("CommunityDragon", "CDTB", "cdragontoolbox"))
                 .Where(f => f.Name == "hashes.binhashes.txt" || f.Name == "hashes.game.txt"))
             {
                 var filePath = @$"hashes\{file.Name}";
@@ -89,7 +86,7 @@ namespace LeagueBulkConvert.Conversion
                 if (!File.Exists(filePath) || !File.Exists(shaFilePath) || await File.ReadAllTextAsync(shaFilePath) != file.Sha)
                 {
                     var tempFilePath = $"{filePath}.tmp";
-                    await File.WriteAllTextAsync(tempFilePath, await httpClient.GetStringAsync(file.DownloadUrl));
+                    await File.WriteAllTextAsync(tempFilePath, await viewModel.HttpClient.GetStringAsync(file.DownloadUrl));
                     File.Move(tempFilePath, filePath);
                     await File.WriteAllTextAsync(shaFilePath, file.Sha);
                 }

@@ -15,9 +15,11 @@ namespace LeagueBulkConvert.ViewModels
 
         public string Title { get; set; } = "LeagueBulkConvert";
 
-        public MaterialMessageBoxViewModel()
+        public MaterialMessageBoxViewModel() => Ok = new Command(_ => Owner.Close());
+        public MaterialMessageBoxViewModel(ICommand command) => Ok = new Command((_) =>
         {
-            Ok = new Command(p => Owner.Close(), () => true);
-        }
+            command.Execute(_);
+            Owner.Close();
+        });
     }
 }
