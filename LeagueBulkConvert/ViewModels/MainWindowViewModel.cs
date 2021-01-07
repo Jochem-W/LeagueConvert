@@ -201,8 +201,10 @@ namespace LeagueBulkConvert.ViewModels
 
         private async Task CheckForUpdates()
         {
-            var latestVersion = new Version((await GitHubClient.Repository.GetAllTags("Jochem-W", "LeagueBulkConvert"))[0].Name.Remove(0, 1));
-            if (Assembly.GetExecutingAssembly().GetName().Version.CompareTo(latestVersion) < 0)
+            var tags = await GitHubClient.Repository.GetAllTags("Jochem-W", "LeagueBulkConvert");
+            var latestVersion = new Version(tags[0].Name.Remove(0, 1));
+            var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            if (currentVersion.CompareTo(latestVersion) < 0)
             {
                 var processStartInfo = new ProcessStartInfo
                 {
