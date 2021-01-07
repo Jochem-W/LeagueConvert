@@ -14,8 +14,7 @@ namespace LeagueBulkConvert.Conversion
     {
         internal static Config Config;
 
-        internal static readonly IDictionary<string, IDictionary<ulong, string>> HashTables =
-            new Dictionary<string, IDictionary<ulong, string>>();
+        internal static readonly IDictionary<string, IDictionary<ulong, string>> HashTables = new Dictionary<string, IDictionary<ulong, string>>();
 
         public static async Task StartConversion(MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
         {
