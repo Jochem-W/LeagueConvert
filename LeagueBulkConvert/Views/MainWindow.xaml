@@ -9,12 +9,12 @@
         mc:Ignorable="d"
         Background="{DynamicResource MaterialDesignPaper}"
         Closed="Window_Closed"
-        ResizeMode="CanMinimize"
         FontFamily="{materialDesign:MaterialDesignFont}"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Medium"
-        TextElement.FontSize="14"
+        ResizeMode="CanMinimize"
         SizeToContent="WidthAndHeight"
+        TextElement.FontSize="14"
+        TextElement.FontWeight="Medium"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Title="League Bulk Convert">
 
     <Window.DataContext>
@@ -40,8 +40,8 @@
         </Grid.RowDefinitions>
         <TextBox
                 materialDesign:HintAssist.Hint="League install directory"
-                Grid.ColumnSpan="2"
                 Margin="6"
+                Grid.ColumnSpan="2"
                 Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
                 Text="{Binding LeaguePath}" />
         <Button
