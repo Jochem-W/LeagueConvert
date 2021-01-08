@@ -10,6 +10,7 @@ Convert champion models from League of Legends to glTF, with automatic textures 
 6. Click convert
 
 ## To-do
+* Basically rewrite everything because the code is very messy
 * Add a GUI for editing the configuration
 * Allow the conversion to be cancelled
 * Automatically search for a League installation directory
