@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace LeagueBulkConvert.Conversion
@@ -91,6 +92,31 @@ namespace LeagueBulkConvert.Conversion
                     await File.WriteAllTextAsync(shaFilePath, file.Sha);
                 }
             }
+        }
+
+        internal static async Task<BinTree> ReadVersion3(string fileName)
+        {
+            var stream = File.OpenRead(fileName);
+            var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            await stream.DisposeAsync();
+            return await ReadVersion3(memoryStream);
+        }
+
+        internal static async Task<BinTree> ReadVersion3(Stream stream)
+        {
+            var versionBuffer = new byte[1];
+            stream.Position = 4;
+            await stream.ReadAsync(versionBuffer.AsMemory(0, 1));
+            if (versionBuffer[0] == 3)
+            {
+                stream.Position = 4;
+                await stream.WriteAsync((new byte[1] { 2 }).AsMemory(0, 1));
+            }
+            stream.Position = 0;
+            var binTree = new BinTree(stream);
+            await stream.DisposeAsync();
+            return binTree;
         }
     }
 }

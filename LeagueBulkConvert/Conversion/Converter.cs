@@ -59,20 +59,7 @@ namespace LeagueBulkConvert.Conversion
                     loggingViewModel.AddLine($"Converting {string.Join('\\', splitName.TakeLast(3))}", 1);
                     BinTree binTree;
                     if (viewModel.ReadVersion3)
-                    {
-                        var binStream = entry.Value.GetDataHandle().GetDecompressedStream();
-                        var versionBuffer = new byte[1];
-                        binStream.Position = 4;
-                        await binStream.ReadAsync(versionBuffer.AsMemory(0, 1));
-                        if (versionBuffer[0] == 3)
-                        {
-                            binStream.Position = 4;
-                            await binStream.WriteAsync((new byte[1] { 2 }).AsMemory(0, 1));
-                        }
-                        binStream.Position = 0;
-                        binTree = new BinTree(binStream);
-                        await binStream.DisposeAsync();
-                    }
+                        binTree = await Utils.ReadVersion3(entry.Value.GetDataHandle().GetDecompressedStream());
                     else
                         binTree = new BinTree(entry.Value.GetDataHandle().GetDecompressedStream());
                     var skin = new Skin(character, Path.GetFileNameWithoutExtension(name), binTree, viewModel, loggingViewModel);

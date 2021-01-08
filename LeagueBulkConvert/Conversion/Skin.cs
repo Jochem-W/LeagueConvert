@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LeagueBulkConvert.Conversion
 {
@@ -34,9 +35,13 @@ namespace LeagueBulkConvert.Conversion
 
         public string Texture { get; set; }
 
-        public void AddAnimations(string binPath, LoggingWindowViewModel viewModel)
+        public void AddAnimations(string binPath, MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
         {
-            var binTree = new BinTree(binPath);
+            BinTree binTree;
+            if (viewModel.ReadVersion3)
+                binTree = Utils.ReadVersion3(binPath).Result; // this is not good
+            else
+                binTree = new BinTree(binPath);
             if (binTree.Objects.Count != 1)
                 throw new NotImplementedException();
             var animations = (BinTreeMap)binTree.Objects[0].Properties.FirstOrDefault(p => p.NameHash == 1172382456); //mClipDataMap
@@ -69,7 +74,7 @@ namespace LeagueBulkConvert.Conversion
                 }
                 catch (Exception)
                 {
-                    viewModel.AddLine($"Couldn't parse {path}", 2);
+                    loggingViewModel.AddLine($"Couldn't parse {path}", 2);
                     continue;
                 }
                 Animations.Add((name, animation));
@@ -272,7 +277,7 @@ namespace LeagueBulkConvert.Conversion
                     if (filePath.ToLower().Contains("/animations/") && File.Exists(filePath))
                         try
                         {
-                            AddAnimations(filePath, loggingViewModel);
+                            AddAnimations(filePath, viewModel, loggingViewModel);
                         }
                         catch (Exception)
                         {
