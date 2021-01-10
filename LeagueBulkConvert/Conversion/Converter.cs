@@ -1,4 +1,5 @@
 ﻿using LeagueBulkConvert.ViewModels;
+using LeagueBulkConvert.Views;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.WadFile;
 using System;
@@ -7,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace LeagueBulkConvert.Conversion
 {
@@ -38,7 +40,20 @@ namespace LeagueBulkConvert.Conversion
             if (Directory.Exists("data"))
                 Directory.Delete("data", true);
             loggingViewModel.AddLine("Reading hashtables");
-            await Utils.ReadHashTables(viewModel);
+            if (!await Utils.ReadHashTables())
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() => new MaterialMessageBox(new MaterialMessageBoxViewModel
+                {
+                    Message = "Couldn't find or download the necessary hashtables.\n" +
+                    "Please ensure that you have a working internet connection and that LeagueBulkConvert is allowed to connect to GitHub. " +
+                    "If you're running a version of Windows other than Windows 10 or using security tools beyond Windows Security, " +
+                    "I can't help you. " +
+                    "You can manually download the hashes.game.txt and hashes.binhashes.txt from CommunityDragon/CDTB on GitHub.",
+                    Title = "Hashtables weren't found!"
+                }).ShowDialog());
+                loggingViewModel.AddLine("Conversion stopped!");
+                return;
+            }
             foreach (var path in Directory.EnumerateFiles(@$"{viewModel.LeaguePath}\Game\DATA\FINAL\Champions", "*.wad.client")
                                           .Where(f => !f.Contains('_')
                                                       && (Config.IncludeOnly.Count == 0

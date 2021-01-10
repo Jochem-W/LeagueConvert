@@ -48,10 +48,6 @@ namespace LeagueBulkConvert.ViewModels
             }
         }
 
-        public GitHubClient GitHubClient = new GitHubClient(new ProductHeaderValue("LeagueBulkConvert"));
-
-        public HttpClient HttpClient = new HttpClient();
-
         private bool includeAnimations;
         public bool IncludeAnimations
         {
@@ -199,35 +195,12 @@ namespace LeagueBulkConvert.ViewModels
             }
         }
 
-        private async Task CheckForUpdates()
-        {
-            var tags = await GitHubClient.Repository.GetAllTags("Jochem-W", "LeagueBulkConvert");
-            var latestVersion = new Version(tags[0].Name.Remove(0, 1));
-            var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            if (currentVersion.CompareTo(latestVersion) < 0)
-            {
-                var processStartInfo = new ProcessStartInfo
-                {
-                    FileName = "https://github.com/Jochem-W/LeagueBulkConvert/releases",
-                    UseShellExecute = true
-                };
-                var messageBoxViewModel = new MaterialMessageBoxViewModel(new Command(_ => Process.Start(processStartInfo)))
-                {
-                    Message = "A new version of LeagueBulkConvert is available\n" +
-                              "Clicking the 'Ok' button will take you to the downloads.",
-                    Title = "Update available"
-                };
-                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => new MaterialMessageBox(messageBoxViewModel).ShowDialog());
-            }
-        }
-
         public MainWindowViewModel()
         {
             BrowseLeague = new Command(_ => LeaguePath = Browse(LeaguePath));
             BrowseOutput = new Command(_ => OutPath = Browse(OutPath));
             ConvertCommand = new Command(async _ => await Convert(), () => AllowConversion);
             EditConfigCommand = new Command(_ => EditConfig());
-            Task.Run(CheckForUpdates);
         }
     }
 }

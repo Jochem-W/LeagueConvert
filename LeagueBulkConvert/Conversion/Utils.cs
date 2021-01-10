@@ -1,13 +1,14 @@
 ﻿using LeagueBulkConvert.ViewModels;
+using LeagueBulkConvert.Views;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.PropertyBin.Properties;
 using LeagueToolkit.IO.WadFile;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace LeagueBulkConvert.Conversion
@@ -57,10 +58,11 @@ namespace LeagueBulkConvert.Conversion
             return false;
         }
 
-        internal static async Task ReadHashTables(MainWindowViewModel viewModel)
+        internal static async Task<bool> ReadHashTables()
         {
-            await UpdateHashes(viewModel);
-            foreach (var file in Directory.EnumerateFiles($"{Environment.CurrentDirectory}\\hashes", "*.txt"))
+            if (!await UpdateHashes() && (!File.Exists("hashes\\hashes.binhashes.txt") || !File.Exists("hashes\\hashes.game.txt")))
+                return false;
+            foreach (var file in Directory.EnumerateFiles($"hashes", "*.txt"))
             {
                 var lines = await File.ReadAllLinesAsync(file);
                 IDictionary<ulong, string> hashTable = new Dictionary<ulong, string>();
@@ -73,25 +75,40 @@ namespace LeagueBulkConvert.Conversion
                 }
                 Converter.HashTables[Path.GetFileNameWithoutExtension(file).Split('.')[1]] = hashTable;
             }
+            return true;
         }
 
-        internal static async Task UpdateHashes(MainWindowViewModel viewModel)
+        internal static async Task<bool> UpdateHashes()
         {
             if (!Directory.Exists("hashes"))
                 Directory.CreateDirectory("hashes");
-            foreach (var file in (await viewModel.GitHubClient.Repository.Content.GetAllContents("CommunityDragon", "CDTB", "cdragontoolbox"))
-                .Where(f => f.Name == "hashes.binhashes.txt" || f.Name == "hashes.game.txt"))
+            IReadOnlyList<RepositoryContent> repositoryContents;
+            try
+            {
+                repositoryContents = await App.GitHubClient.Repository.Content.GetAllContents("CommunityDragon", "CDTB", "cdragontoolbox");
+            }
+            catch (Exception exception)
+            {
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => new MaterialMessageBox(new MaterialMessageBoxViewModel
+                {
+                    Message = $"Couldn't download the latest hashtables:\n{exception.Message}",
+                    Title = "Hashtable download failed!"
+                }).ShowDialog());
+                return false;
+            }
+            foreach (var file in repositoryContents.Where(f => f.Name == "hashes.binhashes.txt" || f.Name == "hashes.game.txt"))
             {
                 var filePath = @$"hashes\{file.Name}";
                 var shaFilePath = $"{filePath}.sha";
                 if (!File.Exists(filePath) || !File.Exists(shaFilePath) || await File.ReadAllTextAsync(shaFilePath) != file.Sha)
                 {
                     var tempFilePath = $"{filePath}.tmp";
-                    await File.WriteAllTextAsync(tempFilePath, await viewModel.HttpClient.GetStringAsync(file.DownloadUrl));
+                    await File.WriteAllTextAsync(tempFilePath, await App.HttpClient.GetStringAsync(file.DownloadUrl));
                     File.Move(tempFilePath, filePath);
                     await File.WriteAllTextAsync(shaFilePath, file.Sha);
                 }
             }
+            return true;
         }
 
         internal static async Task<BinTree> ReadVersion3(string fileName)
