@@ -221,6 +221,8 @@ namespace LeagueBulkConvert
                     textureFile = Texture;
                 else
                     textureFile = material.Texture;
+                if (textureFile == null)
+                    break;
                 if (!textures.ContainsKey(textureFile))
                     textures[textureFile] = new MagickImage(textureFile);
                 materialTextures[submesh.Name] = textures[textureFile];
