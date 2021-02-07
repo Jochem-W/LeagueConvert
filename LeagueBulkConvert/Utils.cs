@@ -16,7 +16,7 @@ namespace LeagueBulkConvert
     {
         public static async Task Convert(Config config, ILogger logger = null, CancellationToken? cancellationToken = null)
         {
-            var hashTables = await ReadHashTables();
+            var hashTables = await ReadHashTables(logger);
             foreach (var wad in config.Wads.Where(w => w.Included))
             {
                 if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
@@ -95,6 +95,12 @@ namespace LeagueBulkConvert
                         logger.Information("    Couldn't save");
                 }
             }
+            logger.Information("Cleaning");
+            if (Directory.Exists("assets"))
+                Directory.Delete("assets", true);
+            if (Directory.Exists("data"))
+                Directory.Delete("data", true);
+            logger.Information("Finished!");
         }
 
         internal static bool FindTexture(BinTreeObject treeObject, Config config, out string texture)
@@ -120,10 +126,10 @@ namespace LeagueBulkConvert
             return false;
         }
 
-        public static async Task<IDictionary<string, IDictionary<ulong, string>>> ReadHashTables()
+        public static async Task<IDictionary<string, IDictionary<ulong, string>>> ReadHashTables(ILogger logger = null)
         {
-            if (!File.Exists("hashes/hashes.binhashes.txt") || !File.Exists("hashes/hashes.game.txt"))
-                return null;
+            if (logger != null)
+                logger.Information($"Reading hashtables");
             IDictionary<string, IDictionary<ulong, string>> hashTables = new Dictionary<string, IDictionary<ulong, string>>();
             foreach (var file in Directory.EnumerateFiles("hashes", "*.txt"))
             {

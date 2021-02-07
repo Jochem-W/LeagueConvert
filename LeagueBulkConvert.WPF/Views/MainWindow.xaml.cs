@@ -1,4 +1,6 @@
-﻿using System.Windows.Navigation;
+﻿using System;
+using System.Windows;
+using System.Windows.Navigation;
 
 namespace LeagueBulkConvert.WPF.Views
 {
@@ -9,5 +11,7 @@ namespace LeagueBulkConvert.WPF.Views
             InitializeComponent();
             NavigationService.Navigate(new MainPage());
         }
+
+        private void NavigationWindow_Closed(object sender, EventArgs e) => Application.Current.Shutdown();
     }
 }

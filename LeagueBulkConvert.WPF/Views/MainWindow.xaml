@@ -8,6 +8,7 @@
         d:Height="360"
         d:Width="640"
         Background="{DynamicResource MaterialDesignPaper}"
+        Closed="NavigationWindow_Closed"
         ResizeMode="CanMinimize"
         SizeToContent="WidthAndHeight"
         ShowsNavigationUI="False"
