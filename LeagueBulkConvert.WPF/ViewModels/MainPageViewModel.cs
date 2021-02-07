@@ -41,6 +41,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
             get => leaguePath;
             set
             {
+                var error = false;
                 try
                 {
                     var fullPath = Path.GetFullPath(value);
@@ -49,7 +50,11 @@ namespace LeagueBulkConvert.WPF.ViewModels
                 catch (Exception)
                 {
                     leaguePath = null;
+                    error = true;
                 }
+                if (leaguePath == null && !error)
+                    new MessageWindow("Invalid directory",
+                        "Please select a valid League of Legends installation directory! (e.g. C:\\Riot Games\\League of Legends)").ShowDialog();
                 OnPropertyChanged();
                 nextCommand.RaiseCanExecuteChanged();
             }
