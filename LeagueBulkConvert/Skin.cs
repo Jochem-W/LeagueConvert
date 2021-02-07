@@ -79,7 +79,7 @@ namespace LeagueBulkConvert
                 catch (Exception)
                 {
                     if (logger != null)
-                        logger.Information($"    Couldn't parse {path}");
+                        logger.Information($"    Couldn't parse {Path.GetFileName(path)}");
                     continue;
                 }
                 Animations.Add((name, animation));
@@ -201,7 +201,7 @@ namespace LeagueBulkConvert
             catch (Exception)
             {
                 if (logger != null)
-                    logger.Information($"    Couldn't parse {Mesh}");
+                    logger.Information($"    Couldn't parse {Path.GetFileName(Mesh)}");
                 return;
             }
             var materialTextures = new Dictionary<string, MagickImage>();
@@ -241,7 +241,7 @@ namespace LeagueBulkConvert
                 catch (Exception)
                 {
                     if (logger != null)
-                        logger.Information($"    Couldn't parse {Skeleton}");
+                        logger.Information($"    Couldn't parse {Path.GetFileName(Skeleton)}");
                     return;
                 }
                 if (Animations == null)

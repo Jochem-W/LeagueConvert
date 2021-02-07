@@ -16,7 +16,7 @@ namespace LeagueBulkConvert.WPF
             }
         }
 
-        public string Path { get => wad.Name; }
+        public string Name { get => wad.Name; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
