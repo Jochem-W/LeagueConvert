@@ -1,10 +1,9 @@
-﻿using LeagueBulkConvert.ViewModels;
-using System.Windows;
+﻿using LeagueBulkConvert.WPF.ViewModels;
 using System.Windows.Controls;
 
-namespace LeagueBulkConvert.Views
+namespace LeagueBulkConvert.WPF.Views
 {
-    partial class LoggingWindow : Window
+    partial class LoggingPage : Page
     {
         private bool autoScroll = true;
 
@@ -12,20 +11,15 @@ namespace LeagueBulkConvert.Views
         {
             var scrollViewer = (ScrollViewer)sender;
             if (e.ExtentHeightChange == 0)
-            {
-                if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
-                    autoScroll = true;
-                else
-                    autoScroll = false;
-            }
+                autoScroll = scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight;
             else if (autoScroll && e.ExtentHeightChange != 0)
                 scrollViewer.ScrollToVerticalOffset(scrollViewer.ExtentHeight);
         }
 
-        public LoggingWindow(LoggingWindowViewModel viewModel) : base()
+        public LoggingPage(Config config)
         {
             InitializeComponent();
-            DataContext = viewModel;
+            DataContext = new LoggingPageViewModel(config, this);
         }
     }
 }
