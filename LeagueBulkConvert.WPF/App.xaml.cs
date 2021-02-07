@@ -1,17 +1,15 @@
-﻿using LeagueBulkConvert.ViewModels;
-using LeagueBulkConvert.Views;
-using System.IO;
-using System.Windows;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using LeagueBulkConvert.WPF.Views;
+using Octokit;
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Octokit;
-using System.Collections.Generic;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Windows;
 
-namespace LeagueBulkConvert
+namespace LeagueBulkConvert.WPF
 {
     partial class App : System.Windows.Application
     {
@@ -21,14 +19,6 @@ namespace LeagueBulkConvert
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
-            if (!File.Exists("config.json") || !File.Exists("libzstd.dll"))
-            {
-                new MaterialMessageBox(new MaterialMessageBoxViewModel
-                {
-                    Message = "Please make sure that you've extracted the .zip file properly and are running the .exe correctly!"
-                }).ShowDialog();
-                Shutdown();
-            }
             await CheckForUpdates();
             new MainWindow().Show();
         }
@@ -42,13 +32,9 @@ namespace LeagueBulkConvert
             }
             catch (Exception exception)
             {
-                new MaterialMessageBox(new MaterialMessageBoxViewModel
-                {
-                    Message = $"Encountered the following error while checking for updates:\n" +
+                new MessageWindow("Update check failed!", $"Encountered the following error while checking for updates:\n" +
                     $"{exception.Message}\n" +
-                    $"Are you connected to the internet?",
-                    Title = "Update check failed!"
-                }).ShowDialog();
+                    $"Are you connected to the internet?").ShowDialog();
                 return;
             }
             var latestRelease = tags.First(t => !t.Name.Contains("pre"));
@@ -61,13 +47,8 @@ namespace LeagueBulkConvert
                     FileName = "https://github.com/Jochem-W/LeagueBulkConvert/releases",
                     UseShellExecute = true
                 };
-                var messageBoxViewModel = new MaterialMessageBoxViewModel(new Command(_ => Process.Start(processStartInfo)))
-                {
-                    Message = "A new version of LeagueBulkConvert is available\n" +
-                              "Clicking the 'Ok' button will take you to the downloads.",
-                    Title = "Update available"
-                };
-                new MaterialMessageBox(messageBoxViewModel).ShowDialog();
+                new MessageWindow("Update available", "A new version of LeagueBulkConvert is available\n" +
+                    "Clicking the 'Ok' button will take you to the downloads.", new Command(_ => Process.Start(processStartInfo))).ShowDialog();
             }
         }
     }

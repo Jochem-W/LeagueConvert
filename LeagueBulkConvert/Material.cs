@@ -1,7 +1,7 @@
 ﻿using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.PropertyBin.Properties;
 
-namespace LeagueBulkConvert.Conversion
+namespace LeagueBulkConvert
 {
     class Material
     {
@@ -21,9 +21,9 @@ namespace LeagueBulkConvert.Conversion
 
         public string Texture { get; set; }
 
-        public void Complete(BinTreeObject treeObject)
+        public void Complete(BinTreeObject treeObject, Config config)
         {
-            if (Utils.FindTexture(treeObject, out var texture))
+            if (Utils.FindTexture(treeObject, config, out var texture))
                 Texture = texture;
         }
 
@@ -32,9 +32,9 @@ namespace LeagueBulkConvert.Conversion
             if (materialProperty != null)
                 Hash = ((BinTreeObjectLink)materialProperty).Value;
             if (submeshProperty != null)
-                Name = ((BinTreeString)submeshProperty).Value.ToLower().Replace('/', '\\');
+                Name = ((BinTreeString)submeshProperty).Value.ToLower();
             if (textureProperty != null)
-                Texture = ((BinTreeString)textureProperty).Value.ToLower().Replace('/', '\\');
+                Texture = ((BinTreeString)textureProperty).Value.ToLower();
         }
     }
 }

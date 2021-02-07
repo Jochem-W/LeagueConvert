@@ -1,45 +1,47 @@
 ﻿using ImageMagick;
-using LeagueBulkConvert.ViewModels;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.PropertyBin.Properties;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.SkeletonFile;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace LeagueBulkConvert.Conversion
+namespace LeagueBulkConvert
 {
     class Skin
     {
-        public List<(string, Animation)> Animations { get; set; }
+        public List<(string, Animation)> Animations { get; } = new List<(string, Animation)>();
 
-        public string Character { get; set; }
+        public string Character { get; }
 
         public bool Exists { get => File.Exists(Mesh); }
 
-        public ulong MaterialHash { get; set; }
+        public ulong MaterialHash { get; private set; }
 
-        public IList<Material> Materials { get; set; } = new List<Material>();
+        public IList<Material> Materials { get; } = new List<Material>();
 
-        public string Mesh { get; set; }
+        public string Mesh { get; private set; }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
-        public IList<string> RemoveMeshes { get; set; }
+        public IList<string> HiddenMeshes { get; } = new List<string>();
 
-        public string Skeleton { get; set; }
+        public string Skeleton { get; private set; }
 
-        public string Texture { get; set; }
+        public string Texture { get; private set; }
 
-        public void AddAnimations(string binPath, MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
+        public async Task AddAnimations(string binPath, IDictionary<string, IDictionary<ulong, string>> hashTables, Config config,
+            ILogger logger = null, CancellationToken? cancellationToken = null)
         {
             BinTree binTree;
-            if (viewModel.ReadVersion3)
-                binTree = Utils.ReadVersion3(binPath).Result; // this is not good
+            if (config.ReadVersion3)
+                binTree = await Utils.ReadVersion3(binPath);
             else
                 binTree = new BinTree(binPath);
             if (binTree.Objects.Count != 1)
@@ -49,6 +51,8 @@ namespace LeagueBulkConvert.Conversion
                 return;
             foreach (var keyValuePair in animations.Map)
             {
+                if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
+                    return;
                 var structure = (BinTreeStructure)keyValuePair.Value;
                 if (structure.MetaClassHash != 1540989414) //AtomicClipData
                     continue;
@@ -58,13 +62,13 @@ namespace LeagueBulkConvert.Conversion
                 var pathProperty = (BinTreeString)animationData.Properties.FirstOrDefault(p => p.NameHash == 53080535); //mAnimationFilePath
                 if (pathProperty == null)
                     continue;
-                var path = pathProperty.Value.ToString().ToLower().Replace('/', '\\');
+                var path = pathProperty.Value.ToString().ToLower();
                 if (!File.Exists(path))
                     continue;
                 var hash = ((BinTreeHash)keyValuePair.Key).Value;
                 string name;
-                if (Converter.HashTables["binhashes"].ContainsKey(hash))
-                    name = Converter.HashTables["binhashes"][hash];
+                if (hashTables["binhashes"].ContainsKey(hash))
+                    name = hashTables["binhashes"][hash];
                 else
                     name = Path.GetFileNameWithoutExtension(path);
                 Animation animation;
@@ -74,7 +78,8 @@ namespace LeagueBulkConvert.Conversion
                 }
                 catch (Exception)
                 {
-                    loggingViewModel.AddLine($"Couldn't parse {path}", 2);
+                    if (logger != null)
+                        logger.Information($"    Couldn't parse {Path.GetFileName(path)}");
                     continue;
                 }
                 Animations.Add((name, animation));
@@ -89,23 +94,23 @@ namespace LeagueBulkConvert.Conversion
             for (var i = 0; i < Materials.Count; i++)
             {
                 var material = Materials[i];
-                if (material.Hash == 0 && string.IsNullOrWhiteSpace(material.Texture) && !RemoveMeshes.Contains(material.Name))
+                if (material.Hash == 0 && string.IsNullOrWhiteSpace(material.Texture) && !HiddenMeshes.Contains(material.Name))
                     Materials[i].Texture = Texture;
                 if ((string.IsNullOrWhiteSpace(material.Texture)
                      || material.Texture.Contains("empty32.dds"))
-                     && !RemoveMeshes.Contains(material.Name))
-                    RemoveMeshes.Add(material.Name);
-                if (!RemoveMeshes.Contains(material.Name))
+                     && !HiddenMeshes.Contains(material.Name))
+                    HiddenMeshes.Add(material.Name);
+                if (!HiddenMeshes.Contains(material.Name))
                     continue;
                 Materials.RemoveAt(i);
                 i--;
             }
         }
 
-        private void ParseBinTree(BinTree tree)
+        private void ParseBinTree(BinTree tree, Config config)
         {
             foreach (var binTreeObject in tree.Objects)
-                ParseBinTreeObject(binTreeObject);
+                ParseBinTreeObject(binTreeObject, config);
         }
 
         private void ParseBinTreeContainer(BinTreeContainer container)
@@ -132,7 +137,7 @@ namespace LeagueBulkConvert.Conversion
 
         }
 
-        private void ParseBinTreeObject(BinTreeObject treeObject)
+        private void ParseBinTreeObject(BinTreeObject treeObject, Config config)
         {
             switch (treeObject.MetaClassHash)
             {
@@ -144,11 +149,11 @@ namespace LeagueBulkConvert.Conversion
                 case 4288492553: //StaticMaterialDef
                     if (treeObject.PathHash == MaterialHash)
                     {
-                        if (Utils.FindTexture(treeObject, out var texture))
+                        if (Utils.FindTexture(treeObject, config, out var texture))
                             Texture = texture;
                     }
                     foreach (var material in Materials.Where(m => m.Hash == treeObject.PathHash && !m.IsComplete))
-                        material.Complete(treeObject);
+                        material.Complete(treeObject, config);
                     break;
             }
         }
@@ -161,17 +166,17 @@ namespace LeagueBulkConvert.Conversion
                     ParseBinTreeEmbedded((BinTreeEmbedded)property);
                     break;
                 case 2974586734: //skeleton
-                    Skeleton = ((BinTreeString)property).Value.ToLower().Replace('/', '\\');
+                    Skeleton = ((BinTreeString)property).Value.ToLower();
                     break;
                 case 3600813558: //simpleSkin
-                    Mesh = ((BinTreeString)property).Value.ToLower().Replace('/', '\\');
+                    Mesh = ((BinTreeString)property).Value.ToLower();
                     break;
                 case 1013213428: //texture
-                    Texture = ((BinTreeString)property).Value.ToLower().Replace('/', '\\');
+                    Texture = ((BinTreeString)property).Value.ToLower();
                     break;
                 case 2159540111: //initialSubmeshToHide
                     foreach (var submesh in ((BinTreeString)property).Value.Replace(',', ' ').Split(' ', StringSplitOptions.RemoveEmptyEntries))
-                        RemoveMeshes.Add(submesh.ToLower());
+                        HiddenMeshes.Add(submesh.ToLower());
                     break;
                 case 611473680: //materialOverride
                     ParseBinTreeContainer((BinTreeContainer)property);
@@ -184,7 +189,7 @@ namespace LeagueBulkConvert.Conversion
             }
         }
 
-        public void Save(MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
+        public void Save(Config config, ILogger logger = null)
         {
             if (!File.Exists(Mesh))
                 return;
@@ -195,7 +200,8 @@ namespace LeagueBulkConvert.Conversion
             }
             catch (Exception)
             {
-                loggingViewModel.AddLine($"Couldn't parse {Mesh}", 2);
+                if (logger != null)
+                    logger.Information($"    Couldn't parse {Path.GetFileName(Mesh)}");
                 return;
             }
             var materialTextures = new Dictionary<string, MagickImage>();
@@ -203,7 +209,7 @@ namespace LeagueBulkConvert.Conversion
             for (var i = 0; i < simpleSkin.Submeshes.Count; i++)
             {
                 var submesh = simpleSkin.Submeshes[i];
-                if (RemoveMeshes.Contains(submesh.Name.ToLower()))
+                if (HiddenMeshes.Contains(submesh.Name.ToLower()))
                 {
                     simpleSkin.Submeshes.RemoveAt(i);
                     i--;
@@ -215,15 +221,17 @@ namespace LeagueBulkConvert.Conversion
                     textureFile = Texture;
                 else
                     textureFile = material.Texture;
+                if (textureFile == null)
+                    break;
                 if (!textures.ContainsKey(textureFile))
                     textures[textureFile] = new MagickImage(textureFile);
                 materialTextures[submesh.Name] = textures[textureFile];
             }
             SharpGLTF.Schema2.ModelRoot gltf;
-            if (!viewModel.IncludeSkeletons)
+            if (!config.IncludeSkeleton)
             {
                 gltf = simpleSkin.ToGltf(materialTextures);
-                gltf.ApplyBasisTransform(Converter.Config.ScaleMatrix);
+                gltf.ApplyBasisTransform(config.ScaleMatrix);
             }
             else
             {
@@ -234,7 +242,8 @@ namespace LeagueBulkConvert.Conversion
                 }
                 catch (Exception)
                 {
-                    loggingViewModel.AddLine($"Couldn't parse {Skeleton}", 2);
+                    if (logger != null)
+                        logger.Information($"    Couldn't parse {Path.GetFileName(Skeleton)}");
                     return;
                 }
                 if (Animations == null)
@@ -242,50 +251,27 @@ namespace LeagueBulkConvert.Conversion
                 else
                     gltf = simpleSkin.ToGltf(skeleton, materialTextures, Animations);
             }
-            var directory = $"export\\{Character}";
+            var directory = $"export/{Character}";
             string exportPath;
-            if (viewModel.SaveAsGlTF)
+            if (config.SaveAsGlTF)
             {
-                directory += $"\\{Name}";
-                exportPath = $"{directory}\\{Name}.gltf";
+                directory += $"/{Name}";
+                exportPath = $"{directory}/{Name}.gltf";
             }
             else
-                exportPath = $"{directory}\\{Name}.glb";
+                exportPath = $"{directory}/{Name}.glb";
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             gltf.Save(exportPath);
         }
 
-        public Skin(string character, string name, BinTree tree, MainWindowViewModel viewModel, LoggingWindowViewModel loggingViewModel)
+        public Skin(string character, string name, BinTree tree, Config config)
         {
             Character = character;
             Name = name;
-            if (!viewModel.IncludeHiddenMeshes
-                && Converter.Config.IgnoreMeshes.ContainsKey(character)
-                && Converter.Config.IgnoreMeshes[character].ContainsKey(name))
-                RemoveMeshes = new List<string>(Converter.Config.IgnoreMeshes[character][name]);
-            else
-                RemoveMeshes = new List<string>();
-            ParseBinTree(tree);
-            if (viewModel.IncludeHiddenMeshes)
-                RemoveMeshes = new List<string>();
-            if (viewModel.IncludeAnimations)
-            {
-                Animations = new List<(string, Animation)>();
-                foreach (var filePath in tree.Dependencies)
-                {
-                    if (filePath.ToLower().Contains("/animations/") && File.Exists(filePath))
-                        try
-                        {
-                            AddAnimations(filePath, viewModel, loggingViewModel);
-                        }
-                        catch (Exception)
-                        {
-                            loggingViewModel.AddLine($"Couldn't add animations", 2);
-                            return;
-                        }
-                }
-            }
+            ParseBinTree(tree, config);
+            if (config.IncludeHiddenMeshes)
+                HiddenMeshes.Clear();
         }
     }
 }
