@@ -20,7 +20,7 @@
     <Grid Margin="6">
         <Grid.RowDefinitions>
             <RowDefinition />
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.Resources>
             <Style TargetType="Border">
@@ -30,24 +30,25 @@
             </Style>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Border Grid.ColumnSpan="2">
             <TextBlock
-                Margin="6"
-                MinWidth="200"
-                MaxWidth="400"
-                Text="{Binding Message}"
-                TextWrapping="Wrap" />
+                    Margin="6"
+                    MinWidth="200"
+                    MaxWidth="400"
+                    Text="{Binding Message}"
+                    TextWrapping="Wrap" />
         </Border>
-        <Border Grid.Column="1"
+        <Border
+                Grid.Column="1"
                 Grid.Row="1">
             <Button
-                Command="{Binding Ok}"
-                Content="{Binding ButtonText}"
-                Grid.Row="1"
-                HorizontalAlignment="Right" />
+                    Command="{Binding Ok}"
+                    Content="{Binding ButtonText}"
+                    Grid.Row="1"
+                    HorizontalAlignment="Right" />
         </Border>
 
     </Grid>
