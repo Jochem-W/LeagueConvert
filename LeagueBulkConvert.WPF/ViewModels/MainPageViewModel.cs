@@ -3,6 +3,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -89,7 +90,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
 
         private static bool TryGetWadsPath(string path, out string wadsPath)
         {
-            wadsPath = Path.Combine(path, "Game", "DATA", "FINAL", "Champions");
+            wadsPath = Path.Combine(path, "Game", "DATA", "FINAL");
             if (Directory.Exists(wadsPath))
                 return true;
             var downloadPath = Path.Combine(path, "lol_game_client", "releases");
@@ -117,7 +118,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
                 if (newestVersion.CompareTo(version) < 0)
                     newestVersion = version;
             }
-            wadsPath = Path.Combine(wadsPath, newestVersion.ToString(), pathPart, "DATA", "FINAL", "Champions");
+            wadsPath = Path.Combine(wadsPath, newestVersion.ToString(), pathPart, "DATA", "FINAL");
             return true;
         }
 
@@ -134,7 +135,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
                 Directory.SetCurrentDirectory(ExportPath);
                 var config = new Config();
                 var t = Directory.EnumerateFiles(wadsPath, "*.wad.client");
-                foreach (var filePath in Directory.EnumerateFiles(wadsPath, "*.wad.client")
+                foreach (var filePath in Directory.EnumerateFiles(wadsPath, "*.wad.client", SearchOption.AllDirectories)
                     .Where(f => Path.GetFileName(f).Count(c => c == '.') == 2))
                     config.Wads.Add(new IncludableWad(filePath));
                 owner.NavigationService.Navigate(new ConfigPage(config));

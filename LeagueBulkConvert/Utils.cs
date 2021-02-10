@@ -23,7 +23,7 @@ namespace LeagueBulkConvert
                     return;
                 await ConvertWad(wad.FilePath, hashTables, config, logger, cancellationToken);
             }
-                
+            logger.Information("Finished!");
         }
 
         public static async Task ConvertWad(string wadPath, IDictionary<string, IDictionary<ulong, string>> hashTables, Config config,
@@ -100,7 +100,8 @@ namespace LeagueBulkConvert
                 Directory.Delete("assets", true);
             if (Directory.Exists("data"))
                 Directory.Delete("data", true);
-            logger.Information("Finished!");
+            if (Directory.Exists("levels"))
+                Directory.Delete("levels", true);
         }
 
         internal static bool FindTexture(BinTreeObject treeObject, Config config, out string texture)
