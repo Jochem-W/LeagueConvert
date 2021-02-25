@@ -15,7 +15,8 @@
         TextElement.FontSize="14"
         Width="640">
     <Grid Margin="6">
-        <Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions> 
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
@@ -31,13 +32,20 @@
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Border Grid.ColumnSpan="3">
+        <Border Grid.ColumnSpan="4">
             <DataGrid
                     AutoGeneratingColumn="DataGrid_AutoGeneratingColumn"
                     ItemsSource="{Binding Wads}" />
         </Border>
         <Border
-                Grid.Column="1"
+                Grid.Row="1">
+            <Button
+                    Command="{Binding SelectCommand}"
+                    Content="{Binding SelectContent}"
+                    Width="145" />
+        </Border>
+        <Border
+                Grid.Column="2"
                 Grid.Row="1">
             <Button
                     Command="{Binding PreviousCommand}"
@@ -45,7 +53,7 @@
                     Width="145" />
         </Border>
         <Border
-                Grid.Column="2"
+                Grid.Column="3"
                 Grid.Row="1">
             <Button
                     Command="{Binding NextCommand}"
