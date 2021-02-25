@@ -3,8 +3,19 @@ using LeagueToolkit.IO.PropertyBin.Properties;
 
 namespace LeagueBulkConvert
 {
-    class Material
+    internal class Material
     {
+        public Material(BinTreeProperty materialProperty, BinTreeProperty submeshProperty,
+            BinTreeProperty textureProperty)
+        {
+            if (materialProperty != null)
+                Hash = ((BinTreeObjectLink) materialProperty).Value;
+            if (submeshProperty != null)
+                Name = ((BinTreeString) submeshProperty).Value.ToLower();
+            if (textureProperty != null)
+                Texture = ((BinTreeString) textureProperty).Value.ToLower();
+        }
+
         public ulong Hash { get; set; }
 
         public bool IsComplete
@@ -25,16 +36,6 @@ namespace LeagueBulkConvert
         {
             if (Utils.FindTexture(treeObject, config, out var texture))
                 Texture = texture;
-        }
-
-        public Material(BinTreeProperty materialProperty, BinTreeProperty submeshProperty, BinTreeProperty textureProperty)
-        {
-            if (materialProperty != null)
-                Hash = ((BinTreeObjectLink)materialProperty).Value;
-            if (submeshProperty != null)
-                Name = ((BinTreeString)submeshProperty).Value.ToLower();
-            if (textureProperty != null)
-                Texture = ((BinTreeString)textureProperty).Value.ToLower();
         }
     }
 }

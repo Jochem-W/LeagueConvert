@@ -3,28 +3,32 @@ using System.Runtime.CompilerServices;
 
 namespace LeagueBulkConvert.WPF
 {
-    class ObservableWad : INotifyPropertyChanged
+    internal class ObservableWad : INotifyPropertyChanged
     {
         private readonly IncludableWad wad;
 
+        public ObservableWad(IncludableWad wad)
+        {
+            this.wad = wad;
+        }
+
         public bool Included
         {
-            get => wad.Included; set
+            get => wad.Included;
+            set
             {
                 wad.Included = value;
                 OnPropertyChanged();
             }
         }
 
-        public string Name { get => wad.Name; }
+        public string Name => wad.Name;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void OnPropertyChanged([CallerMemberName] string name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
-        public ObservableWad(IncludableWad wad)
+        private void OnPropertyChanged([CallerMemberName] string name = null)
         {
-            this.wad = wad;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

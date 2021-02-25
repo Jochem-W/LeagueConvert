@@ -1,6 +1,4 @@
-﻿using LeagueBulkConvert.WPF.Views;
-using Microsoft.WindowsAPICodePack.Dialogs;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -8,16 +6,46 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Input;
+using LeagueBulkConvert.WPF.Views;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace LeagueBulkConvert.WPF.ViewModels
 {
-    class MainPageViewModel : INotifyPropertyChanged
+    internal class MainPageViewModel : INotifyPropertyChanged
     {
+        private readonly Command nextCommand;
+
+        private string exportPath;
+
+        private string leaguePath;
+
+        private string wadsPath;
+
+        public MainPageViewModel()
+        {
+            BrowseExport = new Command(_ => ExportPath = Browse(ExportPath));
+            BrowseLeague = new Command(_ => LeaguePath = Browse(LeaguePath));
+        }
+
+        public MainPageViewModel(Page owner) : this()
+        {
+            nextCommand = new Command(_ =>
+            {
+                Directory.CreateDirectory(ExportPath);
+                Directory.SetCurrentDirectory(ExportPath);
+                var config = new Config();
+                var t = Directory.EnumerateFiles(wadsPath, "*.wad.client");
+                foreach (var filePath in Directory.EnumerateFiles(wadsPath, "*.wad.client", SearchOption.AllDirectories)
+                    .Where(f => Path.GetFileName(f).Count(c => c == '.') == 2))
+                    config.Wads.Add(new IncludableWad(filePath));
+                owner.NavigationService.Navigate(new ConfigPage(config));
+            }, _ => LeaguePath != null && ExportPath != null);
+        }
+
         public ICommand BrowseExport { get; }
 
         public ICommand BrowseLeague { get; }
 
-        private string exportPath;
         public string ExportPath
         {
             get => exportPath;
@@ -31,12 +59,12 @@ namespace LeagueBulkConvert.WPF.ViewModels
                 {
                     exportPath = null;
                 }
+
                 OnPropertyChanged();
                 nextCommand.RaiseCanExecuteChanged();
             }
         }
 
-        private string leaguePath;
         public string LeaguePath
         {
             get => leaguePath;
@@ -46,8 +74,10 @@ namespace LeagueBulkConvert.WPF.ViewModels
                 try
                 {
                     leaguePath = Path.GetFullPath(value);
-                    if (TryGetWadsPath(leaguePath, out string wadsPath))
+                    if (TryGetWadsPath(leaguePath, out var wadsPath))
+                    {
                         this.wadsPath = wadsPath;
+                    }
                     else
                     {
                         leaguePath = null;
@@ -60,20 +90,19 @@ namespace LeagueBulkConvert.WPF.ViewModels
                     wadsPath = null;
                     error = true;
                 }
+
                 if ((leaguePath == null || wadsPath == null) && !error)
                     new MessageWindow("Invalid directory",
-                        "Please select a valid League of Legends installation directory! (e.g. C:\\Riot Games\\League of Legends)").ShowDialog();
+                            "Please select a valid League of Legends installation directory! (e.g. C:\\Riot Games\\League of Legends)")
+                        .ShowDialog();
                 OnPropertyChanged();
                 nextCommand.RaiseCanExecuteChanged();
             }
         }
 
-        private readonly Command nextCommand;
-        public ICommand NextCommand { get => nextCommand; }
+        public ICommand NextCommand => nextCommand;
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private string wadsPath;
 
         private static string Browse(string initialDirectory)
         {
@@ -85,7 +114,10 @@ namespace LeagueBulkConvert.WPF.ViewModels
             return dialog.ShowDialog() == CommonFileDialogResult.Ok ? dialog.FileName : null;
         }
 
-        private void OnPropertyChanged([CallerMemberName] string name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
         private static bool TryGetWadsPath(string path, out string wadsPath)
         {
@@ -106,7 +138,10 @@ namespace LeagueBulkConvert.WPF.ViewModels
                 wadsPath = solutionPath;
             }
             else
+            {
                 return false;
+            }
+
             IList<string> directories = Directory.GetDirectories(wadsPath);
             if (directories.Count == 0)
                 return false;
@@ -117,28 +152,9 @@ namespace LeagueBulkConvert.WPF.ViewModels
                 if (newestVersion.CompareTo(version) < 0)
                     newestVersion = version;
             }
+
             wadsPath = Path.Combine(wadsPath, newestVersion.ToString(), pathPart, "DATA", "FINAL");
             return true;
-        }
-
-        public MainPageViewModel()
-        {
-            BrowseExport = new Command((_) => ExportPath = Browse(ExportPath));
-            BrowseLeague = new Command((_) => LeaguePath = Browse(LeaguePath));
-        }
-        public MainPageViewModel(Page owner) : this()
-        {
-            nextCommand = new Command((_) =>
-            {
-                Directory.CreateDirectory(ExportPath);
-                Directory.SetCurrentDirectory(ExportPath);
-                var config = new Config();
-                var t = Directory.EnumerateFiles(wadsPath, "*.wad.client");
-                foreach (var filePath in Directory.EnumerateFiles(wadsPath, "*.wad.client", SearchOption.AllDirectories)
-                    .Where(f => Path.GetFileName(f).Count(c => c == '.') == 2))
-                    config.Wads.Add(new IncludableWad(filePath));
-                owner.NavigationService.Navigate(new ConfigPage(config));
-            }, (_) => LeaguePath != null && ExportPath != null);
         }
     }
 }

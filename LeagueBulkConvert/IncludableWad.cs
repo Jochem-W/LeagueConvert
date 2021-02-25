@@ -4,11 +4,17 @@ namespace LeagueBulkConvert
 {
     public class IncludableWad
     {
+        private string path;
+
+        public IncludableWad(string path)
+        {
+            FilePath = path;
+        }
+
         public bool Included { get; set; }
 
         public string Name { get; private set; }
 
-        private string path;
         public string FilePath
         {
             get => path;
@@ -18,7 +24,5 @@ namespace LeagueBulkConvert
                 Name = Path.GetFileName(path);
             }
         }
-
-        public IncludableWad(string path) => FilePath = path;
     }
 }

@@ -6,9 +6,19 @@ namespace LeagueBulkConvert
 {
     public class Config
     {
-        public HashSet<string> ExtractFormats { get; } = new HashSet<string> { ".dds", ".jpg", ".png", ".skn", ".tga" };
+        private bool includeAnimations;
 
-        private bool includeAnimations = false;
+        private bool includeSkeletons;
+
+        private IReadOnlyList<float> scaleList = new List<float> {0.012389f, 0.013202f, 0.011622f};
+
+        public Config()
+        {
+            CalculateScale();
+        }
+
+        public HashSet<string> ExtractFormats { get; } = new() {".dds", ".jpg", ".png", ".skn", ".tga"};
+
         public bool IncludeAnimations
         {
             get => includeAnimations;
@@ -31,7 +41,6 @@ namespace LeagueBulkConvert
 
         public bool IncludeHiddenMeshes { get; set; } = false;
 
-        private bool includeSkeletons = false;
         public bool IncludeSkeleton
         {
             get => includeSkeletons;
@@ -47,7 +56,7 @@ namespace LeagueBulkConvert
 
         public bool ReadVersion3 { get; set; } = true;
 
-        public HashSet<string> SamplerNames { get; } = new HashSet<string>
+        public HashSet<string> SamplerNames { get; } = new()
         {
             "Diffuse_Texture",
             "DiffuseTexture",
@@ -60,8 +69,6 @@ namespace LeagueBulkConvert
         public bool SaveAsGlTF { get; set; } = false;
 
         public Matrix4x4 ScaleMatrix { get; private set; }
-
-        private IReadOnlyList<float> scaleList = new List<float> { 0.012389f, 0.013202f, 0.011622f };
 
         public IReadOnlyList<float> ScaleList
         {
@@ -80,7 +87,5 @@ namespace LeagueBulkConvert
             var scale = ScaleList.Sum() / ScaleList.Count;
             ScaleMatrix = new Matrix4x4(scale, 0, 0, 0, 0, scale, 0, 0, 0, 0, scale, 0, 0, 0, 0, 1);
         }
-
-        public Config() => CalculateScale();
     }
 }

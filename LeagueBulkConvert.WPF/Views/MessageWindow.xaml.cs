@@ -1,12 +1,12 @@
-﻿using LeagueBulkConvert.WPF.ViewModels;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
+using LeagueBulkConvert.WPF.ViewModels;
 
 namespace LeagueBulkConvert.WPF.Views
 {
     partial class MessageWindow : Window
     {
-        public MessageWindow(string title, string message) : base()
+        public MessageWindow(string title, string message)
         {
             InitializeComponent();
             DataContext = new MessageWindowViewModel(this)
@@ -16,7 +16,7 @@ namespace LeagueBulkConvert.WPF.Views
             };
         }
 
-        public MessageWindow(string title, string message, ICommand command) : base()
+        public MessageWindow(string title, string message, ICommand command)
         {
             InitializeComponent();
             DataContext = new MessageWindowViewModel(this, command)

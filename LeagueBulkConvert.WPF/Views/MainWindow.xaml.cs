@@ -12,6 +12,9 @@ namespace LeagueBulkConvert.WPF.Views
             NavigationService.Navigate(new MainPage());
         }
 
-        private void NavigationWindow_Closed(object sender, EventArgs e) => Application.Current.Shutdown();
+        private void NavigationWindow_Closed(object sender, EventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
     }
 }

@@ -1,5 +1,5 @@
-﻿using LeagueBulkConvert.WPF.ViewModels;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
+using LeagueBulkConvert.WPF.ViewModels;
 
 namespace LeagueBulkConvert.WPF.Views
 {

@@ -1,19 +1,19 @@
 ﻿<Page
-        x:Class="LeagueBulkConvert.WPF.Views.MainPage"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:LeagueBulkConvert.WPF.ViewModels"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance IsDesignTimeCreatable=True, Type=local:MainPageViewModel}"
-        FontFamily="{materialDesign:MaterialDesignFont}"
-        Height="360"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Medium"
-        TextElement.FontSize="14"
-        Width="640">
+    x:Class="LeagueBulkConvert.WPF.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:LeagueBulkConvert.WPF.ViewModels"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance IsDesignTimeCreatable=True, Type=local:MainPageViewModel}"
+    FontFamily="{materialDesign:MaterialDesignFont}"
+    Height="360"
+    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+    TextElement.FontWeight="Medium"
+    TextElement.FontSize="14"
+    Width="640">
     <Grid Margin="6">
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -23,8 +23,8 @@
         <Grid.Resources>
             <Style TargetType="Border">
                 <Setter
-                        Property="Padding"
-                        Value="6" />
+                    Property="Padding"
+                    Value="6" />
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
@@ -34,39 +34,39 @@
         </Grid.RowDefinitions>
         <Border>
             <TextBox
-                    materialDesign:HintAssist.Hint="League of Legends installation directory"
-                    Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
-                    Text="{Binding LeaguePath}" />
+                materialDesign:HintAssist.Hint="League of Legends installation directory"
+                Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
+                Text="{Binding LeaguePath}" />
         </Border>
         <Border
-                Grid.Column="1"
-                Grid.ColumnSpan="2">
+            Grid.Column="1"
+            Grid.ColumnSpan="2">
             <Button
-                    Command="{Binding BrowseLeague}"
-                    Content="Browse" />
+                Command="{Binding BrowseLeague}"
+                Content="Browse" />
         </Border>
         <Border Grid.Row="1">
             <TextBox
-                    materialDesign:HintAssist.Hint="Export directory"
-                    Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
-                    Text="{Binding ExportPath}" />
+                materialDesign:HintAssist.Hint="Export directory"
+                Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
+                Text="{Binding ExportPath}" />
         </Border>
         <Border
-                Grid.Column="1"
-                Grid.ColumnSpan="2"
-                Grid.Row="1">
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            Grid.Row="1">
             <Button
-                    Command="{Binding BrowseExport}"
-                    Content="Browse" />
+                Command="{Binding BrowseExport}"
+                Content="Browse" />
         </Border>
         <Border
-                Grid.Column="2"
-                Grid.Row="2">
+            Grid.Column="2"
+            Grid.Row="2">
             <Button
-                    Command="{Binding NextCommand}"
-                    Content="Next"
-                    VerticalAlignment="Bottom"
-                    Width="145" />
+                Command="{Binding NextCommand}"
+                Content="Next"
+                VerticalAlignment="Bottom"
+                Width="145" />
         </Border>
     </Grid>
 </Page>

@@ -1,6 +1,4 @@
-﻿using LeagueBulkConvert.WPF.Views;
-using Octokit;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,14 +6,17 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using LeagueBulkConvert.WPF.Views;
+using Octokit;
+using Application = System.Windows.Application;
 
 namespace LeagueBulkConvert.WPF
 {
-    partial class App : System.Windows.Application
+    partial class App : Application
     {
-        internal static readonly GitHubClient GitHubClient = new GitHubClient(new ProductHeaderValue("LeagueBulkConvert"));
+        internal static readonly GitHubClient GitHubClient = new(new ProductHeaderValue("LeagueBulkConvert"));
 
-        internal static readonly HttpClient HttpClient = new HttpClient();
+        internal static readonly HttpClient HttpClient = new();
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -32,11 +33,13 @@ namespace LeagueBulkConvert.WPF
             }
             catch (Exception exception)
             {
-                new MessageWindow("Update check failed!", $"Encountered the following error while checking for updates:\n" +
+                new MessageWindow("Update check failed!",
+                    "Encountered the following error while checking for updates:\n" +
                     $"{exception.Message}\n" +
-                    $"Are you connected to the internet?").ShowDialog();
+                    "Are you connected to the internet?").ShowDialog();
                 return;
             }
+
             var latestRelease = tags.First(t => !t.Name.Contains("pre"));
             var latestVersion = new Version(latestRelease.Name.Remove(0, 1));
             var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
@@ -48,7 +51,8 @@ namespace LeagueBulkConvert.WPF
                     UseShellExecute = true
                 };
                 new MessageWindow("Update available", "A new version of LeagueBulkConvert is available\n" +
-                    "Clicking the 'Ok' button will take you to the downloads.", new Command(_ => Process.Start(processStartInfo))).ShowDialog();
+                                                      "Clicking the 'Ok' button will take you to the downloads.",
+                    new Command(_ => Process.Start(processStartInfo))).ShowDialog();
             }
         }
     }
