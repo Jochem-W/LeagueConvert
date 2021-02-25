@@ -1,4 +1,5 @@
 ﻿using LeagueBulkConvert.WPF.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace LeagueBulkConvert.WPF.Views
@@ -6,6 +7,8 @@ namespace LeagueBulkConvert.WPF.Views
     partial class LoggingPage : Page
     {
         private bool autoScroll = true;
+
+        private readonly LoggingPageViewModel viewModel;
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
@@ -19,7 +22,10 @@ namespace LeagueBulkConvert.WPF.Views
         public LoggingPage(Config config)
         {
             InitializeComponent();
-            DataContext = new LoggingPageViewModel(config, this);
+            viewModel = new LoggingPageViewModel(config, this);
+            DataContext = viewModel;
         }
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e) => await viewModel.Convert();
     }
 }

@@ -52,7 +52,13 @@ namespace LeagueBulkConvert.WPF.ViewModels
         public ConfigPageViewModel(Config config, Page owner)
         {
             this.config = config;
-            NextCommand = new Command((_) => owner.NavigationService.Navigate(new WadsPage(config)));
+            NextCommand = new Command((_) =>
+            {
+                if (owner.NavigationService.CanGoForward)
+                    owner.NavigationService.GoForward();
+                else
+                    owner.NavigationService.Navigate(new WadsPage(config));
+            });
             PreviousCommand = new Command((_) => owner.NavigationService.GoBack());
         }
     }

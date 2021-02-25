@@ -10,6 +10,7 @@
         d:DataContext="{d:DesignInstance IsDesignTimeCreatable=True, Type=local:LoggingPageViewModel}"
         FontFamily="{materialDesign:MaterialDesignFont}"
         Height="360"
+        Loaded="Page_Loaded"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
