@@ -3,7 +3,7 @@
 Convert champion models from League of Legends to glTF, with automatic textures
 and animations.
 
-## How to use | [video tutorial by Luviana](https://youtu.be/CAtiX1po4Bk)
+## How to use | [video tutorial by Luviana (slightly outdated)](https://youtu.be/CAtiX1po4Bk)
 
 1. Extract the .zip file
 2. Run LeagueBulkConvert.exe
