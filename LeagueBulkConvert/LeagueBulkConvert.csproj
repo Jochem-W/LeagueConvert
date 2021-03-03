@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Authors>Jochem-W</Authors>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <NeutralLanguage>en-GB</NeutralLanguage>

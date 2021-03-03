@@ -53,7 +53,8 @@ namespace LeagueBulkConvert.WPF
                     UseShellExecute = true
                 };
                 new MessageWindow("Update available", "A new version of LeagueBulkConvert is available\n" +
-                                                      "Clicking the 'Ok' button will take you to the downloads.",
+                                                      "Clicking the 'Ok' button will take you to the downloads.\n" +
+                                                      "(Note: it might take a minute or so for a new version to show up)",
                     new Command(_ => Process.Start(processStartInfo))).ShowDialog();
             }
         }

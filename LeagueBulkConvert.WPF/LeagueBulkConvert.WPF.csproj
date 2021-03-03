@@ -5,7 +5,7 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <StartupObject>LeagueBulkConvert.WPF.App</StartupObject>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     <Authors>Jochem-W</Authors>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <NeutralLanguage>en-GB</NeutralLanguage>
