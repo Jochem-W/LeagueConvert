@@ -16,5 +16,11 @@ namespace LeagueBulkConvert.WPF.Views
         {
             Application.Current.Shutdown();
         }
+
+        private void NavigationWindow_Navigating(object sender, NavigatingCancelEventArgs e)
+        {
+            if (!App.AllowNavigation)
+                e.Cancel = true;
+        }
     }
 }

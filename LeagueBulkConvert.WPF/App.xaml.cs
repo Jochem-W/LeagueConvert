@@ -14,9 +14,11 @@ namespace LeagueBulkConvert.WPF
 {
     partial class App : Application
     {
-        internal static readonly GitHubClient GitHubClient = new(new ProductHeaderValue("LeagueBulkConvert"));
+        internal static bool AllowNavigation { get; set; } = true;
 
-        internal static readonly HttpClient HttpClient = new();
+        internal static readonly GitHubClient gitHubClient = new(new ProductHeaderValue("LeagueBulkConvert"));
+
+        internal static readonly HttpClient httpClient = new();
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -29,7 +31,7 @@ namespace LeagueBulkConvert.WPF
             IReadOnlyList<RepositoryTag> tags;
             try
             {
-                tags = await GitHubClient.Repository.GetAllTags("Jochem-W", "LeagueBulkConvert");
+                tags = await gitHubClient.Repository.GetAllTags("Jochem-W", "LeagueBulkConvert");
             }
             catch (Exception exception)
             {

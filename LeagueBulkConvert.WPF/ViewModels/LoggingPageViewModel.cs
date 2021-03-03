@@ -61,6 +61,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
 
         internal async Task Convert()
         {
+            App.AllowNavigation = false;
             if (!Directory.Exists("hashes"))
                 Directory.CreateDirectory("hashes");
             IReadOnlyList<RepositoryContent> repositoryContents;
@@ -68,7 +69,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
             {
                 logger.Information("Downloading latest hashtables");
                 repositoryContents =
-                    await App.GitHubClient.Repository.Content.GetAllContents("CommunityDragon", "CDTB",
+                    await App.gitHubClient.Repository.Content.GetAllContents("CommunityDragon", "CDTB",
                         "cdragontoolbox");
                 foreach (var file in repositoryContents.Where(f =>
                     f.Name == "hashes.binhashes.txt" || f.Name == "hashes.game.txt"))
@@ -80,7 +81,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
                     {
                         var tempFilePath = $"{filePath}.tmp";
                         await File.WriteAllTextAsync(tempFilePath,
-                            await App.HttpClient.GetStringAsync(file.DownloadUrl));
+                            await App.httpClient.GetStringAsync(file.DownloadUrl));
                         File.Move(tempFilePath, filePath);
                         await File.WriteAllTextAsync(shaFilePath, file.Sha);
                     }
@@ -102,6 +103,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
             if (!cancellationTokenSource.IsCancellationRequested)
                 await Task.Run(async () => await Utils.Convert(config, logger, cancellationTokenSource.Token));
             completed = true;
+            App.AllowNavigation = true;
             cancelCommand.RaiseCanExecuteChanged();
             previousCommand.RaiseCanExecuteChanged();
             cancellationTokenSource.Dispose();

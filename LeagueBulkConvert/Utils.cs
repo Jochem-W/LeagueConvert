@@ -116,7 +116,7 @@ namespace LeagueBulkConvert
             var samplers = treeObject.Properties.FirstOrDefault(p => p.NameHash == 175050421); //samplerValues
             if (samplers == null)
                 return false;
-            foreach (BinTreeEmbedded sampler in ((BinTreeContainer) samplers).Properties)
+            foreach (BinTreeEmbedded sampler in ((BinTreeContainer)samplers).Properties)
             {
                 var samplerNameProperty = sampler.Properties.FirstOrDefault(p => p.NameHash == 48757580); //samplerName
                 if (samplerNameProperty == null)
@@ -124,7 +124,7 @@ namespace LeagueBulkConvert
                 var textureProperty = sampler.Properties.FirstOrDefault(p => p.NameHash == 3004290287); //textureName
                 if (textureProperty == null)
                     continue;
-                var samplerName = ((BinTreeString) samplerNameProperty).Value;
+                var samplerName = ((BinTreeString)samplerNameProperty).Value;
                 if (!config.SamplerNames.Contains(samplerName))
                     continue;
                 texture = ((BinTreeString) textureProperty).Value.ToLower();
