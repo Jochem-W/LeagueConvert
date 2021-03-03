@@ -4,6 +4,8 @@ on:
       - v*
   pull_request:
   push:
+    branches:
+      - "**"
 jobs:
   Build:
     runs-on: windows-latest
