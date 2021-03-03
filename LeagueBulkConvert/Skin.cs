@@ -22,8 +22,6 @@ namespace LeagueBulkConvert
             Character = character;
             Name = name;
             ParseBinTree(tree, config);
-            if (config.IncludeHiddenMeshes)
-                HiddenMeshes.Clear();
         }
 
         public List<(string, Animation)> Animations { get; } = new();
@@ -58,30 +56,30 @@ namespace LeagueBulkConvert
             if (binTree.Objects.Count != 1)
                 throw new NotImplementedException();
             var animations =
-                (BinTreeMap) binTree.Objects[0].Properties.FirstOrDefault(p => p.NameHash == 1172382456); //mClipDataMap
+                (BinTreeMap)binTree.Objects[0].Properties.FirstOrDefault(p => p.NameHash == 1172382456); //mClipDataMap
             if (animations == null)
                 return;
             foreach (var keyValuePair in animations.Map)
             {
                 if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
                     return;
-                var structure = (BinTreeStructure) keyValuePair.Value;
+                var structure = (BinTreeStructure)keyValuePair.Value;
                 if (structure.MetaClassHash != 1540989414) //AtomicClipData
                     continue;
                 var animationData =
-                    (BinTreeEmbedded) structure.Properties.FirstOrDefault(p =>
-                        p.NameHash == 3030349134); //mAnimationResourceData
+                    (BinTreeEmbedded)structure.Properties.FirstOrDefault(p =>
+                       p.NameHash == 3030349134); //mAnimationResourceData
                 if (animationData == null)
                     continue;
                 var pathProperty =
-                    (BinTreeString) animationData.Properties.FirstOrDefault(p =>
-                        p.NameHash == 53080535); //mAnimationFilePath
+                    (BinTreeString)animationData.Properties.FirstOrDefault(p =>
+                       p.NameHash == 53080535); //mAnimationFilePath
                 if (pathProperty == null)
                     continue;
                 var path = pathProperty.Value.ToLower();
                 if (!File.Exists(path))
                     continue;
-                var hash = ((BinTreeHash) keyValuePair.Key).Value;
+                var hash = ((BinTreeHash)keyValuePair.Key).Value;
                 string name;
                 if (hashTables["binhashes"].ContainsKey(hash))
                     name = hashTables["binhashes"][hash];
@@ -103,26 +101,17 @@ namespace LeagueBulkConvert
             }
         }
 
-        public void Clean()
+        public void FixTextures()
         {
-            var baseMaterial = Materials.FirstOrDefault(m => m.Hash == MaterialHash);
-            if (baseMaterial != null && Texture != null && !baseMaterial.IsComplete)
-                Materials[Materials.IndexOf(baseMaterial)].Texture = Texture;
-            for (var i = 0; i < Materials.Count; i++)
+            if (Texture != null)
             {
-                var material = Materials[i];
-                if (material.Hash == 0 && string.IsNullOrWhiteSpace(material.Texture) &&
-                    !HiddenMeshes.Contains(material.Name))
-                    Materials[i].Texture = Texture;
-                if ((string.IsNullOrWhiteSpace(material.Texture)
-                     || material.Texture.Contains("empty32.dds"))
-                    && !HiddenMeshes.Contains(material.Name))
-                    HiddenMeshes.Add(material.Name);
-                if (!HiddenMeshes.Contains(material.Name))
-                    continue;
-                Materials.RemoveAt(i);
-                i--;
+                var baseMaterial = Materials.FirstOrDefault(m => m.Hash == MaterialHash);
+                if (baseMaterial != null && !baseMaterial.IsComplete)
+                    Materials[Materials.IndexOf(baseMaterial)].Texture = Texture;
             }
+
+            foreach (var material in Materials.Where(m => m.Hash == 0 && string.IsNullOrWhiteSpace(m.Texture)))
+                material.Texture = Texture;
         }
 
         private void ParseBinTree(BinTree tree, Config config)
@@ -134,7 +123,7 @@ namespace LeagueBulkConvert
         private void ParseBinTreeContainer(BinTreeContainer container)
         {
             foreach (var property in container.Properties)
-                ParseBinTreeEmbedded((BinTreeEmbedded) property);
+                ParseBinTreeEmbedded((BinTreeEmbedded)property);
         }
 
         private void ParseBinTreeEmbedded(BinTreeEmbedded tree)
@@ -178,29 +167,29 @@ namespace LeagueBulkConvert
             switch (property.NameHash)
             {
                 case 1174362372: //skinMeshProperties
-                    ParseBinTreeEmbedded((BinTreeEmbedded) property);
+                    ParseBinTreeEmbedded((BinTreeEmbedded)property);
                     break;
                 case 2974586734: //skeleton
-                    Skeleton = ((BinTreeString) property).Value.ToLower();
+                    Skeleton = ((BinTreeString)property).Value.ToLower();
                     break;
                 case 3600813558: //simpleSkin
-                    Mesh = ((BinTreeString) property).Value.ToLower();
+                    Mesh = ((BinTreeString)property).Value.ToLower();
                     break;
                 case 1013213428: //texture
-                    Texture = ((BinTreeString) property).Value.ToLower();
+                    Texture = ((BinTreeString)property).Value.ToLower();
                     break;
                 case 2159540111: //initialSubmeshToHide
-                    foreach (var submesh in ((BinTreeString) property).Value.Replace(',', ' ')
+                    foreach (var submesh in ((BinTreeString)property).Value.Replace(',', ' ')
                         .Split(' ', StringSplitOptions.RemoveEmptyEntries))
                         HiddenMeshes.Add(submesh.ToLower());
                     break;
                 case 611473680: //materialOverride
-                    ParseBinTreeContainer((BinTreeContainer) property);
+                    ParseBinTreeContainer((BinTreeContainer)property);
                     break;
                 case 3538210912: //material
-                    if (((BinTreeEmbedded) property.Parent).MetaClassHash != 1628559524) //SkinMeshDataProperties
+                    if (((BinTreeEmbedded)property.Parent).MetaClassHash != 1628559524) //SkinMeshDataProperties
                         throw new NotImplementedException();
-                    MaterialHash = ((BinTreeObjectLink) property).Value;
+                    MaterialHash = ((BinTreeObjectLink)property).Value;
                     break;
             }
         }
@@ -226,12 +215,13 @@ namespace LeagueBulkConvert
             for (var i = 0; i < simpleSkin.Submeshes.Count; i++)
             {
                 var submesh = simpleSkin.Submeshes[i];
-                if (HiddenMeshes.Contains(submesh.Name.ToLower()))
-                {
-                    simpleSkin.Submeshes.RemoveAt(i);
-                    i--;
-                    continue;
-                }
+                if (!config.IncludeHiddenMeshes)
+                    if (HiddenMeshes.Contains(submesh.Name.ToLower()))
+                    {
+                        simpleSkin.Submeshes.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
 
                 var material = Materials.FirstOrDefault(m => m.Name == submesh.Name.ToLower());
                 string textureFile;
@@ -240,7 +230,7 @@ namespace LeagueBulkConvert
                 else
                     textureFile = material.Texture;
                 if (textureFile == null)
-                    break;
+                    continue;
                 if (!textures.ContainsKey(textureFile))
                     textures[textureFile] = new MagickImage(textureFile);
                 materialTextures[submesh.Name] = textures[textureFile];

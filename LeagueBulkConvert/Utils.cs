@@ -89,7 +89,7 @@ namespace LeagueBulkConvert
                             }
                     }
 
-                skin.Clean();
+                skin.FixTextures();
                 try
                 {
                     skin.Save(config, logger);

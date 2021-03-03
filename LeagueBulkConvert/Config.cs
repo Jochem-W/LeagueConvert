@@ -41,6 +41,8 @@ namespace LeagueBulkConvert
 
         public bool IncludeHiddenMeshes { get; set; } = false;
 
+        public bool IncludeUntexturedMeshes { get; set; } = false;
+
         public bool IncludeSkeleton
         {
             get => includeSkeletons;
