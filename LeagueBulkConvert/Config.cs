@@ -17,7 +17,7 @@ namespace LeagueBulkConvert
             CalculateScale();
         }
 
-        public HashSet<string> ExtractFormats { get; } = new() {".dds", ".jpg", ".png", ".skn", ".tga"};
+        public HashSet<string> ExtractFormats { get; } = new() {".dds", ".skn", ".tga"};
 
         public bool IncludeAnimations
         {
@@ -58,12 +58,15 @@ namespace LeagueBulkConvert
 
         public HashSet<string> SamplerNames { get; } = new()
         {
-            "Diffuse_Texture",
-            "DiffuseTexture",
-            "Main_Texture",
-            "Diffuse_Sword_Texture",
             "Color_Texture",
-            "Diffuse_Color"
+            "Diff_Tex",
+            "Diffuse",
+            "DiffuseTexture",
+            "Diffuse_Color",
+            "Diffuse_Sword_Texture",
+            "Diffuse_Texture",
+            "Diffuse_Texture_Primary",
+            "Main_Texture"
         };
 
         public bool SaveAsGlTF { get; set; } = false;
