@@ -21,7 +21,7 @@ jobs:
         if: ${{ github.event_name == 'create' }}
         run: Write-Output "name=$($Env:GITHUB_REF.Split('v')[-1])" | Out-File -FilePath $env:GITHUB_ENV -Append;
       - name: Upload build artifact
-        uses: actions/upload-artifact@v2.2.2
+        uses: actions/upload-artifact@v2.2.3
         with:
           name: LeagueBulkConvert-${{ env.name }}-win-x64
           path: LeagueBulkConvert.WPF/bin/x64/Release/net5.0-windows/publish
