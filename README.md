@@ -42,6 +42,12 @@ and animations.
 
 ## Troubleshooting
 
+### Why are some skins not converted?
+
+Some skins or entire characters can't be converted because the hashfiles in
+[CommunityDragon/CDTB](https://github.com/CommunityDragon/CDTB) haven't been
+updated yet. I might add an option to automatically generate updated hashfiles.
+
 ### Why can't some files be parsed?
 
 Some files can't be parsed, because
