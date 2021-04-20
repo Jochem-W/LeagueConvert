@@ -2,6 +2,8 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using LeagueConvert.Enums;
 using LeagueConvert.IO.HashTables;
@@ -14,13 +16,34 @@ namespace LeagueConvert.CommandLine
     {
         private static readonly ILogger Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
+
         private static async Task<int> Main(string[] args)
         {
+            try
+            {
+                await CheckForUpdates();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Update check failed");
+            }
+
             var rootCommand = new RootCommand
             {
                 GetConvertWadCommand()
             };
             return await rootCommand.InvokeAsync(args);
+        }
+
+        private static async Task CheckForUpdates()
+        {
+            var assembly = Assembly.GetExecutingAssembly().GetName();
+            var httpClient = new HttpClient();
+            var latestVersion = new Version(await httpClient.GetStringAsync(
+                $"https://api.jochemw.workers.dev/products/{assembly.Name?.ToLower()}/version/latest"));
+            httpClient.Dispose();
+            if (assembly.Version?.CompareTo(latestVersion) < 0)
+                Logger.Information("A new version of {Name} is available: {Version}", assembly.Name, latestVersion);
         }
 
         private static Command GetConvertWadCommand()
@@ -108,35 +131,6 @@ namespace LeagueConvert.CommandLine
                 _ => SkinMode.MeshAndTextures
             };
         }
-
-        /*private static async Task Main(string[] args)
-        {
-            foreach (var hashFile in Directory.EnumerateFiles(@"C:\hashes", "*.txt"))
-                await HashTables.Load(hashFile);
-
-            var baseDirectory = Path.Combine("C:", "skins");
-            if (Directory.Exists(baseDirectory))
-                Directory.Delete(baseDirectory, true);
-            foreach (var path in Directory.EnumerateFiles(
-                @"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions", "*.wad.client"))
-            {
-                var wad = new StringWad(path);
-                await foreach (var skin in wad.GetSkins())
-                {
-                    Console.WriteLine($"{skin.Character}  skin{skin.Id}");
-                    await skin.Load(SkinMode.WithAnimations);
-                    if (skin.State == 0)
-                        continue;
-                    var directory = Path.Combine(baseDirectory, skin.Character);
-                    if (!Directory.Exists(directory))
-                        Directory.CreateDirectory(directory);
-                    skin.Save(Path.Combine(directory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
-                    skin.Dispose();
-                }
-
-                wad.Dispose();
-            }
-        }*/
 
 
         /*private static async Task SamplerStuff(IDictionary<ulong, string> gameHashes)
