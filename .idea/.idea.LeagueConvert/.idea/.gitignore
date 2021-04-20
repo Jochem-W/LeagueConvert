@@ -1,0 +1,13 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/contentModel.xml
+/modules.xml
+/projectSettingsUpdater.xml
+/.idea.LeagueConvert.iml
+# Datasource local storage ignored files
+/../../../../../../../../:\Users\Joche\RiderProjects\LeagueConvert\.idea\.idea.LeagueConvert\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/

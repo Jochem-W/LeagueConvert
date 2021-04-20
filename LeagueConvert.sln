@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeagueConvert", "LeagueConvert\LeagueConvert.csproj", "{70FEC8E8-5D9C-4130-B952-735533786003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeagueConvert.CommandLine", "LeagueConvert.CommandLine\LeagueConvert.CommandLine.csproj", "{40F6FF1C-CD7E-4F89-9E43-686C584CD42E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70FEC8E8-5D9C-4130-B952-735533786003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70FEC8E8-5D9C-4130-B952-735533786003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70FEC8E8-5D9C-4130-B952-735533786003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70FEC8E8-5D9C-4130-B952-735533786003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40F6FF1C-CD7E-4F89-9E43-686C584CD42E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40F6FF1C-CD7E-4F89-9E43-686C584CD42E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40F6FF1C-CD7E-4F89-9E43-686C584CD42E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40F6FF1C-CD7E-4F89-9E43-686C584CD42E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
