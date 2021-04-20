@@ -41,8 +41,9 @@ namespace LeagueConvert.IO.Skin
             foreach (var binTree in binTrees)
                 ParseBinTree(binTree);
         }
-        
-        public Skin(string character, string name, ILogger logger, params ParentedBinTree[] binTrees) : this(character, name, binTrees)
+
+        public Skin(string character, string name, ILogger logger, params ParentedBinTree[] binTrees) : this(character,
+            name, binTrees)
         {
             logger.Debug("Parsing {Character} skin{Id}", Character, Id);
         }
@@ -90,7 +91,7 @@ namespace LeagueConvert.IO.Skin
             }
             catch (Exception e)
             {
-                logger?.Error(e, "Couldn't load mesh '{file}'", _simpleSkinFile);
+                logger?.Error(e, "Couldn't load mesh '{File}'", _simpleSkinFile);
                 State = 0;
                 return false;
             }
@@ -154,7 +155,7 @@ namespace LeagueConvert.IO.Skin
             }
             catch (Exception e)
             {
-                logger?.Error(e, "Couldn't load skeleton '{file}'", _skeletonFile);
+                logger?.Error(e, "Couldn't load skeleton '{File}'", _skeletonFile);
                 return false;
             }
             finally
@@ -195,7 +196,7 @@ namespace LeagueConvert.IO.Skin
             }
             catch (Exception e)
             {
-                logger?.Error(e, "Couldn't load animation '{file}'", fileName);
+                logger?.Error(e, "Couldn't load animation '{File}'", fileName);
                 return false;
             }
         }

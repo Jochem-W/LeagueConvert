@@ -12,7 +12,7 @@ namespace LeagueConvert.CommandLine
 {
     internal static class Program
     {
-        private static readonly ILogger _logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+        private static readonly ILogger Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
         private static async Task<int> Main(string[] args)
         {
@@ -32,7 +32,7 @@ namespace LeagueConvert.CommandLine
                 new Option<bool>(new[] {"-s", "--skeletons"}, () => false, "Include skeletons"),
                 new Option<bool>(new[] {"-a", "--animations"}, () => false, "Include animations; requires -s"),
                 new Option<bool>(new[] {"-d", "--download-hashes"}, () => true, "Download the latest hash tables"),
-                new Option<string>(new[] {"--game-hash-file"}, () => "hashes.game.txt","Path to 'hashes.game.txt'"),
+                new Option<string>(new[] {"--game-hash-file"}, () => "hashes.game.txt", "Path to 'hashes.game.txt'"),
                 new Option<string>(new[] {"--binhashes-hash-file"}, () => "hashes.binhashes.txt",
                     "Path to 'hashes.binhashes.txt'")
             };
@@ -49,10 +49,10 @@ namespace LeagueConvert.CommandLine
                     }
                     catch (Exception e)
                     {
-                        _logger.Fatal(e, "Couldn't open '{Path}'", path);
+                        Logger.Fatal(e, "Couldn't open '{Path}'", path);
                         return;
                     }
-                    
+
                     try
                     {
                         if (!Directory.Exists(outputDirectory))
@@ -60,7 +60,7 @@ namespace LeagueConvert.CommandLine
                     }
                     catch (Exception e)
                     {
-                        _logger.Fatal(e,"Output directory couldn't be created.");
+                        Logger.Fatal(e, "Output directory couldn't be created");
                         return;
                     }
 
@@ -71,25 +71,26 @@ namespace LeagueConvert.CommandLine
                     }
                     catch (Exception e)
                     {
-                        _logger.Fatal(e, "Can't include animations without skeletons.");
+                        Logger.Fatal(e, "Can't include animations without skeletons");
                         return;
                     }
-                    
+
                     try
                     {
-                        await foreach (var skin in wad.GetSkins(_logger))
+                        await foreach (var skin in wad.GetSkins(Logger))
                         {
-                            _logger.Information("Converting {Character} skin{Id}", skin.Character, skin.Id);
-                            await skin.Load(mode, _logger);
+                            Logger.Information("Converting {Character} skin{Id}", skin.Character, skin.Id);
+                            await skin.Load(mode, Logger);
                             var skinDirectory = Path.Combine(outputDirectory, skin.Character);
                             if (!Directory.Exists(skinDirectory))
                                 Directory.CreateDirectory(skinDirectory);
-                            skin.Save(Path.Combine(skinDirectory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"), _logger);
+                            skin.Save(Path.Combine(skinDirectory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"),
+                                Logger);
                         }
                     }
                     catch (Exception e)
                     {
-                        _logger.Fatal(e, "Unexpected error occurred.");
+                        Logger.Fatal(e, "Unexpected error occurred");
                     }
                 });
             return command;
@@ -100,7 +101,8 @@ namespace LeagueConvert.CommandLine
             return skeletons switch
             {
                 true when animations => SkinMode.WithAnimations,
-                false when animations => throw new ArgumentException("Animations can't be included without skeletons", nameof(skeletons)),
+                false when animations => throw new ArgumentException("Animations can't be included without skeletons",
+                    nameof(skeletons)),
                 true => SkinMode.WithSkeleton,
                 _ => SkinMode.MeshAndTextures
             };
