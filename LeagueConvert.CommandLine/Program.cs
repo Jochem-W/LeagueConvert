@@ -31,17 +31,18 @@ namespace LeagueConvert.CommandLine
                 new Option<string>(new[] {"-o", "--output-directory"}, () => "output", "Path to the output directory"),
                 new Option<bool>(new[] {"-s", "--skeletons"}, () => false, "Include skeletons"),
                 new Option<bool>(new[] {"-a", "--animations"}, () => false, "Include animations; requires -s"),
-                new Option<bool>(new[] {"-d", "--download-hashes"}, () => true, "Download the latest hash tables"),
-                new Option<string>(new[] {"--game-hash-file"}, () => "hashes.game.txt", "Path to 'hashes.game.txt'"),
-                new Option<string>(new[] {"--binhashes-hash-file"}, () => "hashes.binhashes.txt",
-                    "Path to 'hashes.binhashes.txt'")
+                new Option<string>(new[] {"--game-hash-file"}, "Path to 'hashes.game.txt'"),
+                new Option<string>(new[] {"--binhashes-hash-file"}, "Path to 'hashes.binhashes.txt'")
             };
-            command.Handler = CommandHandler.Create<string, string, bool, bool, bool, string, string>(
-                async (path, outputDirectory, skeletons, animations, downloadHashes,
+            command.Handler = CommandHandler.Create<string, string, bool, bool, string, string>(
+                async (path, outputDirectory, skeletons, animations,
                     gameHashFile, binHashesHashFile) =>
                 {
-                    await HashTables.Load(binHashesHashFile);
-                    await HashTables.Load(gameHashFile);
+                    await HashTables.LoadLatest();
+                    if (gameHashFile != null)
+                        await HashTables.LoadFile(gameHashFile, HashTable.Game, Logger);
+                    if (binHashesHashFile != null)
+                        await HashTables.LoadFile(binHashesHashFile, HashTable.BinHashes, Logger);
                     StringWad wad;
                     try
                     {
