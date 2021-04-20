@@ -10,7 +10,7 @@ On this branch I'll be working towards the next version of LeagueConvert
 lot I have to do and I hope to release this version when .NET MAUI is
 generally available.
 
-### Biggest changes compared to LeagueBulkConvert
+## Biggest changes compared to LeagueBulkConvert
 
 * No more temporary 'assets' directories
 * Much more granular control over skin parsing, loading and saving
