@@ -32,7 +32,9 @@ namespace LeagueConvert.CommandLine
             {
                 GetConvertWadCommand()
             };
-            return await rootCommand.InvokeAsync(args);
+            var result = await rootCommand.InvokeAsync(args);
+            Logger.Information("Finished");
+            return result;
         }
 
         private static async Task CheckForUpdates()
