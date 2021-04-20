@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/Jochem-W/LeagueBulkConvert.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Jochem-W/LeagueBulkConvert</PackageProjectUrl>
     <Platforms>x64</Platforms>
+    <PackageVersion>2.1.3</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

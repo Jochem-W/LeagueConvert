@@ -28,35 +28,54 @@ namespace LeagueBulkConvert.WPF
 
         private static async Task CheckForUpdates()
         {
-            IReadOnlyList<RepositoryTag> tags;
+            try
+            {
+                var tags = await GetTags();
+                var latestRelease = tags.First(t => !t.Name.Contains("pre"));
+                var latestVersion = new Version(latestRelease.Name.Remove(0, 1));
+                var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                if (currentVersion.CompareTo(latestVersion) < 0)
+                {
+                    var processStartInfo = new ProcessStartInfo
+                    {
+                        FileName = "https://github.com/Jochem-W/LeagueBulkConvert/releases",
+                        UseShellExecute = true
+                    };
+                    new MessageWindow("Update available", "A new version of LeagueBulkConvert is available\n" +
+                                                          "Clicking the 'Ok' button will take you to the downloads.\n" +
+                                                          "(Note: it might take a minute or so for a new version to show up)",
+                        new Command(_ => Process.Start(processStartInfo))).ShowDialog();
+                }
+            }
+            catch (Exception e)
+            {
+                new MessageWindow("Update check failed!",
+                    "Encountered the following error while checking for updates:\n" +
+                    $"{e.Message}\n" +
+                    "Are you connected to the internet? If so, please check for updates manually.").ShowDialog();
+            }
+        }
+
+        private static async Task<IEnumerable<RepositoryTag>> GetTags()
+        {
+            IEnumerable<RepositoryTag> tags;
             try
             {
                 tags = await gitHubClient.Repository.GetAllTags("Jochem-W", "LeagueBulkConvert");
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                new MessageWindow("Update check failed!",
-                    "Encountered the following error while checking for updates:\n" +
-                    $"{exception.Message}\n" +
-                    "Are you connected to the internet?").ShowDialog();
-                return;
-            }
-
-            var latestRelease = tags.First(t => !t.Name.Contains("pre"));
-            var latestVersion = new Version(latestRelease.Name.Remove(0, 1));
-            var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            if (currentVersion.CompareTo(latestVersion) < 0)
-            {
-                var processStartInfo = new ProcessStartInfo
+                try
                 {
-                    FileName = "https://github.com/Jochem-W/LeagueBulkConvert/releases",
-                    UseShellExecute = true
-                };
-                new MessageWindow("Update available", "A new version of LeagueBulkConvert is available\n" +
-                                                      "Clicking the 'Ok' button will take you to the downloads.\n" +
-                                                      "(Note: it might take a minute or so for a new version to show up)",
-                    new Command(_ => Process.Start(processStartInfo))).ShowDialog();
+                    tags = await gitHubClient.Repository.GetAllTags("Jochem-W", "LeagueConvert");
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
             }
+            
+            return tags;
         }
     }
 }
