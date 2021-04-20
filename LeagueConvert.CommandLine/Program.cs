@@ -38,10 +38,10 @@ namespace LeagueConvert.CommandLine
                 async (path, outputDirectory, skeletons, animations,
                     gameHashFile, binHashesHashFile) =>
                 {
-                    await HashTables.LoadLatest();
-                    if (gameHashFile != null)
+                    await HashTables.LoadLatest(Logger);
+                    if (!string.IsNullOrEmpty(gameHashFile))
                         await HashTables.LoadFile(gameHashFile, HashTable.Game, Logger);
-                    if (binHashesHashFile != null)
+                    if (!string.IsNullOrEmpty(binHashesHashFile))
                         await HashTables.LoadFile(binHashesHashFile, HashTable.BinHashes, Logger);
                     StringWad wad;
                     try

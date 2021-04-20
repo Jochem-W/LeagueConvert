@@ -74,7 +74,8 @@ namespace LeagueConvert.IO.HashTables
             var tmpFilePath = $"{filePath}.tmp";
             try
             {
-                var contents = await _httpClient.GetStringAsync(content.Url);
+                logger?.Information("Downloading {FileName}", content.Name);
+                var contents = await _httpClient.GetStringAsync(content.DownloadUrl);
                 await File.WriteAllTextAsync(tmpFilePath, contents);
                 File.Move(tmpFilePath, filePath);
                 await File.WriteAllTextAsync(shaFilePath, content.Sha);
@@ -91,20 +92,20 @@ namespace LeagueConvert.IO.HashTables
 
         private static IEnumerable<KeyValuePair<ulong, string>> GetUlongHashPairs(string content)
         {
-            return content.Split('\n').Select(line =>
-            {
-                var split = line.Split(' ');
-                return new KeyValuePair<ulong, string>(Convert.ToUInt64(split[0]), split[1]);
-            });
+            return content
+                .Split('\n')
+                .Select(line => line.Split(' '))
+                .Where(split => split.Length == 2)
+                .Select(split => new KeyValuePair<ulong, string>(Convert.ToUInt64(split[0], 16), split[1]));
         }
 
         private static IEnumerable<KeyValuePair<uint, string>> GetUintHashPairs(string content)
         {
-            return content.Split('\n').Select(line =>
-            {
-                var split = line.Split(' ');
-                return new KeyValuePair<uint, string>(Convert.ToUInt32(split[0]), split[1]);
-            });
+            return content
+                .Split('\n')
+                .Select(line => line.Split(' '))
+                .Where(split => split.Length == 2)
+                .Select(split => new KeyValuePair<uint, string>(Convert.ToUInt32(split[0], 16), split[1]));
         }
 
         private static void LoadGame(IEnumerable<KeyValuePair<ulong, string>> lines, ILogger logger = null)
