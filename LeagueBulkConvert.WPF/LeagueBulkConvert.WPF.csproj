@@ -4,15 +4,10 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <StartupObject>LeagueBulkConvert.WPF.App</StartupObject>
-    <Version>2.1.2</Version>
-    <Authors>Jochem-W</Authors>
-    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-    <NeutralLanguage>en-GB</NeutralLanguage>
-    <RepositoryUrl>https://github.com/Jochem-W/LeagueBulkConvert.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/Jochem-W/LeagueBulkConvert</PackageProjectUrl>
     <Platforms>x64</Platforms>
-    <PackageVersion>2.1.3</PackageVersion>
+    <IsPackable>false</IsPackable>
+    <Company>Jochem-W</Company>
+    <Version>2.1.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
