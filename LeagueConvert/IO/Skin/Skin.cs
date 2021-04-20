@@ -91,7 +91,7 @@ namespace LeagueConvert.IO.Skin
             }
             catch (Exception e)
             {
-                logger?.Error(e, "Couldn't load mesh '{File}'", _simpleSkinFile);
+                logger?.Warning(e, "Couldn't load mesh '{File}'", _simpleSkinFile);
                 State = 0;
                 return false;
             }
@@ -132,7 +132,7 @@ namespace LeagueConvert.IO.Skin
             }
             catch (Exception e)
             {
-                logger?.Error(e, "Unexpected error when loading textures");
+                logger?.Warning(e, "Unexpected error when loading textures");
                 return false;
             }
             finally
@@ -155,7 +155,7 @@ namespace LeagueConvert.IO.Skin
             }
             catch (Exception e)
             {
-                logger?.Error(e, "Couldn't load skeleton '{File}'", _skeletonFile);
+                logger?.Warning(e, "Couldn't load skeleton '{File}'", _skeletonFile);
                 return false;
             }
             finally
@@ -196,7 +196,7 @@ namespace LeagueConvert.IO.Skin
             }
             catch (Exception e)
             {
-                logger?.Error(e, "Couldn't load animation '{File}'", fileName);
+                logger?.Warning(e, "Couldn't load animation '{File}'", fileName);
                 return false;
             }
         }
@@ -210,7 +210,7 @@ namespace LeagueConvert.IO.Skin
             }
             catch (Exception e)
             {
-                logger?.Error(e, "Unexpected error when saving");
+                logger?.Warning(e, "Unexpected error when saving");
             }
         }
 
