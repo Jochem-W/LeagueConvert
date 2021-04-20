@@ -77,7 +77,7 @@ namespace LeagueConvert.IO.HashTables
                 logger?.Information("Downloading {FileName}", content.Name);
                 var contents = await _httpClient.GetStringAsync(content.DownloadUrl);
                 await File.WriteAllTextAsync(tmpFilePath, contents);
-                File.Move(tmpFilePath, filePath);
+                File.Move(tmpFilePath, filePath, true);
                 await File.WriteAllTextAsync(shaFilePath, content.Sha);
                 return contents;
             }
