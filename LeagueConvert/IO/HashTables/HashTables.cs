@@ -57,10 +57,7 @@ namespace LeagueConvert.IO.HashTables
             if (await TryLoadFromGitHub(path, logger))
                 return true;
             logger?.Warning("Trying to load (possibly outdated) existing hash tables");
-            if (await TryLoadExisting(path, logger))
-                return true;
-            logger?.Fatal("Couldn't load hash tables");
-            return false;
+            return await TryLoadExisting(path, logger);
         }
 
         private static async Task<bool> TryLoadFromGitHub(string path, ILogger logger = null)
@@ -101,20 +98,10 @@ namespace LeagueConvert.IO.HashTables
         {
             var gameHashFile = Path.Combine(path, "hashes.game.txt");
             var binHashesFile = Path.Combine(path, "hashes.binhashes.txt");
-            try
-            {
-                //LoadGame(GetUlongHashPairs(await File.ReadAllTextAsync(gameHashFile)));
-                await TryLoadFile(gameHashFile, HashTable.Game, logger);
-                //LoadBinHashes(GetUintHashPairs(await File.ReadAllTextAsync(binHashesFile)));
-                await TryLoadFile(binHashesFile, HashTable.BinHashes, logger);
-            }
-            catch (Exception e)
-            {
-                logger?.Error(e, "Couldn't load existing hash tables");
-                return false;
-            }
-
-            return true;
+            if (await TryLoadFile(gameHashFile, HashTable.Game, logger) &&
+                await TryLoadFile(binHashesFile, HashTable.BinHashes, logger)) return true;
+            logger?.Error("Couldn't load existing hash tables");
+            return false;
         }
 
         private static async Task<string> Download(RepositoryContentInfo content, string directory,

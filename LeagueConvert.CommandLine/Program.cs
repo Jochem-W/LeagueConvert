@@ -32,9 +32,7 @@ namespace LeagueConvert.CommandLine
             {
                 GetConvertWadCommand()
             };
-            var result = await rootCommand.InvokeAsync(args);
-            Logger.Information("Finished");
-            return result;
+            return await rootCommand.InvokeAsync(args);
         }
 
         private static async Task CheckForUpdates()
@@ -63,11 +61,18 @@ namespace LeagueConvert.CommandLine
                 async (path, outputDirectory, skeletons, animations,
                     gameHashFile, binHashesHashFile) =>
                 {
-                    if (!await HashTables.TryLoadLatest(Logger) ||
-                        await HashTables.TryLoadFile(gameHashFile, HashTable.Game, Logger) &&
-                        await HashTables.TryLoadFile(binHashesHashFile, HashTable.BinHashes, Logger))
+                    var latestHashes = await HashTables.TryLoadLatest(Logger);
+                    var userHashes = false;
+                    if (gameHashFile != "" || binHashesHashFile != "")
                     {
-                        Logger.Fatal("Couldn't load hash tables");
+                        Logger.Information("Loading hash tables from options");
+                        userHashes = await HashTables.TryLoadFile(gameHashFile, HashTable.Game, Logger) &&
+                                     await HashTables.TryLoadFile(binHashesHashFile, HashTable.BinHashes, Logger);
+                    }
+
+                    if (!latestHashes && !userHashes)
+                    {
+                        Logger.Fatal("No hash tables were loaded");
                         return;
                     }
 
