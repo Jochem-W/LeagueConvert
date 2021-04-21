@@ -19,75 +19,119 @@ namespace LeagueConvert.IO.HashTables
 
         public static IDictionary<uint, string> BinHashes { get; private set; }
 
-        public static async Task LoadFile(string filePath, HashTable hashTable, ILogger logger = null)
+        public static async Task<bool> TryLoadFile(string filePath, HashTable hashTable, ILogger logger = null)
         {
-            switch (hashTable)
+            if (!File.Exists(filePath))
+                return false;
+            try
             {
-                case HashTable.Game:
-                    logger?.Information("Loading {Path}", filePath);
-                    LoadGame(GetUlongHashPairs(await File.ReadAllTextAsync(filePath)), logger);
-                    break;
-                case HashTable.BinHashes:
-                    logger?.Information("Loading {Path}", filePath);
-                    LoadBinHashes(GetUintHashPairs(await File.ReadAllTextAsync(filePath)), logger);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(hashTable), hashTable, "Invalid hash table");
+                switch (hashTable)
+                {
+                    case HashTable.Game:
+                        logger?.Information("Loading {Path}", filePath);
+                        LoadGame(GetUlongHashPairs(await File.ReadAllTextAsync(filePath)), logger);
+                        break;
+                    case HashTable.BinHashes:
+                        logger?.Information("Loading {Path}", filePath);
+                        LoadBinHashes(GetUintHashPairs(await File.ReadAllTextAsync(filePath)), logger);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(hashTable), hashTable, "Invalid hash table");
+                }
+                
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger?.Warning(e, "Couldn't load {Path}", filePath);
+                return false;
             }
         }
 
-        public static async Task LoadLatest(ILogger logger = null)
+        public static async Task<bool> TryLoadLatest(ILogger logger = null)
         {
-            _gitHubClient ??= new GitHubClient(new ProductHeaderValue("LeagueBulkConvert"));
-            _httpClient ??= new HttpClient();
+            logger?.Information("Loading latest hash tables");
             var path = Path.Combine(Path.GetTempPath(), "LeagueConvert");
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-            foreach (var repositoryContent in await _gitHubClient.Repository.Content.GetAllContents("CommunityDragon",
-                "CDTB",
-                "cdragontoolbox"))
+            if (await TryLoadFromGitHub(path, logger))
+                return true;
+            logger?.Warning("Trying to load (possibly outdated) existing hash tables");
+            if (await TryLoadExisting(path, logger))
+                return true;
+            logger?.Fatal("Couldn't load hash tables");
+            return false;
+        }
+
+        private static async Task<bool> TryLoadFromGitHub(string path, ILogger logger = null)
+        {
+            _gitHubClient ??= new GitHubClient(new ProductHeaderValue("LeagueBulkConvert"));
+            _httpClient ??= new HttpClient();
+            IReadOnlyList<RepositoryContent> contents;
+            try
             {
-                string content;
+                contents = await _gitHubClient.Repository.Content.GetAllContents("CommunityDragon", "CDTB",
+                    "cdragontoolbox");
+            }
+            catch (Exception e)
+            {
+                logger?.Error(e, "Couldn't load hash tables from GitHub");
+                return false;
+            }
+
+            foreach (var repositoryContent in contents)
                 switch (repositoryContent.Name)
                 {
                     case "hashes.game.txt":
-                        content = await GetLatest(repositoryContent, path, logger);
+                        var content = await Download(repositoryContent, path, logger);
                         logger?.Information("Loading downloaded {FileName}", repositoryContent.Name);
                         LoadGame(GetUlongHashPairs(content), logger);
                         break;
                     case "hashes.binhashes.txt":
-                        content = await GetLatest(repositoryContent, path, logger);
+                        content = await Download(repositoryContent, path, logger);
                         logger?.Information("Loading downloaded {FileName}", repositoryContent.Name);
                         LoadBinHashes(GetUintHashPairs(content), logger);
                         break;
                 }
-            }
+
+            return true;
         }
 
-        private static async Task<string> GetLatest(RepositoryContentInfo content, string directory,
+        private static async Task<bool> TryLoadExisting(string path, ILogger logger = null)
+        {
+            var gameHashFile = Path.Combine(path, "hashes.game.txt");
+            var binHashesFile = Path.Combine(path, "hashes.binhashes.txt");
+            try
+            {
+                //LoadGame(GetUlongHashPairs(await File.ReadAllTextAsync(gameHashFile)));
+                await TryLoadFile(gameHashFile, HashTable.Game, logger);
+                //LoadBinHashes(GetUintHashPairs(await File.ReadAllTextAsync(binHashesFile)));
+                await TryLoadFile(binHashesFile, HashTable.BinHashes, logger);
+            }
+            catch (Exception e)
+            {
+                logger?.Error(e, "Couldn't load existing hash tables");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static async Task<string> Download(RepositoryContentInfo content, string directory,
             ILogger logger = null)
         {
             var filePath = Path.Combine(directory, $"{content.Name}");
             var shaFilePath = $"{filePath}.sha";
-            if (File.Exists(shaFilePath) && await File.ReadAllTextAsync(shaFilePath) == content.Sha)
+            if (File.Exists(shaFilePath) && await File.ReadAllTextAsync(shaFilePath) == content.Sha &&
+                File.Exists(filePath))
                 return await File.ReadAllTextAsync(filePath);
             var tmpFilePath = $"{filePath}.tmp";
-            try
-            {
-                logger?.Information("Downloading {FileName}", content.Name);
-                var contents = await _httpClient.GetStringAsync(content.DownloadUrl);
-                await File.WriteAllTextAsync(tmpFilePath, contents);
-                File.Move(tmpFilePath, filePath, true);
-                await File.WriteAllTextAsync(shaFilePath, content.Sha);
-                return contents;
-            }
-            catch (Exception e)
-            {
-                if (!File.Exists(filePath))
-                    throw new FileNotFoundException();
-                logger?.Warning(e, "Couldn't update {FileName}, using possibly outdated version", content.Name);
-                return await File.ReadAllTextAsync(filePath);
-            }
+            logger?.Information("Downloading {FileName}", content.Name);
+            var contents = await _httpClient.GetStringAsync(content.DownloadUrl);
+            await File.WriteAllTextAsync(tmpFilePath, contents);
+            File.Move(tmpFilePath, filePath, true);
+            await File.WriteAllTextAsync(shaFilePath, content.Sha);
+            return contents;
         }
 
         private static IEnumerable<KeyValuePair<ulong, string>> GetUlongHashPairs(string content)
@@ -108,10 +152,10 @@ namespace LeagueConvert.IO.HashTables
                 .Select(split => new KeyValuePair<uint, string>(Convert.ToUInt32(split[0], 16), split[1]));
         }
 
-        private static void LoadGame(IEnumerable<KeyValuePair<ulong, string>> lines, ILogger logger = null)
+        private static void LoadGame(IEnumerable<KeyValuePair<ulong, string>> hashPairs, ILogger logger = null)
         {
             Game ??= new Dictionary<ulong, string>();
-            foreach (var (hash, value) in lines)
+            foreach (var (hash, value) in hashPairs)
                 TryLoadHash(hash, value, Game, logger);
         }
 

@@ -63,11 +63,14 @@ namespace LeagueConvert.CommandLine
                 async (path, outputDirectory, skeletons, animations,
                     gameHashFile, binHashesHashFile) =>
                 {
-                    await HashTables.LoadLatest(Logger);
-                    if (!string.IsNullOrEmpty(gameHashFile))
-                        await HashTables.LoadFile(gameHashFile, HashTable.Game, Logger);
-                    if (!string.IsNullOrEmpty(binHashesHashFile))
-                        await HashTables.LoadFile(binHashesHashFile, HashTable.BinHashes, Logger);
+                    if (!await HashTables.TryLoadLatest(Logger) ||
+                        await HashTables.TryLoadFile(gameHashFile, HashTable.Game, Logger) &&
+                        await HashTables.TryLoadFile(binHashesHashFile, HashTable.BinHashes, Logger))
+                    {
+                        Logger.Fatal("Couldn't load hash tables");
+                        return;
+                    }
+
                     StringWad wad;
                     try
                     {
