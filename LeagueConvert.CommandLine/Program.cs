@@ -20,15 +20,7 @@ namespace LeagueConvert.CommandLine
         
         private static async Task<int> Main(string[] args)
         {
-            try
-            {
-                await CheckForUpdates();
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Update check failed");
-            }
-
+            await TryCheckForUpdates();
             var rootCommand = new RootCommand
             {
                 GetConvertWadCommand(),
@@ -37,15 +29,24 @@ namespace LeagueConvert.CommandLine
             return await rootCommand.InvokeAsync(args);
         }
 
-        private static async Task CheckForUpdates()
+        private static async Task<bool> TryCheckForUpdates()
         {
-            var assembly = Assembly.GetExecutingAssembly().GetName();
-            var httpClient = new HttpClient();
-            var latestVersion = new Version(await httpClient.GetStringAsync(
-                $"https://api.jochemw.workers.dev/products/{assembly.Name?.ToLower()}/version/latest"));
-            httpClient.Dispose();
-            if (assembly.Version?.CompareTo(latestVersion) < 0)
-                Logger.Information("A new version of {Name} is available: {Version}", assembly.Name, latestVersion);
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly().GetName();
+                var httpClient = new HttpClient();
+                var latestVersion = new Version(await httpClient.GetStringAsync(
+                    $"https://api.jochemw.workers.dev/products/{assembly.Name?.ToLower()}/version/latest"));
+                httpClient.Dispose();
+                if (assembly.Version?.CompareTo(latestVersion) < 0)
+                    Logger.Information("A new version of {Name} is available: {Version}", assembly.Name, latestVersion);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Update check failed");
+                return false;
+            }
         }
 
         private static Command GetConvertWadCommand()
