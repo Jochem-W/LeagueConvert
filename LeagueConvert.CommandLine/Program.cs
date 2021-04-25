@@ -17,7 +17,7 @@ namespace LeagueConvert.CommandLine
     internal static class Program
     {
         private static readonly ILogger Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
-        
+
         private static async Task<int> Main(string[] args)
         {
             await TryCheckForUpdates();
@@ -86,36 +86,37 @@ namespace LeagueConvert.CommandLine
                 new Option<string>(new[] {"-o", "--output-directory"}, () => "output", "Path to the output directory"),
                 new Option<bool>(new[] {"-s", "--skeletons"}, () => false, "Include skeletons"),
                 new Option<bool>(new[] {"-a", "--animations"}, () => false, "Include animations; requires -s"),
-                new Option<bool>(new [] {"-r", "--recursive"}, () => false, "Search for WAD files recursively"),
+                new Option<bool>(new[] {"-r", "--recursive"}, () => false, "Search for WAD files recursively"),
                 new Option<string>(new[] {"--game-hash-file"}, "Path to 'hashes.game.txt'"),
                 new Option<string>(new[] {"--binhashes-hash-file"}, "Path to 'hashes.binhashes.txt'")
             };
             command.Handler = CommandHandler.Create<string, string, bool, bool, bool, string, string>(
-                async (path, outputDirectory, skeletons, animations, recursive, gameHashFile, binHashesHashFile) => 
-            {
-                if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
-                    return;
-                if (!TryCreateOutputDirectory(outputDirectory))
-                    return;
-                if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
-                    return;
-                var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-                foreach (var filePath in Directory.EnumerateFiles(path, "*.wad.client", searchOption)
-                    .Where(filePath => Path.GetFileName(filePath).Count(character => character == '.') == 2))
+                async (path, outputDirectory, skeletons, animations, recursive, gameHashFile, binHashesHashFile) =>
                 {
-                    if (!TryLoadWad(filePath, out var wad))
-                        continue;
-                    await TryConvertWad(wad, mode.Value, outputDirectory);
-                    wad.Dispose();
-                }
-            });
+                    if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
+                        return;
+                    if (!TryCreateOutputDirectory(outputDirectory))
+                        return;
+                    if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
+                        return;
+                    var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+                    foreach (var filePath in Directory.EnumerateFiles(path, "*.wad.client", searchOption)
+                        .Where(filePath => Path.GetFileName(filePath).Count(character => character == '.') == 2))
+                    {
+                        if (!TryLoadWad(filePath, out var wad))
+                            continue;
+                        await TryConvertWad(wad, mode.Value, outputDirectory);
+                        wad.Dispose();
+                    }
+                });
             return command;
         }
 
         private static async Task<bool> TryLoadHashes(string gameHashFile, string binHashesHashFile)
         {
             var latestHashes = await HashTables.TryLoadLatest(Logger);
-            var userHashes = await HashTables.TryLoadFile(gameHashFile, HashTable.Game, Logger) && await HashTables.TryLoadFile(binHashesHashFile, HashTable.BinHashes, Logger);
+            var userHashes = await HashTables.TryLoadFile(gameHashFile, HashTable.Game, Logger) &&
+                             await HashTables.TryLoadFile(binHashesHashFile, HashTable.BinHashes, Logger);
             if (latestHashes || userHashes)
                 return true;
             Logger.Fatal("No hash tables were loaded");
@@ -144,7 +145,8 @@ namespace LeagueConvert.CommandLine
                 mode = skeletons switch
                 {
                     true when animations => SkinMode.WithAnimations,
-                    false when animations => throw new ArgumentException("Animations can't be included without skeletons", nameof(skeletons)),
+                    false when animations => throw new ArgumentException(
+                        "Animations can't be included without skeletons", nameof(skeletons)),
                     true => SkinMode.WithSkeleton,
                     _ => SkinMode.MeshAndTextures
                 };
@@ -187,7 +189,7 @@ namespace LeagueConvert.CommandLine
                 return false;
             }
         }
-        
+
         private static async Task<bool> TryConvertSkin(Skin skin, SkinMode mode, string outputDirectory)
         {
             try

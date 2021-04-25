@@ -38,7 +38,7 @@ namespace LeagueConvert.IO.HashTables
                     default:
                         throw new ArgumentOutOfRangeException(nameof(hashTable), hashTable, "Invalid hash table");
                 }
-                
+
                 return true;
             }
             catch (Exception e)
