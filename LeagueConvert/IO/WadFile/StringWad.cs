@@ -55,7 +55,8 @@ namespace LeagueConvert.IO.WadFile
                 var split = path.Split('/');
                 if (split[0] != "data" ||
                     split[1] != "characters" ||
-                    split[3] != "skins")
+                    split[3] != "skins" ||
+                    split.Length != 5) // TODO: this check prevents things like MF skin16 weapons from converting
                     continue;
                 var fileName = Path.GetFileNameWithoutExtension(path);
                 if (string.IsNullOrWhiteSpace(fileName) || fileName == "root")
