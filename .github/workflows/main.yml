@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  
+jobs:
+  Build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Restore
+        run: dotnet.exe restore
+
+      - name: Publish
+        run: dotnet.exe publish  --no-restore -c Release -p:PublishProfile=win-x64
+        
+      - name: Get short SHA
+        run: Write-Output "name=$($Env:GITHUB_SHA.SubString(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Append;
+        
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: LeagueBulkConvert-${{ env.name }}-win-x64
+          path: LeagueBulkConvert.WPF/bin/x64/Release/net5.0-windows/publish
