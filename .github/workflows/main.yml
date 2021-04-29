@@ -13,12 +13,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      
-      - name: Restore
-        run: dotnet.exe restore
 
       - name: Publish
-        run: dotnet.exe publish  --no-restore -c Release -p:PublishProfile=win-x64
+        run: dotnet.exe publish -c Release -p:PublishProfile=win-x64
         
       - name: Get short SHA
         run: Write-Output "name=$($Env:GITHUB_SHA.SubString(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Append;
