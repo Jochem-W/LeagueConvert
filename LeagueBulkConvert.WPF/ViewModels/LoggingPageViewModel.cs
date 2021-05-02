@@ -62,40 +62,9 @@ namespace LeagueBulkConvert.WPF.ViewModels
             App.AllowNavigation = false;
             if (!Directory.Exists("hashes"))
                 Directory.CreateDirectory("hashes");
-            try
-            {
-                _logger.Information("Downloading latest hashtables");
-                var repositoryContents = await App.GitHubClient.Repository.Content.GetAllContents("CommunityDragon",
-                    "CDTB",
-                    "cdragontoolbox");
-                foreach (var file in repositoryContents.Where(f =>
-                    f.Name is "hashes.binhashes.txt" or "hashes.game.txt"))
-                {
-                    var filePath = $"hashes/{file.Name}";
-                    var shaFilePath = $"{filePath}.sha";
-                    if (File.Exists(filePath) && File.Exists(shaFilePath) &&
-                        await File.ReadAllTextAsync(shaFilePath) == file.Sha) continue;
-                    var tempFilePath = $"{filePath}.tmp";
-                    await File.WriteAllTextAsync(tempFilePath,
-                        await App.HttpClient.GetStringAsync(file.DownloadUrl));
-                    File.Move(tempFilePath, filePath);
-                    await File.WriteAllTextAsync(shaFilePath, file.Sha);
-                }
-            }
-            catch (Exception)
-            {
-                if (File.Exists("hashes/hashes.binhashes.txt") && File.Exists("hashes/hashes.game.txt"))
-                {
-                    _logger.Error("Couldn't update hashtables, using current version");
-                }
-                else
-                {
-                    _logger.Fatal("Couldn't download hashtables, cancelling!");
-                    _cancellationTokenSource.Cancel();
-                }
-            }
 
-            if (!_cancellationTokenSource.IsCancellationRequested)
+
+            if (!await HashTables.TryLoad(_logger))
                 await Task.Run(async () => await Utils.Convert(_config, _logger, _cancellationTokenSource.Token));
             _completed = true;
             App.AllowNavigation = true;
