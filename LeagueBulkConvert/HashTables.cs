@@ -10,7 +10,7 @@ namespace LeagueBulkConvert
 {
     public static class HashTables
     {
-        private static readonly GitHubClient GitHubClient = new(new ProductHeaderValue("Jochem-W/LeagueBulkConvert"));
+        private static readonly GitHubClient GitHubClient = new(new ProductHeaderValue("LeagueBulkConvert"));
         private static readonly HttpClient HttpClient = new();
 
         public static async Task<bool> TryLoad(ILogger logger = null)
