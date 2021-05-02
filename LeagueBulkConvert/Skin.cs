@@ -44,7 +44,7 @@ namespace LeagueBulkConvert
 
         public string Texture { get; private set; }
 
-        public void AddAnimations(string binPath, IDictionary<string, IDictionary<ulong, string>> hashTables,
+        public async Task AddAnimations(string binPath, IDictionary<string, IDictionary<ulong, string>> hashTables,
             Config config,
             ILogger logger = null, CancellationToken? cancellationToken = null)
         {
@@ -80,11 +80,12 @@ namespace LeagueBulkConvert
                 Animation animation;
                 try
                 {
-                    animation = new Animation(path);
+                    await using var fileStream = File.OpenRead(path);
+                    animation = new Animation(fileStream);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    logger?.Information("Couldn't parse {FileName}", Path.GetFileName(path));
+                    logger?.Warning(e, "Couldn't parse {FileName}", Path.GetFileName(path));
                     continue;
                 }
 
@@ -195,9 +196,9 @@ namespace LeagueBulkConvert
                 await using var fileStream = File.OpenRead(Mesh);
                 simpleSkin = new SimpleSkin(fileStream);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                logger?.Information("Couldn't parse {FileName}", Path.GetFileName(Mesh));
+                logger?.Warning(e, "Couldn't parse {FileName}", Path.GetFileName(Mesh));
                 return;
             }
 
@@ -234,11 +235,12 @@ namespace LeagueBulkConvert
                 Skeleton skeleton;
                 try
                 {
-                    skeleton = new Skeleton(Skeleton);
+                    await using var fileStream = File.OpenRead(Skeleton);
+                    skeleton = new Skeleton(fileStream);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    logger?.Information("Couldn't parse {FileName}", Path.GetFileName(Skeleton));
+                    logger?.Warning(e, "Couldn't parse {FileName}", Path.GetFileName(Skeleton));
                     return;
                 }
 

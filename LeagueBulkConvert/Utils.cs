@@ -72,11 +72,11 @@ namespace LeagueBulkConvert
                             continue;
                         try
                         {
-                            skin.AddAnimations(dependencyPath, hashTables, config, logger);
+                            await skin.AddAnimations(dependencyPath, hashTables, config, logger);
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
-                            logger?.Information("Couldn't add animations");
+                            logger?.Warning(e, "Couldn't add animations");
                             return;
                         }
                     }
@@ -86,9 +86,9 @@ namespace LeagueBulkConvert
                 {
                     await skin.Save(config, logger);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    logger?.Information("Couldn't save");
+                    logger?.Warning(e, "Couldn't save");
                 }
             }
 
