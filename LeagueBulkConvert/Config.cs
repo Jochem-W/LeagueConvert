@@ -6,11 +6,11 @@ namespace LeagueBulkConvert
 {
     public class Config
     {
-        private bool includeAnimations;
+        private bool _includeAnimations;
 
-        private bool includeSkeletons;
+        private bool _includeSkeletons;
 
-        private IReadOnlyList<float> scaleList = new List<float> {0.012389f, 0.013202f, 0.011622f};
+        private IReadOnlyList<float> _scaleList = new List<float> {0.012389f, 0.013202f, 0.011622f};
 
         public Config()
         {
@@ -21,10 +21,10 @@ namespace LeagueBulkConvert
 
         public bool IncludeAnimations
         {
-            get => includeAnimations;
+            get => _includeAnimations;
             set
             {
-                includeAnimations = value;
+                _includeAnimations = value;
                 if (value)
                 {
                     IncludeSkeleton = true;
@@ -39,24 +39,20 @@ namespace LeagueBulkConvert
             }
         }
 
-        public bool IncludeHiddenMeshes { get; set; } = false;
-
-        public bool IncludeUntexturedMeshes { get; set; } = false;
+        public bool IncludeHiddenMeshes { get; set; }
 
         public bool IncludeSkeleton
         {
-            get => includeSkeletons;
+            get => _includeSkeletons;
             set
             {
-                includeSkeletons = value;
+                _includeSkeletons = value;
                 if (value)
                     ExtractFormats.Add(".skl");
                 else
                     ExtractFormats.Add(".skl");
             }
         }
-
-        public bool ReadVersion3 { get; set; } = true;
 
         public HashSet<string> SamplerNames { get; } = new()
         {
@@ -71,16 +67,16 @@ namespace LeagueBulkConvert
             "Main_Texture"
         };
 
-        public bool SaveAsGlTF { get; set; } = false;
+        public bool SaveAsGlTf { get; set; }
 
         public Matrix4x4 ScaleMatrix { get; private set; }
 
         public IReadOnlyList<float> ScaleList
         {
-            get => scaleList;
+            get => _scaleList;
             set
             {
-                scaleList = value;
+                _scaleList = value;
                 CalculateScale();
             }
         }

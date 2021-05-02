@@ -4,7 +4,7 @@ namespace LeagueBulkConvert
 {
     public class IncludableWad
     {
-        private string path;
+        private readonly string _path;
 
         public IncludableWad(string path)
         {
@@ -13,15 +13,15 @@ namespace LeagueBulkConvert
 
         public bool Included { get; set; }
 
-        public string Name { get; private set; }
+        public string Name { get; private init; }
 
         public string FilePath
         {
-            get => path;
-            private set
+            get => _path;
+            private init
             {
-                path = value;
-                Name = Path.GetFileName(path);
+                _path = value;
+                Name = Path.GetFileName(_path);
             }
         }
     }

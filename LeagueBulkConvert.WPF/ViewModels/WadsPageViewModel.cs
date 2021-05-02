@@ -11,15 +11,15 @@ namespace LeagueBulkConvert.WPF.ViewModels
 {
     internal class WadsPageViewModel : INotifyPropertyChanged
     {
-        private readonly Command nextCommand;
+        private readonly Command _nextCommand;
 
-        private string selectContent = "Select all";
+        private string _selectContent = "Select all";
 
         public WadsPageViewModel()
         {
             SelectCommand = new Command(_ =>
             {
-                if (!Wads.Any(w => !w.Included))
+                if (Wads.All(w => w.Included))
                     foreach (var wad in Wads)
                         wad.Included = false;
                 else
@@ -28,16 +28,16 @@ namespace LeagueBulkConvert.WPF.ViewModels
             });
             Wads.CollectionChanged += (sender, e) =>
             {
-                if (e.Action == NotifyCollectionChangedAction.Add)
-                    foreach (INotifyPropertyChanged item in e.NewItems)
-                        item.PropertyChanged += (sender, e) =>
-                        {
-                            nextCommand.RaiseCanExecuteChanged();
-                            if (!Wads.Any(w => !w.Included))
-                                SelectContent = "Deselect all";
-                            else if (SelectContent != "Select all")
-                                SelectContent = "Select all";
-                        };
+                if (e.Action != NotifyCollectionChangedAction.Add) return;
+                foreach (INotifyPropertyChanged item in e.NewItems)
+                    item.PropertyChanged += (_, _) =>
+                    {
+                        _nextCommand.RaiseCanExecuteChanged();
+                        if (Wads.All(w => w.Included))
+                            SelectContent = "Deselect all";
+                        else if (SelectContent != "Select all")
+                            SelectContent = "Select all";
+                    };
             };
         }
 
@@ -45,12 +45,12 @@ namespace LeagueBulkConvert.WPF.ViewModels
         {
             foreach (var wad in config.Wads)
                 Wads.Add(new ObservableWad(wad));
-            nextCommand = new Command(_ => owner.NavigationService.Navigate(new LoggingPage(config)),
+            _nextCommand = new Command(_ => owner.NavigationService.Navigate(new LoggingPage(config)),
                 _ => Wads.Any(w => w.Included));
             PreviousCommand = new Command(_ => owner.NavigationService.GoBack());
         }
 
-        public ICommand NextCommand => nextCommand;
+        public ICommand NextCommand => _nextCommand;
 
         public ICommand PreviousCommand { get; }
 
@@ -58,10 +58,10 @@ namespace LeagueBulkConvert.WPF.ViewModels
 
         public string SelectContent
         {
-            get => selectContent;
+            get => _selectContent;
             set
             {
-                selectContent = value;
+                _selectContent = value;
                 OnPropertyChanged();
             }
         }

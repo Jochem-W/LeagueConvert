@@ -32,18 +32,20 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <Border Grid.ColumnSpan="2">
             <Label Content="Include skeleton" />
         </Border>
-        <Border Grid.Column="2">
+        <Border
+            Grid.Row="0"
+            Grid.Column="2">
             <CheckBox
                 HorizontalAlignment="Right"
                 IsChecked="{Binding IncludeSkeleton}" />
         </Border>
         <Border
+            Grid.Column="0"
             Grid.ColumnSpan="2"
             Grid.Row="1">
             <Label Content="Include animations" />
@@ -57,6 +59,7 @@
         </Border>
         <Border
             Grid.ColumnSpan="2"
+            Grid.Column="0"
             Grid.Row="2">
             <Label Content="Include hidden meshes" />
         </Border>
@@ -69,6 +72,7 @@
         </Border>
         <Border
             Grid.ColumnSpan="2"
+            Grid.Column="0"
             Grid.Row="3">
             <Label Content="Save as separate files (.gltf)" />
         </Border>
@@ -77,23 +81,11 @@
             Grid.Row="3">
             <CheckBox
                 HorizontalAlignment="Right"
-                IsChecked="{Binding SaveAsGlTF}" />
-        </Border>
-        <Border
-            Grid.ColumnSpan="2"
-            Grid.Row="4">
-            <Label Content="Read version 3 binary files [EXPERIMENTAL]" />
-        </Border>
-        <Border
-            Grid.Column="2"
-            Grid.Row="4">
-            <CheckBox
-                HorizontalAlignment="Right"
-                IsChecked="{Binding ReadVersion3}" />
+                IsChecked="{Binding SaveAsGlTf}" />
         </Border>
         <Border
             Grid.Column="1"
-            Grid.Row="5">
+            Grid.Row="4">
             <Button
                 Command="{Binding PreviousCommand}"
                 Content="Previous"
@@ -102,7 +94,7 @@
         </Border>
         <Border
             Grid.Column="2"
-            Grid.Row="5">
+            Grid.Row="4">
             <Button
                 Command="{Binding NextCommand}"
                 Content="Next"

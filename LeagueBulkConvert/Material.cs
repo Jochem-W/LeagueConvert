@@ -18,15 +18,7 @@ namespace LeagueBulkConvert
 
         public ulong Hash { get; set; }
 
-        public bool IsComplete
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Texture))
-                    return false;
-                return true;
-            }
-        }
+        public bool IsComplete => !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Texture);
 
         public string Name { get; set; }
 

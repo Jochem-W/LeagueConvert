@@ -5,24 +5,24 @@ namespace LeagueBulkConvert.WPF
 {
     internal class ObservableWad : INotifyPropertyChanged
     {
-        private readonly IncludableWad wad;
+        private readonly IncludableWad _wad;
 
         public ObservableWad(IncludableWad wad)
         {
-            this.wad = wad;
+            _wad = wad;
         }
 
         public bool Included
         {
-            get => wad.Included;
+            get => _wad.Included;
             set
             {
-                wad.Included = value;
+                _wad.Included = value;
                 OnPropertyChanged();
             }
         }
 
-        public string Name => wad.Name;
+        public string Name => _wad.Name;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

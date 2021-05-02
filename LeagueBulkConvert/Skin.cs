@@ -44,47 +44,39 @@ namespace LeagueBulkConvert
 
         public string Texture { get; private set; }
 
-        public async Task AddAnimations(string binPath, IDictionary<string, IDictionary<ulong, string>> hashTables,
+        public void AddAnimations(string binPath, IDictionary<string, IDictionary<ulong, string>> hashTables,
             Config config,
             ILogger logger = null, CancellationToken? cancellationToken = null)
         {
-            BinTree binTree;
-            if (config.ReadVersion3)
-                binTree = await Utils.ReadVersion3(binPath);
-            else
-                binTree = new BinTree(binPath);
+            var binTree = new BinTree(binPath);
             if (binTree.Objects.Count != 1)
                 throw new NotImplementedException();
             var animations =
-                (BinTreeMap)binTree.Objects[0].Properties.FirstOrDefault(p => p.NameHash == 1172382456); //mClipDataMap
+                (BinTreeMap) binTree.Objects[0].Properties.FirstOrDefault(p => p.NameHash == 1172382456); //mClipDataMap
             if (animations == null)
                 return;
             foreach (var keyValuePair in animations.Map)
             {
-                if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
+                if (cancellationToken is {IsCancellationRequested: true})
                     return;
-                var structure = (BinTreeStructure)keyValuePair.Value;
+                var structure = (BinTreeStructure) keyValuePair.Value;
                 if (structure.MetaClassHash != 1540989414) //AtomicClipData
                     continue;
                 var animationData =
-                    (BinTreeEmbedded)structure.Properties.FirstOrDefault(p =>
-                       p.NameHash == 3030349134); //mAnimationResourceData
-                if (animationData == null)
-                    continue;
+                    (BinTreeEmbedded) structure.Properties.FirstOrDefault(p =>
+                        p.NameHash == 3030349134); //mAnimationResourceData
                 var pathProperty =
-                    (BinTreeString)animationData.Properties.FirstOrDefault(p =>
-                       p.NameHash == 53080535); //mAnimationFilePath
+                    (BinTreeString) animationData?.Properties.FirstOrDefault(p =>
+                        p.NameHash == 53080535); //mAnimationFilePath
                 if (pathProperty == null)
                     continue;
                 var path = pathProperty.Value.ToLower();
                 if (!File.Exists(path))
                     continue;
-                var hash = ((BinTreeHash)keyValuePair.Key).Value;
-                string name;
-                if (hashTables["binhashes"].ContainsKey(hash))
-                    name = hashTables["binhashes"][hash];
-                else
-                    name = Path.GetFileNameWithoutExtension(path);
+                var hash = ((BinTreeHash) keyValuePair.Key).Value;
+                var name = hashTables["binhashes"].ContainsKey(hash)
+                    ? hashTables["binhashes"][hash]
+                    : Path.GetFileNameWithoutExtension(path);
                 Animation animation;
                 try
                 {
@@ -92,8 +84,7 @@ namespace LeagueBulkConvert
                 }
                 catch (Exception)
                 {
-                    if (logger != null)
-                        logger.Information($"    Couldn't parse {Path.GetFileName(path)}");
+                    logger?.Information("Couldn't parse {FileName}", Path.GetFileName(path));
                     continue;
                 }
 
@@ -106,7 +97,7 @@ namespace LeagueBulkConvert
             if (Texture != null)
             {
                 var baseMaterial = Materials.FirstOrDefault(m => m.Hash == MaterialHash);
-                if (baseMaterial != null && !baseMaterial.IsComplete)
+                if (baseMaterial is {IsComplete: false})
                     Materials[Materials.IndexOf(baseMaterial)].Texture = Texture;
             }
 
@@ -123,10 +114,10 @@ namespace LeagueBulkConvert
         private void ParseBinTreeContainer(BinTreeContainer container)
         {
             foreach (var property in container.Properties)
-                ParseBinTreeEmbedded((BinTreeEmbedded)property);
+                ParseBinTreeEmbedded((BinTreeEmbedded) property);
         }
 
-        private void ParseBinTreeEmbedded(BinTreeEmbedded tree)
+        private void ParseBinTreeEmbedded(BinTreeStructure tree)
         {
             switch (tree.MetaClassHash)
             {
@@ -167,46 +158,46 @@ namespace LeagueBulkConvert
             switch (property.NameHash)
             {
                 case 1174362372: //skinMeshProperties
-                    ParseBinTreeEmbedded((BinTreeEmbedded)property);
+                    ParseBinTreeEmbedded((BinTreeEmbedded) property);
                     break;
                 case 2974586734: //skeleton
-                    Skeleton = ((BinTreeString)property).Value.ToLower();
+                    Skeleton = ((BinTreeString) property).Value.ToLower();
                     break;
                 case 3600813558: //simpleSkin
-                    Mesh = ((BinTreeString)property).Value.ToLower();
+                    Mesh = ((BinTreeString) property).Value.ToLower();
                     break;
                 case 1013213428: //texture
-                    Texture = ((BinTreeString)property).Value.ToLower();
+                    Texture = ((BinTreeString) property).Value.ToLower();
                     break;
                 case 2159540111: //initialSubmeshToHide
-                    foreach (var submesh in ((BinTreeString)property).Value.Replace(',', ' ')
+                    foreach (var subMesh in ((BinTreeString) property).Value.Replace(',', ' ')
                         .Split(' ', StringSplitOptions.RemoveEmptyEntries))
-                        HiddenMeshes.Add(submesh.ToLower());
+                        HiddenMeshes.Add(subMesh.ToLower());
                     break;
                 case 611473680: //materialOverride
-                    ParseBinTreeContainer((BinTreeContainer)property);
+                    ParseBinTreeContainer((BinTreeContainer) property);
                     break;
                 case 3538210912: //material
-                    if (((BinTreeEmbedded)property.Parent).MetaClassHash != 1628559524) //SkinMeshDataProperties
+                    if (((BinTreeEmbedded) property.Parent).MetaClassHash != 1628559524) //SkinMeshDataProperties
                         throw new NotImplementedException();
-                    MaterialHash = ((BinTreeObjectLink)property).Value;
+                    MaterialHash = ((BinTreeObjectLink) property).Value;
                     break;
             }
         }
 
-        public void Save(Config config, ILogger logger = null)
+        public async Task Save(Config config, ILogger logger = null)
         {
             if (!File.Exists(Mesh))
                 return;
             SimpleSkin simpleSkin;
             try
             {
-                simpleSkin = new SimpleSkin(Mesh);
+                await using var fileStream = File.OpenRead(Mesh);
+                simpleSkin = new SimpleSkin(fileStream);
             }
             catch (Exception)
             {
-                if (logger != null)
-                    logger.Information($"    Couldn't parse {Path.GetFileName(Mesh)}");
+                logger?.Information("Couldn't parse {FileName}", Path.GetFileName(Mesh));
                 return;
             }
 
@@ -214,26 +205,22 @@ namespace LeagueBulkConvert
             IDictionary<string, MagickImage> textures = new Dictionary<string, MagickImage>();
             for (var i = 0; i < simpleSkin.Submeshes.Count; i++)
             {
-                var submesh = simpleSkin.Submeshes[i];
+                var subMesh = simpleSkin.Submeshes[i];
                 if (!config.IncludeHiddenMeshes)
-                    if (HiddenMeshes.Contains(submesh.Name.ToLower()))
+                    if (HiddenMeshes.Contains(subMesh.Name.ToLower()))
                     {
                         simpleSkin.Submeshes.RemoveAt(i);
                         i--;
                         continue;
                     }
 
-                var material = Materials.FirstOrDefault(m => m.Name == submesh.Name.ToLower());
-                string textureFile;
-                if (material == null)
-                    textureFile = Texture;
-                else
-                    textureFile = material.Texture;
+                var material = Materials.FirstOrDefault(m => m.Name == subMesh.Name.ToLower());
+                var textureFile = material == null ? Texture : material.Texture;
                 if (textureFile == null)
                     continue;
                 if (!textures.ContainsKey(textureFile))
                     textures[textureFile] = new MagickImage(textureFile);
-                materialTextures[submesh.Name] = textures[textureFile];
+                materialTextures[subMesh.Name] = textures[textureFile];
             }
 
             ModelRoot gltf;
@@ -251,20 +238,18 @@ namespace LeagueBulkConvert
                 }
                 catch (Exception)
                 {
-                    if (logger != null)
-                        logger.Information($"    Couldn't parse {Path.GetFileName(Skeleton)}");
+                    logger?.Information("Couldn't parse {FileName}", Path.GetFileName(Skeleton));
                     return;
                 }
 
-                if (Animations == null)
-                    gltf = simpleSkin.ToGltf(skeleton, materialTextures);
-                else
-                    gltf = simpleSkin.ToGltf(skeleton, materialTextures, Animations);
+                gltf = Animations == null
+                    ? simpleSkin.ToGltf(skeleton, materialTextures)
+                    : simpleSkin.ToGltf(skeleton, materialTextures, Animations);
             }
 
             var directory = $"export/{Character}";
             string exportPath;
-            if (config.SaveAsGlTF)
+            if (config.SaveAsGlTf)
             {
                 directory += $"/{Name}";
                 exportPath = $"{directory}/{Name}.gltf";

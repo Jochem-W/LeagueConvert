@@ -8,7 +8,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
 {
     internal class ConfigPageViewModel : INotifyPropertyChanged
     {
-        private readonly Config config = new();
+        private readonly Config _config = new();
 
         public ConfigPageViewModel()
         {
@@ -16,7 +16,7 @@ namespace LeagueBulkConvert.WPF.ViewModels
 
         public ConfigPageViewModel(Config config, Page owner)
         {
-            this.config = config;
+            _config = config;
             NextCommand = new Command(_ =>
             {
                 if (owner.NavigationService.CanGoForward)
@@ -29,10 +29,10 @@ namespace LeagueBulkConvert.WPF.ViewModels
 
         public bool IncludeAnimations
         {
-            get => config.IncludeAnimations;
+            get => _config.IncludeAnimations;
             set
             {
-                config.IncludeAnimations = value;
+                _config.IncludeAnimations = value;
                 if (value)
                     IncludeSkeleton = true;
                 OnPropertyChanged();
@@ -41,16 +41,16 @@ namespace LeagueBulkConvert.WPF.ViewModels
 
         public bool IncludeHiddenMeshes
         {
-            get => config.IncludeHiddenMeshes;
-            set => config.IncludeHiddenMeshes = value;
+            get => _config.IncludeHiddenMeshes;
+            set => _config.IncludeHiddenMeshes = value;
         }
 
         public bool IncludeSkeleton
         {
-            get => config.IncludeSkeleton;
+            get => _config.IncludeSkeleton;
             set
             {
-                config.IncludeSkeleton = value;
+                _config.IncludeSkeleton = value;
                 if (!value)
                     IncludeAnimations = false;
                 OnPropertyChanged();
@@ -61,16 +61,10 @@ namespace LeagueBulkConvert.WPF.ViewModels
 
         public ICommand PreviousCommand { get; }
 
-        public bool ReadVersion3
+        public bool SaveAsGlTf
         {
-            get => config.ReadVersion3;
-            set => config.ReadVersion3 = value;
-        }
-
-        public bool SaveAsGlTF
-        {
-            get => config.SaveAsGlTF;
-            set => config.SaveAsGlTF = value;
+            get => _config.SaveAsGlTf;
+            set => _config.SaveAsGlTf = value;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

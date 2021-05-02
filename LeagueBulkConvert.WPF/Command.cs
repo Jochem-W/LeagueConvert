@@ -5,31 +5,31 @@ namespace LeagueBulkConvert.WPF
 {
     internal class Command : ICommand
     {
-        private readonly Action<object> action;
-        private readonly Predicate<object> predicate;
+        private readonly Action<object> _action;
+        private readonly Predicate<object> _predicate;
 
         public Command(Action<object> action)
         {
-            this.action = action;
-            predicate = _ => true;
+            _action = action;
+            _predicate = _ => true;
         }
 
         public Command(Action<object> action, Predicate<object> predicate)
         {
-            this.action = action;
-            this.predicate = predicate;
+            _action = action;
+            _predicate = predicate;
         }
 
         public event EventHandler CanExecuteChanged;
 
         public bool CanExecute(object parameter)
         {
-            return predicate(parameter);
+            return _predicate(parameter);
         }
 
         public void Execute(object parameter)
         {
-            action(parameter);
+            _action(parameter);
         }
 
         public void RaiseCanExecuteChanged()

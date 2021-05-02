@@ -13,13 +13,13 @@ namespace LeagueBulkConvert.WPF.ViewModels
 {
     internal class MainPageViewModel : INotifyPropertyChanged
     {
-        private readonly Command nextCommand;
+        private readonly Command _nextCommand;
 
-        private string exportPath;
+        private string _exportPath;
 
-        private string leaguePath;
+        private string _leaguePath;
 
-        private string wadsPath;
+        private string _wadsPath;
 
         public MainPageViewModel()
         {
@@ -29,13 +29,14 @@ namespace LeagueBulkConvert.WPF.ViewModels
 
         public MainPageViewModel(Page owner) : this()
         {
-            nextCommand = new Command(_ =>
+            _nextCommand = new Command(_ =>
             {
                 Directory.CreateDirectory(ExportPath);
                 Directory.SetCurrentDirectory(ExportPath);
                 var config = new Config();
-                var t = Directory.EnumerateFiles(wadsPath, "*.wad.client");
-                foreach (var filePath in Directory.EnumerateFiles(wadsPath, "*.wad.client", SearchOption.AllDirectories)
+                var t = Directory.EnumerateFiles(_wadsPath, "*.wad.client");
+                foreach (var filePath in Directory
+                    .EnumerateFiles(_wadsPath, "*.wad.client", SearchOption.AllDirectories)
                     .Where(f => Path.GetFileName(f).Count(c => c == '.') == 2))
                     config.Wads.Add(new IncludableWad(filePath));
                 owner.NavigationService.Navigate(new ConfigPage(config));
@@ -48,59 +49,59 @@ namespace LeagueBulkConvert.WPF.ViewModels
 
         public string ExportPath
         {
-            get => exportPath;
+            get => _exportPath;
             set
             {
                 try
                 {
-                    exportPath = Path.GetFullPath(value);
+                    _exportPath = Path.GetFullPath(value);
                 }
                 catch (Exception)
                 {
-                    exportPath = null;
+                    _exportPath = null;
                 }
 
                 OnPropertyChanged();
-                nextCommand.RaiseCanExecuteChanged();
+                _nextCommand.RaiseCanExecuteChanged();
             }
         }
 
         public string LeaguePath
         {
-            get => leaguePath;
+            get => _leaguePath;
             set
             {
                 var error = false;
                 try
                 {
-                    leaguePath = Path.GetFullPath(value);
-                    if (TryGetWadsPath(leaguePath, out var wadsPath))
+                    _leaguePath = Path.GetFullPath(value);
+                    if (TryGetWadsPath(_leaguePath, out var wadsPath))
                     {
-                        this.wadsPath = wadsPath;
+                        _wadsPath = wadsPath;
                     }
                     else
                     {
-                        leaguePath = null;
-                        this.wadsPath = null;
+                        _leaguePath = null;
+                        _wadsPath = null;
                     }
                 }
                 catch (Exception)
                 {
-                    leaguePath = null;
-                    wadsPath = null;
+                    _leaguePath = null;
+                    _wadsPath = null;
                     error = true;
                 }
 
-                if ((leaguePath == null || wadsPath == null) && !error)
+                if ((_leaguePath == null || _wadsPath == null) && !error)
                     new MessageWindow("Invalid directory",
                             "Please select a valid League of Legends installation directory! (e.g. C:\\Riot Games\\League of Legends)")
                         .ShowDialog();
                 OnPropertyChanged();
-                nextCommand.RaiseCanExecuteChanged();
+                _nextCommand.RaiseCanExecuteChanged();
             }
         }
 
-        public ICommand NextCommand => nextCommand;
+        public ICommand NextCommand => _nextCommand;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
