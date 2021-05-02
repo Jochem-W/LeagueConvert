@@ -3,9 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Platforms>x64</Platforms>
-    <IsPackable>false</IsPackable>
     <Company>Jochem-W</Company>
-    <Version>2.0.3</Version>
+    <AssemblyVersion>2.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

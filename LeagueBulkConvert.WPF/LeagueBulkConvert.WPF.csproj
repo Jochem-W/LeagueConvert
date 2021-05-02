@@ -5,9 +5,8 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <Platforms>x64</Platforms>
-    <IsPackable>false</IsPackable>
     <Company>Jochem-W</Company>
-    <Version>2.1.3</Version>
+    <AssemblyVersion>2.2.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
