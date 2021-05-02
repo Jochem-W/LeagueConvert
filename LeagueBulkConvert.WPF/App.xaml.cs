@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using LeagueBulkConvert.WPF.Views;
-using Octokit;
-using Application = System.Windows.Application;
 
 namespace LeagueBulkConvert.WPF
 {

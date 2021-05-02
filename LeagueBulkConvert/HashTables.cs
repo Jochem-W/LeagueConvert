@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Octokit;
 using Serilog;
@@ -42,11 +41,12 @@ namespace LeagueBulkConvert
             {
                 if (File.Exists("hashes/hashes.binhashes.txt") && File.Exists("hashes/hashes.game.txt"))
                 {
-                    logger?.Error(e,"Couldn't update hashtables, using current version");
+                    logger?.Error(e, "Couldn't update hashtables, using current version");
                     return true;
                 }
-                logger?.Fatal(e,"Couldn't download hashtables, cancelling!");
-                    return false;
+
+                logger?.Fatal(e, "Couldn't download hashtables, cancelling!");
+                return false;
             }
         }
     }
