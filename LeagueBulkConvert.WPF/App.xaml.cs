@@ -32,7 +32,7 @@ namespace LeagueBulkConvert.WPF
                     return true;
                 var processStartInfo = new ProcessStartInfo
                 {
-                    FileName = $"https://api.jochemw.workers.dev/products/{name}/",
+                    FileName = $"https://api.jochemw.workers.dev/products/{name}",
                     UseShellExecute = true
                 };
                 new MessageWindow("Update available", "A new version of LeagueBulkConvert is available\n" +
