@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Publish
-        run: dotnet.exe publish -c Release -p:PublishProfile=win-x64
+        run: dotnet.exe publish LeagueBulkConvert.WPF -c Release -r win-x64 --no-self-contained -p:PublishReadyToRun=true -p:PublishSingleFile=true
         
       - name: Get short SHA
         run: Write-Output "name=$($Env:GITHUB_SHA.SubString(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Append;
