@@ -22,7 +22,7 @@ namespace SimpleGltf.IO
         {
             SimpleGltfAsset = simpleGltfAsset;
             _attributes = new Dictionary<string, SimpleAccessor>();
-            Primitive = new Primitive(mesh);
+            Primitive = mesh.CreatePrimitive();
         }
 
         private BufferView IndicesBufferView => _indicesBufferView ??=
