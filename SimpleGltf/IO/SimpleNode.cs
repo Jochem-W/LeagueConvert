@@ -1,59 +1,56 @@
 using System;
 using System.Collections.Generic;
 using SimpleGltf.Json;
+using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.IO
 {
     public class SimpleNode
     {
         private readonly IList<SimpleNode> _children;
-        private readonly SimpleGltfAsset _simpleGltfAsset;
-
         internal readonly Node Node;
+
+        internal readonly SimpleGltfAsset SimpleGltfAsset;
 
         private SimpleNode(SimpleGltfAsset simpleGltfAsset)
         {
-            _simpleGltfAsset = simpleGltfAsset;
+            SimpleGltfAsset = simpleGltfAsset;
             _children = new List<SimpleNode>();
         }
 
-        internal SimpleNode(SimpleGltfAsset simpleGltfAsset, GltfAsset gltfAsset, string name) : this(simpleGltfAsset)
+        internal SimpleNode(SimpleGltfAsset simpleGltfAsset, string name) : this(simpleGltfAsset)
         {
-            Node = new Node(gltfAsset, name);
+            Node = simpleGltfAsset.GltfAsset.CreateNode(name);
         }
 
-        internal SimpleNode(SimpleGltfAsset simpleGltfAsset, Scene scene, string name) : this(simpleGltfAsset)
+        internal SimpleNode(SimpleScene simpleScene, string name) : this(simpleScene.SimpleGltfAsset)
         {
-            Node = new Node(scene, name);
+            Node = simpleScene.Scene.CreateNode(name);
         }
 
-        internal SimpleNode(SimpleGltfAsset simpleGltfAsset, Node node, string name) : this(simpleGltfAsset)
+        internal SimpleNode(SimpleNode simpleNode, string name) : this(simpleNode.SimpleGltfAsset)
         {
-            Node = new Node(node, name);
+            Node = simpleNode.Node.CreateChild(name);
         }
 
         public IEnumerable<SimpleNode> Children => _children;
 
         public SimpleMesh Mesh { get; private set; }
 
-        public string Name
-        {
-            get => Node.Name;
-            set => Node.Name = value;
-        }
+        public string Name => Node.Name;
 
         public SimpleNode CreateChild(string name = null)
         {
-            var node = new SimpleNode(_simpleGltfAsset, Node, name);
+            var node = new SimpleNode(this, name);
             _children.Add(node);
             return node;
         }
 
-        public SimpleMesh CreateMesh()
+        public SimpleMesh CreateMesh(string name = null)
         {
             if (Mesh != null)
                 throw new NotImplementedException();
-            Mesh = new SimpleMesh(_simpleGltfAsset, Node);
+            Mesh = new SimpleMesh(SimpleGltfAsset, Node, name);
             return Mesh;
         }
     }

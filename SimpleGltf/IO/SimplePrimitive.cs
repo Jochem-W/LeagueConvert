@@ -4,32 +4,32 @@ using System.Data;
 using SimpleGltf.Enums;
 using SimpleGltf.IO.Accessors;
 using SimpleGltf.Json;
+using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.IO
 {
     public class SimplePrimitive
     {
         private readonly IDictionary<string, SimpleAccessor> _attributes;
-        private readonly SimpleGltfAsset _simpleGltfAsset;
-
-
         internal readonly Primitive Primitive;
+
+        internal readonly SimpleGltfAsset SimpleGltfAsset;
         private BufferView _attributeBufferView;
         private BufferView _indicesBufferView;
 
 
         internal SimplePrimitive(SimpleGltfAsset simpleGltfAsset, Mesh mesh)
         {
-            _simpleGltfAsset = simpleGltfAsset;
+            SimpleGltfAsset = simpleGltfAsset;
             _attributes = new Dictionary<string, SimpleAccessor>();
             Primitive = new Primitive(mesh);
         }
 
         private BufferView IndicesBufferView => _indicesBufferView ??=
-            new BufferView(_simpleGltfAsset.Buffer, BufferViewTarget.ElementArrayBuffer);
+            SimpleGltfAsset.Buffer.CreateBufferView(BufferViewTarget.ElementArrayBuffer);
 
         private BufferView AttributeBufferView => _attributeBufferView ??=
-            new BufferView(_simpleGltfAsset.Buffer, BufferViewTarget.ArrayBuffer);
+            SimpleGltfAsset.Buffer.CreateBufferView(BufferViewTarget.ArrayBuffer);
 
         public IEnumerable<KeyValuePair<string, SimpleAccessor>> Attributes => _attributes;
 

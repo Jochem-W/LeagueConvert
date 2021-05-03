@@ -3,18 +3,14 @@ using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SimpleGltf.Converters
+namespace SimpleGltf.Json.Converters
 {
     internal class Matrix4x4Converter : JsonConverter<Matrix4x4>
     {
         public override Matrix4x4 Read(ref Utf8JsonReader reader, Type typeToConvert,
             JsonSerializerOptions options)
         {
-            return new(
-                reader.GetSingle(), reader.GetSingle(), reader.GetSingle(), reader.GetSingle(),
-                reader.GetSingle(), reader.GetSingle(), reader.GetSingle(), reader.GetSingle(),
-                reader.GetSingle(), reader.GetSingle(), reader.GetSingle(), reader.GetSingle(),
-                reader.GetSingle(), reader.GetSingle(), reader.GetSingle(), reader.GetSingle());
+            throw new NotImplementedException();
         }
 
         public override void Write(Utf8JsonWriter writer, Matrix4x4 value, JsonSerializerOptions options)

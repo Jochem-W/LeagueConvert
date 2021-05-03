@@ -4,19 +4,19 @@ namespace SimpleGltf.Json
 {
     internal class Asset
     {
-        internal readonly GltfAsset GltfAsset;
-
-        internal Asset(GltfAsset gltfAsset)
+        internal Asset(GltfAsset gltfAsset, string copyright)
         {
-            GltfAsset = gltfAsset;
+            Copyright = copyright;
             var assembly = Assembly.GetExecutingAssembly().GetName();
             Generator = $"{assembly.Name}@{assembly.Version}";
+            Version = "2.0";
+            gltfAsset.Asset = this;
         }
 
-        public string Version => "2.0";
+        public string Copyright { get; internal set; }
 
         public string Generator { get; }
 
-        public string Copyright { get; set; }
+        public string Version { get; }
     }
 }

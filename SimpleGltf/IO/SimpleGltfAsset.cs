@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using SimpleGltf.Extensions;
 using SimpleGltf.Json;
+using SimpleGltf.Json.Extensions;
 using Buffer = SimpleGltf.Json.Buffer;
 
 namespace SimpleGltf.IO
@@ -17,14 +18,14 @@ namespace SimpleGltf.IO
         };
 
         internal readonly Buffer Buffer;
-
         internal readonly GltfAsset GltfAsset;
         private IList<SimpleScene> _scenes;
+
 
         public SimpleGltfAsset()
         {
             GltfAsset = new GltfAsset();
-            Buffer = new Buffer(GltfAsset);
+            Buffer = GltfAsset.CreateBuffer();
         }
 
         public string Copyright

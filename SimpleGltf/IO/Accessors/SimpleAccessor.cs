@@ -13,7 +13,7 @@ namespace SimpleGltf.IO.Accessors
         internal SimpleAccessor(BufferView bufferView, ComponentType componentType,
             AccessorType accessorType, bool minMax, bool? normalized)
         {
-            Accessor = new Accessor(bufferView, componentType, accessorType, minMax, normalized);
+            Accessor = new Accessor(bufferView, componentType, accessorType, normalized, null, minMax);
             ComponentType = componentType;
         }
 

@@ -9,16 +9,19 @@ namespace SimpleGltf.Json
         internal readonly GltfAsset GltfAsset;
         internal IList<Node> Nodes;
 
-        internal Scene(GltfAsset gltfAsset, bool setDefault)
+        internal Scene(GltfAsset gltfAsset, string name, bool setDefault)
         {
             GltfAsset = gltfAsset;
-            GltfAsset.Scenes ??= new List<Scene>();
-            GltfAsset.Scenes.Add(this);
+            Name = name;
             if (setDefault)
                 GltfAsset.Scene = this;
+            GltfAsset.Scenes ??= new List<Scene>();
+            GltfAsset.Scenes.Add(this);
         }
 
         [JsonPropertyName("nodes")]
         public IEnumerable<int> NodeReferences => Nodes?.Select(node => GltfAsset.Nodes.IndexOf(node));
+
+        public string Name { get; }
     }
 }

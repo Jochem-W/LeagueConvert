@@ -6,14 +6,23 @@ namespace SimpleGltf.Json
     {
         internal readonly GltfAsset GltfAsset;
 
-        internal Mesh(Node node)
+        internal Mesh(GltfAsset gltfAsset, string name)
         {
-            GltfAsset = node.GltfAsset;
-            node.Mesh = this;
+            GltfAsset = gltfAsset;
+            Name = name;
             GltfAsset.Meshes ??= new List<Mesh>();
             GltfAsset.Meshes.Add(this);
         }
 
-        public IList<Primitive> Primitives { get; set; }
+        internal Mesh(Node node, string name) : this(node.GltfAsset, name)
+        {
+            node.Mesh = this;
+        }
+
+        public IList<Primitive> Primitives { get; internal set; }
+
+        //public IList<float> Weights { get; internal set; }
+
+        public string Name { get; }
     }
 }
