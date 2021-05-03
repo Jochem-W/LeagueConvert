@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SimpleGltf.Enums.Extensions;
 using SimpleGltf.Extensions;
 
 namespace SimpleGltf.Json.Extensions

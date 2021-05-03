@@ -1,7 +1,6 @@
 using System;
-using SimpleGltf.Enums;
 
-namespace SimpleGltf.Extensions
+namespace SimpleGltf.Enums.Extensions
 {
     internal static class ComponentTypeExtensions
     {
