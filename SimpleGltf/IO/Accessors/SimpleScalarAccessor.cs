@@ -9,9 +9,9 @@ namespace SimpleGltf.IO.Accessors
     {
         internal SimpleScalarAccessor(BufferView bufferView, bool minMax = false, bool? normalized = null) : base(
             bufferView,
-            AccessorComponentTypeConverter.Convert(typeof(T)), AccessorType.Scalar, minMax, normalized)
+            ComponentTypeConverter.Convert(typeof(T)), AccessorType.Scalar, minMax, normalized)
         {
-            var componentSize = AccessorComponentTypeConverter.GetSize(AccessorComponentType);
+            var componentSize = ComponentTypeConverter.GetSize(ComponentType);
             Size = componentSize;
             Size = Size.Offset();
         }

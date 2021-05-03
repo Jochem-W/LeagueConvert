@@ -1,6 +1,6 @@
 namespace SimpleGltf.Enums
 {
-    internal enum AccessorComponentType
+    internal enum ComponentType
     {
         SByte = 5120,
         Byte,

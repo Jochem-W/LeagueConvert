@@ -9,9 +9,9 @@ namespace SimpleGltf.IO.Accessors
     {
         internal SimpleVector3Accessor(BufferView bufferView, bool minMax = false, bool? normalized = null) : base(
             bufferView,
-            AccessorComponentTypeConverter.Convert(typeof(T)), AccessorType.Vector3, minMax, normalized)
+            ComponentTypeConverter.Convert(typeof(T)), AccessorType.Vec3, minMax, normalized)
         {
-            var componentSize = AccessorComponentTypeConverter.GetSize(AccessorComponentType);
+            var componentSize = ComponentTypeConverter.GetSize(ComponentType);
             Size = 3 * componentSize;
             Size = Size.Offset();
         }

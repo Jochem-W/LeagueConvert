@@ -9,9 +9,9 @@ namespace SimpleGltf.IO.Accessors
     {
         internal SimpleMatrix2x2Accessor(BufferView bufferView, bool minMax = false, bool? normalized = null) : base(
             bufferView,
-            AccessorComponentTypeConverter.Convert(typeof(T)), AccessorType.Matrix2x2, minMax, normalized)
+            ComponentTypeConverter.Convert(typeof(T)), AccessorType.Mat2, minMax, normalized)
         {
-            var componentSize = AccessorComponentTypeConverter.GetSize(AccessorComponentType);
+            var componentSize = ComponentTypeConverter.GetSize(ComponentType);
             Size = 2 * componentSize;
             Size = Size.Offset();
             Size += 2 * componentSize;

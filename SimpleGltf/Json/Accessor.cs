@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using SimpleGltf.Converters;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 
@@ -14,14 +15,14 @@ namespace SimpleGltf.Json
         internal BufferView BufferView;
         internal int Size;
 
-        internal Accessor(BufferView bufferView, AccessorComponentType componentType, AccessorType accessorType,
+        internal Accessor(BufferView bufferView, ComponentType componentType, AccessorType accessorType,
             bool minMax, bool? normalized)
         {
             _component = new List<dynamic>();
             _minMax = minMax;
             BufferView = bufferView;
-            ComponentType = (int) componentType;
-            Type = accessorType.Value;
+            ComponentType = componentType;
+            Type = accessorType;
             Normalized = normalized;
             BufferView.GltfAsset.Accessors ??= new List<Accessor>();
             BufferView.GltfAsset.Accessors.Add(this);
@@ -47,13 +48,14 @@ namespace SimpleGltf.Json
             }
         }
 
-        public int ComponentType { get; }
+        public ComponentType ComponentType { get; }
 
         public bool? Normalized { get; }
 
         public int Count { get; set; }
 
-        public string Type { get; }
+        [JsonConverter(typeof(AccessorTypeConverter))]
+        public AccessorType Type { get; }
 
         public dynamic Min { get; set; }
 

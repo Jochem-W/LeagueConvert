@@ -9,9 +9,9 @@ namespace SimpleGltf.IO.Accessors
     {
         internal SimpleMatrix4x4Accessor(BufferView bufferView, bool minMax = false, bool? normalized = null) : base(
             bufferView,
-            AccessorComponentTypeConverter.Convert(typeof(T)), AccessorType.Matrix4x4, minMax, normalized)
+            ComponentTypeConverter.Convert(typeof(T)), AccessorType.Mat4, minMax, normalized)
         {
-            var componentSize = AccessorComponentTypeConverter.GetSize(AccessorComponentType);
+            var componentSize = ComponentTypeConverter.GetSize(ComponentType);
             Size = 4 * componentSize;
             Size = Size.Offset();
             Size += 4 * componentSize;

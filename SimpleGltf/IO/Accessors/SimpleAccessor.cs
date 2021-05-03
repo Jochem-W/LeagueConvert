@@ -8,13 +8,13 @@ namespace SimpleGltf.IO.Accessors
     public class SimpleAccessor
     {
         internal readonly Accessor Accessor;
-        internal readonly AccessorComponentType AccessorComponentType;
+        internal readonly ComponentType ComponentType;
 
-        internal SimpleAccessor(BufferView bufferView, AccessorComponentType accessorComponentType,
+        internal SimpleAccessor(BufferView bufferView, ComponentType componentType,
             AccessorType accessorType, bool minMax, bool? normalized)
         {
-            Accessor = new Accessor(bufferView, accessorComponentType, accessorType, minMax, normalized);
-            AccessorComponentType = accessorComponentType;
+            Accessor = new Accessor(bufferView, componentType, accessorType, minMax, normalized);
+            ComponentType = componentType;
         }
 
         internal int Size
