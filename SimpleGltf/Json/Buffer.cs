@@ -1,35 +1,47 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using SimpleGltf.Extensions;
 
 namespace SimpleGltf.Json
 {
-    internal class Buffer : IAsyncDisposable
+    internal class Buffer
     {
         internal readonly GltfAsset GltfAsset;
-        internal readonly MemoryStream MemoryStream;
 
         internal Buffer(GltfAsset gltfAsset)
         {
-            MemoryStream = new MemoryStream();
             GltfAsset = gltfAsset;
-            if (GltfAsset.Buffers != null && GltfAsset.Buffers.Any())
-                throw new NotImplementedException();
-            GltfAsset.Buffers = new List<Buffer>(1) {this};
+            GltfAsset.Buffers ??= new List<Buffer>();
+            GltfAsset.Buffers.Add(this);
         }
 
         public string Uri { get; set; }
 
-        public int ByteLength => (int) MemoryStream.Length;
+        public int ByteLength => this.GetBufferViews().GetLength();
 
         public string Name { get; set; }
 
-        public ValueTask DisposeAsync()
+        internal Stream GetStream()
         {
-            GltfAsset.Buffers.Remove(this);
-            return MemoryStream.DisposeAsync();
+            using var task = GetStreamAsync();
+            task.Wait();
+            return task.Result;
+        }
+
+        internal async Task<Stream> GetStreamAsync()
+        {
+            var stream = new MemoryStream();
+            foreach (var bufferView in GltfAsset.BufferViews.Where(bufferView => bufferView.Buffer == this))
+            {
+                stream.Seek(bufferView.ByteOffset ?? 0, SeekOrigin.Begin);
+                await using var bufferViewStream = await bufferView.GetStreamAsync();
+                await bufferViewStream.CopyToAsync(stream);
+            }
+
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
         }
     }
 }

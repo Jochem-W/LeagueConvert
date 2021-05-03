@@ -9,22 +9,22 @@ using Buffer = SimpleGltf.Json.Buffer;
 
 namespace SimpleGltf.IO
 {
-    public class SimpleGltfAsset : IAsyncDisposable
+    public class SimpleGltfAsset
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web)
         {
             IgnoreNullValues = true
         };
 
+        internal readonly Buffer Buffer;
+
         internal readonly GltfAsset GltfAsset;
-
         private IList<SimpleScene> _scenes;
-
-        internal Buffer Buffer;
 
         public SimpleGltfAsset()
         {
             GltfAsset = new GltfAsset();
+            Buffer = new Buffer(GltfAsset);
         }
 
         public string Copyright
@@ -35,15 +35,17 @@ namespace SimpleGltf.IO
 
         public IEnumerable<SimpleScene> Scenes => _scenes;
 
-        public ValueTask DisposeAsync()
+        private async Task WriteBuffer(string folder)
         {
-            return GltfAsset.DisposeAsync();
+            await using var fileStream = File.Create(Path.Combine(folder, Buffer.Uri));
+            await using var stream = await Buffer.GetStreamAsync();
+            await stream.CopyToAsync(fileStream);
         }
 
         public SimpleScene CreateScene()
         {
             _scenes ??= new List<SimpleScene>();
-            var scene = new SimpleScene(GltfAsset);
+            var scene = new SimpleScene(this);
             _scenes.Add(scene);
             return scene;
         }
@@ -63,7 +65,6 @@ namespace SimpleGltf.IO
             var directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            await CreateBuffer();
 
             await using var binaryWriter = new BinaryWriter(File.Create(filePath));
             binaryWriter.Write("glTF".ToMagic());
@@ -82,7 +83,8 @@ namespace SimpleGltf.IO
 
             binaryWriter.Seek(4, SeekOrigin.Current);
             binaryWriter.Write("BIN".ToMagic());
-            await Buffer.MemoryStream.CopyToAsync(binaryWriter.BaseStream);
+            await using var stream = await Buffer.GetStreamAsync();
+            await stream.CopyToAsync(binaryWriter.BaseStream);
             offset = binaryWriter.BaseStream.Position.GetOffset();
             binaryWriter.Write(new byte[offset]);
             var binaryLength = binaryWriter.BaseStream.Position - jsonEnd - 8;
@@ -100,9 +102,10 @@ namespace SimpleGltf.IO
             var directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            await CreateBuffer();
-            var bytes = new byte[Buffer.MemoryStream.Length];
-            await Buffer.MemoryStream.ReadAsync(bytes);
+            await using var stream = await Buffer.GetStreamAsync();
+            var bytes = new byte[stream.Length];
+
+            await stream.ReadAsync(bytes);
             Buffer.Uri = $"data:application/octet-stream;base64,{Convert.ToBase64String(bytes)}";
             await using var fileStream = File.Create(filePath);
             await JsonSerializer.SerializeAsync(fileStream, GltfAsset, JsonSerializerOptions);
@@ -112,33 +115,10 @@ namespace SimpleGltf.IO
         {
             if (!Directory.Exists(directoryPath))
                 Directory.CreateDirectory(directoryPath);
-            await CreateBuffer();
             Buffer.Uri = "data.bin";
             await WriteBuffer(directoryPath);
             await using var fileStream = File.Create(Path.Combine(directoryPath, "model.gltf"));
             await JsonSerializer.SerializeAsync(fileStream, GltfAsset, JsonSerializerOptions);
-        }
-
-        private async Task CreateBuffer()
-        {
-            if (Buffer != null)
-                await Buffer.DisposeAsync();
-            Buffer = new Buffer(GltfAsset);
-            foreach (var bufferView in GltfAsset.BufferViews)
-            {
-                bufferView.ByteOffset = (int) Buffer.MemoryStream.Position;
-                bufferView.BinaryWriter.Seek(0, SeekOrigin.Begin);
-                await bufferView.BinaryWriter.BaseStream.CopyToAsync(Buffer.MemoryStream);
-                Buffer.MemoryStream.Seek(Buffer.MemoryStream.Position.GetOffset(), SeekOrigin.Current);
-            }
-
-            Buffer.MemoryStream.Seek(0, SeekOrigin.Begin);
-        }
-
-        private async Task WriteBuffer(string folder)
-        {
-            await using var fileStream = File.Create(Path.Combine(folder, Buffer.Uri));
-            await Buffer.MemoryStream.CopyToAsync(fileStream);
         }
     }
 }

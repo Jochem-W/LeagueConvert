@@ -1,47 +1,55 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using SimpleGltf.Converters;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 
 namespace SimpleGltf.Json
 {
-    internal class Accessor
+    internal class Accessor : IAsyncDisposable
     {
         private readonly IList<dynamic> _component;
         private readonly bool _minMax;
+        internal readonly BufferView BufferView;
 
-        internal BufferView BufferView;
-        internal int Size;
+        internal BinaryWriter BinaryWriter;
 
         internal Accessor(BufferView bufferView, ComponentType componentType, AccessorType accessorType,
             bool minMax, bool? normalized)
         {
             _component = new List<dynamic>();
             _minMax = minMax;
+            BinaryWriter = new BinaryWriter(new MemoryStream());
             BufferView = bufferView;
             ComponentType = componentType;
             Type = accessorType;
             Normalized = normalized;
-            BufferView.GltfAsset.Accessors ??= new List<Accessor>();
-            BufferView.GltfAsset.Accessors.Add(this);
+            SetSize();
+            BufferView.Buffer.GltfAsset.Accessors ??= new List<Accessor>();
+            BufferView.Buffer.GltfAsset.Accessors.Add(this);
         }
 
+        internal int ComponentSize { get; private set; }
+        internal int ByteLength => ComponentSize * Count;
+
         [JsonPropertyName("bufferView")]
-        public int BufferViewReference => BufferView.GltfAsset.BufferViews.IndexOf(BufferView);
+        public int BufferViewReference => BufferView.Buffer.GltfAsset.BufferViews.IndexOf(BufferView);
 
         public int? ByteOffset
         {
             get
             {
                 var take = true;
-                var accessors = BufferView.Accessors.TakeWhile(accessor =>
+                var accessors = BufferView.GetAccessors().TakeWhile(accessor =>
                 {
                     if (accessor == this)
                         take = false;
                     return take;
-                });
+                }).ToList();
                 if (!accessors.Any())
                     return null;
                 return accessors.GetStride();
@@ -52,17 +60,38 @@ namespace SimpleGltf.Json
 
         public bool? Normalized { get; }
 
-        public int Count { get; set; }
+        public int Count { get; private set; }
 
         [JsonConverter(typeof(AccessorTypeConverter))]
         public AccessorType Type { get; }
 
-        public dynamic Min { get; set; }
+        public dynamic Min { get; private set; }
 
-        public dynamic Max { get; set; }
+        public dynamic Max { get; private set; }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (BinaryWriter == null)
+                return;
+            await BinaryWriter.DisposeAsync();
+            BinaryWriter = null;
+        }
+
+        private void SetSize()
+        {
+            var elementSize = ComponentType.GetElementSize();
+            var rows = Type.GetRows();
+            var columns = Type.GetColumns();
+            for (var i = 0; i < columns; i++)
+            {
+                ComponentSize += ComponentSize.GetOffset();
+                ComponentSize += rows * elementSize;
+            }
+        }
 
         internal void NextComponent()
         {
+            Count++;
             if (!_minMax)
             {
                 _component.Clear();
@@ -87,7 +116,7 @@ namespace SimpleGltf.Json
                 return;
             }
 
-            if (Min == null || Max == null)
+            if (Min == null && Max == null)
             {
                 Min = new List<dynamic>(_component);
                 Max = new List<dynamic>(_component);
@@ -108,7 +137,7 @@ namespace SimpleGltf.Json
 
         internal void Write(dynamic value)
         {
-            BufferView.BinaryWriter.Write(value);
+            BinaryWriter.Write(value);
             _component.Add(value);
         }
     }

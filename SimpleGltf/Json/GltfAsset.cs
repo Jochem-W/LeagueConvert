@@ -1,12 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using SimpleGltf.Extensions;
 
 namespace SimpleGltf.Json
 {
-    internal class GltfAsset : IAsyncDisposable
+    internal class GltfAsset
     {
         internal GltfAsset()
         {
@@ -30,16 +28,5 @@ namespace SimpleGltf.Json
         [JsonPropertyName("scene")] public int? SceneReference => Scenes?.NullableIndexOf(Scene);
 
         public IList<Scene> Scenes { get; set; }
-
-        public async ValueTask DisposeAsync()
-        {
-            if (Buffers == null)
-                return;
-            for (var i = 0; i < Buffers.Count; i++)
-            {
-                await Buffers[i].DisposeAsync();
-                i--;
-            }
-        }
     }
 }

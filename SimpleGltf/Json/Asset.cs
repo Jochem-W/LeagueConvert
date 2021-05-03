@@ -15,7 +15,7 @@ namespace SimpleGltf.Json
 
         public string Version => "2.0";
 
-        public string Generator { get; set; }
+        public string Generator { get; }
 
         public string Copyright { get; set; }
     }

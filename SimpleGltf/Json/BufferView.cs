@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 
@@ -9,36 +10,28 @@ namespace SimpleGltf.Json
 {
     internal class BufferView
     {
-        internal readonly BinaryWriter BinaryWriter;
-        internal readonly GltfAsset GltfAsset;
-        private int? _byteOffset;
+        internal readonly Buffer Buffer;
 
-        internal BufferView(GltfAsset gltfAsset, BufferViewTarget target)
+        internal BufferView(Buffer buffer, BufferViewTarget target)
         {
-            BinaryWriter = new BinaryWriter(new MemoryStream());
-            GltfAsset = gltfAsset;
+            Buffer = buffer;
             Target = (int) target;
-            GltfAsset.BufferViews ??= new List<BufferView>();
-            GltfAsset.BufferViews.Add(this);
+            Buffer.GltfAsset.BufferViews ??= new List<BufferView>();
+            Buffer.GltfAsset.BufferViews.Add(this);
         }
 
-        internal IEnumerable<Accessor> Accessors => GltfAsset.Accessors.Where(accessor => accessor.BufferView == this);
+        public int? ByteOffset => this.GetByteOffset();
 
-        public int? ByteOffset
-        {
-            get => _byteOffset == 0 ? null : _byteOffset;
-            set => _byteOffset = value;
-        }
-
-        public int? ByteLength => (int) BinaryWriter.BaseStream.Length;
+        public int ByteLength => (int) this.GetAccessors().GetLength();
 
         public int? ByteStride
         {
             get
             {
-                if (Target == (int) BufferViewTarget.ElementArrayBuffer || Accessors.Count() == 1)
+                var accessors = this.GetAccessors().ToList();
+                if (Target == (int) BufferViewTarget.ElementArrayBuffer || accessors.Count == 1)
                     return null;
-                return Accessors.GetStride();
+                return accessors.GetStride();
             }
         }
 
@@ -49,10 +42,37 @@ namespace SimpleGltf.Json
         {
             get
             {
-                if (GltfAsset.Buffers == null)
+                if (Buffer.GltfAsset.Buffers == null)
                     return null;
                 return 0;
             }
+        }
+
+        internal async Task<Stream> GetStreamAsync()
+        {
+            var stream = new MemoryStream();
+            var stride = ByteStride;
+            var accessors = this.GetAccessors().ToList();
+            accessors.SeekToBegin();
+            if (stride == null)
+            {
+                foreach (var accessor in accessors)
+                    await accessor.BinaryWriter.BaseStream.CopyToAsync(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                return stream;
+            }
+
+            var totalLength = accessors.GetLength();
+            while (stream.Length != totalLength)
+                foreach (var accessor in accessors)
+                {
+                    var memory = new byte[accessor.ComponentSize];
+                    await accessor.BinaryWriter.BaseStream.ReadAsync(memory);
+                    await stream.WriteAsync(memory);
+                }
+
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
         }
     }
 }

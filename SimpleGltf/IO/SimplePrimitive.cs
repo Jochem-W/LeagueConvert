@@ -10,22 +10,26 @@ namespace SimpleGltf.IO
     public class SimplePrimitive
     {
         private readonly IDictionary<string, SimpleAccessor> _attributes;
+        private readonly SimpleGltfAsset _simpleGltfAsset;
+
 
         internal readonly Primitive Primitive;
         private BufferView _attributeBufferView;
         private BufferView _indicesBufferView;
 
-        internal SimplePrimitive(Mesh mesh)
+
+        internal SimplePrimitive(SimpleGltfAsset simpleGltfAsset, Mesh mesh)
         {
+            _simpleGltfAsset = simpleGltfAsset;
             _attributes = new Dictionary<string, SimpleAccessor>();
             Primitive = new Primitive(mesh);
         }
 
         private BufferView IndicesBufferView => _indicesBufferView ??=
-            new BufferView(Primitive.Mesh.GltfAsset, BufferViewTarget.ElementArrayBuffer);
+            new BufferView(_simpleGltfAsset.Buffer, BufferViewTarget.ElementArrayBuffer);
 
         private BufferView AttributeBufferView => _attributeBufferView ??=
-            new BufferView(Primitive.Mesh.GltfAsset, BufferViewTarget.ArrayBuffer);
+            new BufferView(_simpleGltfAsset.Buffer, BufferViewTarget.ArrayBuffer);
 
         public IEnumerable<KeyValuePair<string, SimpleAccessor>> Attributes => _attributes;
 

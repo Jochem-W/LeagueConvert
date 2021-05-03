@@ -17,16 +17,10 @@ namespace SimpleGltf.IO.Accessors
             ComponentType = componentType;
         }
 
-        internal int Size
-        {
-            get => Accessor.Size;
-            init => Accessor.Size = value;
-        }
-
         internal void EnsureOffset()
         {
-            Accessor.BufferView.BinaryWriter.Seek(
-                (int) Accessor.BufferView.BinaryWriter.BaseStream.Length.GetOffset(), SeekOrigin.Current);
+            Accessor.BinaryWriter.Seek(
+                (int) Accessor.BinaryWriter.BaseStream.Length.GetOffset(), SeekOrigin.Current);
         }
     }
 }

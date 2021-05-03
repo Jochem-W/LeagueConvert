@@ -1,6 +1,5 @@
 using SimpleGltf.Converters;
 using SimpleGltf.Enums;
-using SimpleGltf.Extensions;
 using SimpleGltf.Json;
 
 namespace SimpleGltf.IO.Accessors
@@ -12,10 +11,6 @@ namespace SimpleGltf.IO.Accessors
             ComponentTypeConverter.Convert(typeof(T)), AccessorType.Mat2, minMax, normalized)
         {
             var componentSize = ComponentTypeConverter.GetSize(ComponentType);
-            Size = 2 * componentSize;
-            Size = Size.Offset();
-            Size += 2 * componentSize;
-            Size = Size.Offset();
         }
 
         public void Write(T m11, T m12, T m21, T m22)
@@ -28,7 +23,6 @@ namespace SimpleGltf.IO.Accessors
             Accessor.Write((dynamic) m12);
             Accessor.Write((dynamic) m22);
 
-            Accessor.Count++;
             Accessor.NextComponent();
         }
     }

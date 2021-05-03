@@ -6,10 +6,12 @@ namespace SimpleGltf.IO
     public class SimpleMesh
     {
         private readonly IList<SimplePrimitive> _primitives;
+        private readonly SimpleGltfAsset _simpleGltfAsset;
         internal readonly Mesh Mesh;
 
-        internal SimpleMesh(Node node)
+        internal SimpleMesh(SimpleGltfAsset simpleGltfAsset, Node node)
         {
+            _simpleGltfAsset = simpleGltfAsset;
             _primitives = new List<SimplePrimitive>();
             Mesh = new Mesh(node);
         }
@@ -18,7 +20,7 @@ namespace SimpleGltf.IO
 
         public SimplePrimitive CreatePrimitive()
         {
-            var primitive = new SimplePrimitive(Mesh);
+            var primitive = new SimplePrimitive(_simpleGltfAsset, Mesh);
             _primitives.Add(primitive);
             return primitive;
         }

@@ -16,6 +16,8 @@ namespace SimpleGltfTest
         private static async Task Main(string[] args)
         {
             await HashTables.TryLoadLatest();
+            if (Directory.Exists(@"C:\Users\Joche\Downloads\models"))
+                Directory.Delete(@"C:\Users\Joche\Downloads\models", true);
             foreach (var file in Directory.EnumerateFiles(@"C:\Riot Games\League of Legends", "*.wad.client",
                 SearchOption.AllDirectories))
             {
@@ -24,7 +26,7 @@ namespace SimpleGltfTest
                 foreach (var (name, entry) in wad.Entries.Where(pair => Path.GetExtension(pair.Key) == ".skn"))
                 {
                     var simpleSkin = new SimpleSkin(entry.GetStream());
-                    await using var gltf = new SimpleGltfAsset();
+                    var gltf = new SimpleGltfAsset();
                     var root = gltf.CreateScene().CreateNode("root");
                     foreach (var subMesh in simpleSkin.Submeshes)
                     {
@@ -78,8 +80,8 @@ namespace SimpleGltfTest
                     }
 
                     // gltf
-                    await gltf.Save(Path.Combine(@"C:\Users\Joche\Downloads", "models", Path.GetDirectoryName(name),
-                        Path.GetFileNameWithoutExtension(name)));
+                    /*await gltf.Save(Path.Combine(@"C:\Users\Joche\Downloads", "models", Path.GetDirectoryName(name),
+                        Path.GetFileNameWithoutExtension(name)));*/
 
                     // gltf embedded
                     /*await gltf.Save(Path.Combine(@"C:\Users\Joche\Downloads", "models", Path.GetDirectoryName(name),
