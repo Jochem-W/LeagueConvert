@@ -12,11 +12,11 @@ On this branch I'll be working towards the next version of LeagueConvert
 
 Initially I wanted to rewrite all of LeagueBulkConvert into a library, a command
 line version and a GUI version. I also wanted to add support for map geometry
-files, but I ran into two issues: LeagueToolkit doesn't allow for map geometry
-to be turned into glTF with textures and the library that LeagueToolkit uses
-for creating glTF files, SharpGLTF, is, in my opinion, very hard to use. This is
-I'm writing my own, somewhat low-level glTF writing library called SimpleGltf
-(might publish it as a standalone library at some point.)
+files, but I ran into two issues: I can't easily texture map geometry with
+LeagueToolkit and the library LeagueToolkit uses for creating glTF files
+(SharpGLTF) is, in my opinion, very hard to use. This is why I'm writing my own,
+somewhat low-level glTF writing library called SimpleGltf (might publish it as
+a standalone library at some point.)
 
 ### SimpleGltf
 
