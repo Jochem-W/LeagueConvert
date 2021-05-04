@@ -20,21 +20,22 @@ namespace LeagueConvert.IO.Skin
 {
     public class Skin : IDisposable
     {
-        private readonly IDictionary<string, string> _animationFiles = new Dictionary<string, string>();
-        private readonly IList<Material> _materials = new List<Material>();
+        private readonly IDictionary<string, string> _animationFiles;
+        private readonly IList<Material> _materials;
         private readonly StringWad _parent;
-        private IDictionary<string, Animation> _animations;
-        private IList<string> _hiddenSubMeshes;
         private uint? _material;
         private SimpleSkin _simpleSkin;
         private string _simpleSkinFile;
-        private Skeleton _skeleton;
         private string _skeletonFile;
         private string _texture;
         private Dictionary<string, MagickImage> _textures;
+        private IList<string> _hiddenSubMeshes;
 
-        public Skin(string character, string name, params ParentedBinTree[] binTrees)
+        internal Skin(string character, string name, ILogger logger = null, params ParentedBinTree[] binTrees)
         {
+            logger?.Debug("Parsing {Character} skin{Id}", Character, Id);
+            _animationFiles = new Dictionary<string, string>();
+            _materials = new List<Material>();
             _parent = binTrees[0].Parent;
             Character = character;
             Id = int.Parse(name[4..]);
@@ -42,16 +43,15 @@ namespace LeagueConvert.IO.Skin
                 ParseBinTree(binTree);
         }
 
-        public Skin(string character, string name, ILogger logger, params ParentedBinTree[] binTrees) : this(character,
-            name, binTrees)
-        {
-            logger.Debug("Parsing {Character} skin{Id}", Character, Id);
-        }
-
-        public SkinState State { get; private set; }
-        public string Name { get; private set; }
         public string Character { get; }
+        
+        public IEnumerable<string> HiddenSubMeshes => _hiddenSubMeshes;
+        
         public int Id { get; }
+        
+        public string Name { get; private set; }
+        
+        public SkinState State { get; private set; }
 
         public void Dispose()
         {
@@ -71,12 +71,13 @@ namespace LeagueConvert.IO.Skin
                 await TryLoadTextures(logger);
             if (mode == SkinMode.MeshAndTextures)
                 return;
-            if (!State.HasFlag(SkinState.SkeletonLoaded))
+            //TODO
+            /*if (!State.HasFlag(SkinState.SkeletonLoaded))
                 await TryLoadSkeleton(logger);
             if (mode == SkinMode.WithSkeleton || !State.HasFlag(SkinState.SkeletonLoaded) ||
                 State.HasFlag(SkinState.AnimationsLoaded))
                 return;
-            await LoadAnimations(logger);
+            await LoadAnimations(logger);*/
         }
 
         private async Task<bool> TryLoadMesh(ILogger logger = null)
@@ -143,7 +144,8 @@ namespace LeagueConvert.IO.Skin
             }
         }
 
-        private async Task<bool> TryLoadSkeleton(ILogger logger = null)
+        //TODO
+        /*private async Task<bool> TryLoadSkeleton(ILogger logger = null)
         {
             Stream stream = null;
             try
@@ -222,7 +224,7 @@ namespace LeagueConvert.IO.Skin
             return State.HasFlag(SkinState.SkeletonLoaded)
                 ? _simpleSkin.ToGltf(_skeleton, _textures)
                 : _simpleSkin.ToGltf(_textures);
-        }
+        }*/
 
         private void ParseBinTree(BinTree binTree)
         {

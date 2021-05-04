@@ -199,8 +199,9 @@ namespace LeagueConvert.CommandLine
                 var skinDirectory = Path.Combine(outputDirectory, skin.Character);
                 if (!Directory.Exists(skinDirectory))
                     Directory.CreateDirectory(skinDirectory);
-                skin.Save(Path.Combine(skinDirectory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"),
-                    Logger);
+                //TODO
+                /*skin.Save(Path.Combine(skinDirectory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"),
+                    Logger);*/
                 return true;
             }
             catch (Exception e)

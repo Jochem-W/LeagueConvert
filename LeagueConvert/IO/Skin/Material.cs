@@ -1,5 +1,3 @@
-using System;
-
 namespace LeagueConvert.IO.Skin
 {
     public class Material
@@ -14,12 +12,5 @@ namespace LeagueConvert.IO.Skin
         public uint? Hash { get; }
         public string Texture { get; set; }
         public string SubMesh { get; }
-
-        public void SetTexture(string texture)
-        {
-            if (Texture != null)
-                throw new NotImplementedException();
-            Texture = texture;
-        }
     }
 }
