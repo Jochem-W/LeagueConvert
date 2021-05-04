@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Numerics;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using SimpleGltf.Enums;
@@ -16,12 +14,12 @@ namespace SimpleGltf.Json.Extensions
         {
             IgnoreNullValues = true
         };
-        
+
         public static void SetDefaultScene(this GltfAsset gltfAsset, Scene scene)
         {
             gltfAsset.Scene = scene;
         }
-        
+
         public static Accessor CreateAccessor(this GltfAsset gltfAsset, ComponentType componentType,
             AccessorType accessorType, bool normalized = false, string name = null, bool minMax = false)
         {
@@ -37,13 +35,13 @@ namespace SimpleGltf.Json.Extensions
         {
             return new(gltfAsset, name);
         }
-        
+
         public static BufferView CreateBufferView(this GltfAsset gltfAsset, Buffer buffer, BufferViewTarget target,
             string name = null)
         {
             return new(gltfAsset, buffer, target, name);
         }
-        
+
         public static Image CreateImage(this GltfAsset gltfAsset, string uri, string name = null)
         {
             return new(gltfAsset, uri, name);
@@ -60,12 +58,12 @@ namespace SimpleGltf.Json.Extensions
         {
             return new(gltfAsset, emissiveFactor, alphaMode, alphaCutoff, doubleSided, name);
         }
-        
+
         public static Mesh CreateMesh(this GltfAsset gltfAsset, string name = null)
         {
             return new(gltfAsset, name);
         }
-        
+
         public static Node CreateNode(this GltfAsset gltfAsset, string name = null)
         {
             return CreateNode(gltfAsset, Quaternion.Identity, Vector3.One, Vector3.Zero, name);
@@ -76,7 +74,7 @@ namespace SimpleGltf.Json.Extensions
         {
             return new(gltfAsset, rotation, scale, translation, name);
         }
-        
+
         public static Sampler CreateSampler(this GltfAsset gltfAsset, ScaleFilter? magFilter = null,
             ScaleFilter? minFilter = null, WrappingMode wrapS = WrappingMode.Repeat,
             WrappingMode wrapT = WrappingMode.Repeat, string name = null)
@@ -127,7 +125,7 @@ namespace SimpleGltf.Json.Extensions
                 await using var stream = await buffer.GetStreamAsync();
                 await WriteChunk(binaryWriter, "BIN", stream, buffer == lastBuffer);
             }
-            
+
             binaryWriter.Seek(8, SeekOrigin.Begin);
             binaryWriter.Write((uint) binaryWriter.BaseStream.Length);
         }
@@ -148,7 +146,7 @@ namespace SimpleGltf.Json.Extensions
             binaryWriter.Write((uint) length);
             binaryWriter.Seek((int) end, SeekOrigin.Begin);
         }
-        
+
         private static async Task WriteChunk(BinaryWriter binaryWriter, GltfAsset gltfAsset, bool last = false)
         {
             var headerStart = binaryWriter.BaseStream.Position;
@@ -162,6 +160,7 @@ namespace SimpleGltf.Json.Extensions
                 for (var i = 0; i < offset; i++)
                     binaryWriter.Write(' ');
             }
+
             var end = binaryWriter.BaseStream.Position;
             var length = end - start;
             binaryWriter.Seek((int) headerStart, SeekOrigin.Begin);

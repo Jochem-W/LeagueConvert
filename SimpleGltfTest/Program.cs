@@ -18,7 +18,8 @@ namespace SimpleGltfTest
             await HashTables.TryLoadLatest();
             if (Directory.Exists(@"C:\Users\Joche\Downloads\models"))
                 Directory.Delete(@"C:\Users\Joche\Downloads\models", true);
-            using var wad = new StringWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Warwick.wad.client");
+            using var wad =
+                new StringWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Warwick.wad.client");
             await Test(wad);
             /*foreach (var file in Directory.EnumerateFiles(@"C:\Riot Games\League of Legends", "*.wad.client",
                 SearchOption.AllDirectories))
@@ -109,7 +110,6 @@ namespace SimpleGltfTest
 
                     var material = gltfAsset.CreateMaterial(name: subMesh.Name);
                     primitive.Material = material;
-                    
                 }
 
                 await gltfAsset.Save(Path.Combine(@"C:\Users\Joche\Downloads", "models", Path.GetDirectoryName(name),

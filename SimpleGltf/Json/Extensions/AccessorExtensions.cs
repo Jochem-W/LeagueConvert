@@ -14,7 +14,7 @@ namespace SimpleGltf.Json.Extensions
             accessor.BufferView = bufferView;
             return accessor;
         }
-        
+
         public static int GetStride(this IEnumerable<Accessor> accessors)
         {
             return accessors.Select(accessor => accessor.ComponentSize).Sum();

@@ -14,7 +14,7 @@ namespace SimpleGltf.Json
     {
         private readonly GltfAsset _gltfAsset;
         private readonly bool _normalized;
-        
+
         internal readonly BinaryWriter BinaryWriter;
         internal readonly IList<dynamic> Component;
         internal readonly bool MinMax;

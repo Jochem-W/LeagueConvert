@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text.Json.Serialization;
-using SimpleGltf.Extensions;
 using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
@@ -48,7 +47,7 @@ namespace SimpleGltf.Json
         }
 
         [JsonIgnore] public Mesh Mesh { get; set; }
-        
+
         [JsonPropertyName("mesh")] public int? MeshReference => Mesh == null ? null : _gltfAsset.Meshes.IndexOf(Mesh);
 
         public Quaternion? Rotation
