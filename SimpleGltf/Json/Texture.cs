@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace SimpleGltf.Json
 {
@@ -19,9 +20,9 @@ namespace SimpleGltf.Json
             Name = name;
         }
 
-        public int? SamplerReference => GltfAsset.Samplers.IndexOf(_sampler);
+        [JsonPropertyName("sampler")] public int? SamplerReference => GltfAsset.Samplers.IndexOf(_sampler);
 
-        public int? ImageReference => GltfAsset.Images.IndexOf(_image);
+        [JsonPropertyName("source")] public int? ImageReference => GltfAsset.Images.IndexOf(_image);
 
         public string Name { get; }
     }

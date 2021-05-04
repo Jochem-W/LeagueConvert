@@ -29,7 +29,7 @@ namespace SimpleGltf.Json
 
         public string Name { get; }
 
-        public PbrMetallicRoughness PbrMetallicRoughness { get; }
+        public PbrMetallicRoughness PbrMetallicRoughness { get; internal set; }
 
         public NormalTextureInfo NormalTexture { get; }
 

@@ -1,8 +1,10 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ImageMagick;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 
@@ -36,8 +38,8 @@ namespace SimpleGltf.Json.Extensions
             return new(gltfAsset, name);
         }
 
-        public static BufferView CreateBufferView(this GltfAsset gltfAsset, Buffer buffer, BufferViewTarget target,
-            string name = null)
+        public static BufferView CreateBufferView(this GltfAsset gltfAsset, Buffer buffer,
+            BufferViewTarget? target = null, string name = null)
         {
             return new(gltfAsset, buffer, target, name);
         }
@@ -47,10 +49,15 @@ namespace SimpleGltf.Json.Extensions
             return new(gltfAsset, uri, name);
         }
 
-        public static Image CreateImage(this GltfAsset gltfAsset, BufferView bufferView, MimeType mimeType,
-            string name = null)
+        public static async Task<Image> CreateImage(this GltfAsset gltfAsset, BufferView bufferView,
+            IMagickImage magickImage, string name = null)
         {
-            return new(gltfAsset, bufferView, mimeType, name);
+            if (bufferView.PngStream != null || bufferView.GetAccessors().Any())
+                throw new NotImplementedException();
+            bufferView.PngStream = new MemoryStream();
+            await magickImage.WriteAsync(bufferView.PngStream, MagickFormat.Png);
+            bufferView.PngStream.Seek(0, SeekOrigin.Begin);
+            return new Image(gltfAsset, bufferView, MimeType.Png, name);
         }
 
         public static Material CreateMaterial(this GltfAsset gltfAsset, Vector3? emissiveFactor = null,
@@ -118,12 +125,11 @@ namespace SimpleGltf.Json.Extensions
             binaryWriter.Seek(4, SeekOrigin.Current);
 
             await WriteChunk(binaryWriter, gltfAsset);
-
-            var lastBuffer = gltfAsset.Buffers[^1];
+            
             foreach (var buffer in gltfAsset.Buffers)
             {
                 await using var stream = await buffer.GetStreamAsync();
-                await WriteChunk(binaryWriter, "BIN", stream, buffer == lastBuffer);
+                await WriteChunk(binaryWriter, "BIN", stream);
             }
 
             binaryWriter.Seek(8, SeekOrigin.Begin);
@@ -131,15 +137,14 @@ namespace SimpleGltf.Json.Extensions
         }
 
         //TODO: merge the following two functions
-        private static async Task WriteChunk(BinaryWriter binaryWriter, string magic, Stream data, bool last = false)
+        private static async Task WriteChunk(BinaryWriter binaryWriter, string magic, Stream data)
         {
             var headerStart = binaryWriter.BaseStream.Position;
             binaryWriter.Seek(4, SeekOrigin.Current);
             binaryWriter.Write(magic.ToMagic());
             var start = binaryWriter.BaseStream.Position;
             await data.CopyToAsync(binaryWriter.BaseStream);
-            if (!last)
-                binaryWriter.Seek((int) binaryWriter.BaseStream.Position.GetOffset(), SeekOrigin.Current);
+            binaryWriter.Write(new byte[binaryWriter.BaseStream.Position.GetOffset()]);
             var end = binaryWriter.BaseStream.Position;
             var length = end - start;
             binaryWriter.Seek((int) headerStart, SeekOrigin.Begin);
@@ -147,20 +152,16 @@ namespace SimpleGltf.Json.Extensions
             binaryWriter.Seek((int) end, SeekOrigin.Begin);
         }
 
-        private static async Task WriteChunk(BinaryWriter binaryWriter, GltfAsset gltfAsset, bool last = false)
+        private static async Task WriteChunk(BinaryWriter binaryWriter, GltfAsset gltfAsset)
         {
             var headerStart = binaryWriter.BaseStream.Position;
             binaryWriter.Seek(4, SeekOrigin.Current);
             binaryWriter.Write("JSON".ToMagic());
             var start = binaryWriter.BaseStream.Position;
             await JsonSerializer.SerializeAsync(binaryWriter.BaseStream, gltfAsset, JsonSerializerOptions);
-            if (!last)
-            {
-                var offset = binaryWriter.BaseStream.Position.GetOffset();
-                for (var i = 0; i < offset; i++)
-                    binaryWriter.Write(' ');
-            }
-
+            var offset = binaryWriter.BaseStream.Position.GetOffset();
+            for (var i = 0; i < offset; i++)
+                binaryWriter.Write(' ');
             var end = binaryWriter.BaseStream.Position;
             var length = end - start;
             binaryWriter.Seek((int) headerStart, SeekOrigin.Begin);

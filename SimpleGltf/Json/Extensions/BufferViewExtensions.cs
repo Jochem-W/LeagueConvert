@@ -41,6 +41,15 @@ namespace SimpleGltf.Json.Extensions
 
         public static async Task<Stream> GetStreamAsync(this BufferView bufferView)
         {
+            if (bufferView.PngStream != null)
+            {
+                var pngStream = new MemoryStream();
+                bufferView.PngStream.Seek(0, SeekOrigin.Begin);
+                await bufferView.PngStream.CopyToAsync(pngStream);
+                pngStream.Seek(0, SeekOrigin.Begin);
+                return pngStream;
+            }
+
             var stream = new MemoryStream();
             var stride = bufferView.ByteStride;
             var accessors = bufferView.GetAccessors().ToList();

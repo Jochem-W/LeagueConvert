@@ -11,10 +11,7 @@ using LeagueConvert.IO.WadFile;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.PropertyBin.Properties;
 using LeagueToolkit.IO.SimpleSkinFile;
-using LeagueToolkit.IO.SkeletonFile;
 using Serilog;
-using SharpGLTF.Schema2;
-using Animation = LeagueToolkit.IO.AnimationFile.Animation;
 
 namespace LeagueConvert.IO.Skin
 {
@@ -23,13 +20,14 @@ namespace LeagueConvert.IO.Skin
         private readonly IDictionary<string, string> _animationFiles;
         private readonly IList<Material> _materials;
         private readonly StringWad _parent;
+        private IList<string> _hiddenSubMeshes;
         private uint? _material;
-        private SimpleSkin _simpleSkin;
         private string _simpleSkinFile;
         private string _skeletonFile;
         private string _texture;
-        private Dictionary<string, MagickImage> _textures;
-        private IList<string> _hiddenSubMeshes;
+
+        internal SimpleSkin SimpleSkin;
+        internal Dictionary<string, IMagickImage> Textures;
 
         internal Skin(string character, string name, ILogger logger = null, params ParentedBinTree[] binTrees)
         {
@@ -44,19 +42,17 @@ namespace LeagueConvert.IO.Skin
         }
 
         public string Character { get; }
-        
-        public IEnumerable<string> HiddenSubMeshes => _hiddenSubMeshes;
-        
+
         public int Id { get; }
-        
+
         public string Name { get; private set; }
-        
+
         public SkinState State { get; private set; }
 
         public void Dispose()
         {
-            if (_textures != null)
-                foreach (var image in _textures.Values)
+            if (Textures != null)
+                foreach (var image in Textures.Values)
                     image.Dispose();
             GC.SuppressFinalize(this);
         }
@@ -86,7 +82,7 @@ namespace LeagueConvert.IO.Skin
             try
             {
                 stream = _parent.GetEntryByName(_simpleSkinFile).GetStream();
-                _simpleSkin = new SimpleSkin(stream);
+                SimpleSkin = new SimpleSkin(stream);
                 State |= SkinState.MeshLoaded;
                 return true;
             }
@@ -114,9 +110,9 @@ namespace LeagueConvert.IO.Skin
                     streams[texture] = _parent.GetEntryByName(texture).GetStream();
                 if (_texture != null && !streams.ContainsKey(_texture))
                     streams[_texture] = _parent.GetEntryByName(_texture).GetStream();
-                var images = new Dictionary<string, MagickImage>();
-                _textures = new Dictionary<string, MagickImage>();
-                foreach (var subMeshName in _simpleSkin.Submeshes.Select(submesh => submesh.Name))
+                var images = new Dictionary<string, IMagickImage>();
+                Textures = new Dictionary<string, IMagickImage>();
+                foreach (var subMeshName in SimpleSkin.Submeshes.Select(submesh => submesh.Name))
                 {
                     var texture = _texture;
                     if (_materials.TryGetBySubMesh(subMeshName, out var material))
@@ -125,7 +121,7 @@ namespace LeagueConvert.IO.Skin
                         continue;
                     if (!images.ContainsKey(texture))
                         images[texture] = new MagickImage(streams[texture]);
-                    _textures[subMeshName] = images[texture];
+                    Textures[subMeshName] = images[texture];
                 }
 
                 State |= SkinState.TexturesLoaded;

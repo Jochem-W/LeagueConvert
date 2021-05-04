@@ -13,4 +13,8 @@
       <PackageReference Include="ZstdSharp" Version="0.7.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\SimpleGltf\SimpleGltf.csproj" />
+    </ItemGroup>
+
 </Project>

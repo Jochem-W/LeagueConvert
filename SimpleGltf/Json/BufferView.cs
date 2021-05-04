@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
 using SimpleGltf.Enums;
@@ -10,8 +11,9 @@ namespace SimpleGltf.Json
     {
         internal readonly Buffer Buffer;
         internal readonly GltfAsset GltfAsset;
+        internal Stream PngStream;
 
-        internal BufferView(GltfAsset gltfAsset, Buffer buffer, BufferViewTarget target, string name)
+        internal BufferView(GltfAsset gltfAsset, Buffer buffer, BufferViewTarget? target, string name)
         {
             GltfAsset = gltfAsset;
             GltfAsset.BufferViews ??= new List<BufferView>();
@@ -25,20 +27,20 @@ namespace SimpleGltf.Json
 
         public int? ByteOffset => this.GetByteOffset();
 
-        public int ByteLength => (int) this.GetAccessors().GetLength();
+        public int ByteLength => PngStream == null ? (int) this.GetAccessors().GetLength() : (int) PngStream.Length;
 
         public int? ByteStride
         {
             get
             {
-                if (Target == BufferViewTarget.ElementArrayBuffer)
+                if (Target is BufferViewTarget.ElementArrayBuffer or null)
                     return null;
                 var accessors = this.GetAccessors().ToList();
                 return accessors.Count == 1 ? null : accessors.GetStride();
             }
         }
 
-        public BufferViewTarget Target { get; }
+        public BufferViewTarget? Target { get; }
 
         public string Name { get; }
     }

@@ -11,5 +11,7 @@ namespace SimpleGltf.Json
         }
 
         public int TexCoord { get; }
+
+        public int Index => _texture.GltfAsset.Textures.IndexOf(_texture);
     }
 }
