@@ -1,6 +1,6 @@
 using System;
 
-namespace SimpleGltf.Enums.Extensions
+namespace SimpleGltf.Json.Enums.Extensions
 {
     internal static class AccessorTypeExtensions
     {

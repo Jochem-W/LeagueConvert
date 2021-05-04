@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using SimpleGltf.Enums;
 using SimpleGltf.Json.Converters;
+using SimpleGltf.Json.Enums;
 using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json

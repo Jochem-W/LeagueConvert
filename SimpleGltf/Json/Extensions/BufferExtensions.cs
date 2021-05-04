@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using SimpleGltf.Enums;
+using SimpleGltf.Json.Enums;
 
 namespace SimpleGltf.Json.Extensions
 {

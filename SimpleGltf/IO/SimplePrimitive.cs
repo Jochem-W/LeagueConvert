@@ -4,6 +4,7 @@ using System.Data;
 using SimpleGltf.Enums;
 using SimpleGltf.IO.Accessors;
 using SimpleGltf.Json;
+using SimpleGltf.Json.Enums;
 using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.IO

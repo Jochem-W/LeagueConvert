@@ -1,6 +1,6 @@
 using SimpleGltf.Converters;
-using SimpleGltf.Enums;
 using SimpleGltf.Json;
+using SimpleGltf.Json.Enums;
 using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.IO.Accessors

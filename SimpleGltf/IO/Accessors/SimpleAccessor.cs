@@ -2,6 +2,7 @@ using System.IO;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 using SimpleGltf.Json;
+using SimpleGltf.Json.Enums;
 
 namespace SimpleGltf.IO.Accessors
 {

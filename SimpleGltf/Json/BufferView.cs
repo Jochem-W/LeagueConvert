@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using SimpleGltf.Enums;
+using SimpleGltf.Json.Enums;
 using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json
