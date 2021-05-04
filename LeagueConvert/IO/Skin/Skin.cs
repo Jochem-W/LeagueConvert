@@ -11,6 +11,7 @@ using LeagueConvert.IO.WadFile;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.PropertyBin.Properties;
 using LeagueToolkit.IO.SimpleSkinFile;
+using LeagueToolkit.IO.SkeletonFile;
 using Serilog;
 
 namespace LeagueConvert.IO.Skin
@@ -27,6 +28,7 @@ namespace LeagueConvert.IO.Skin
         private string _texture;
 
         internal SimpleSkin SimpleSkin;
+        internal Skeleton Skeleton;
         internal Dictionary<string, IMagickImage> Textures;
 
         internal Skin(string character, string name, ILogger logger = null, params ParentedBinTree[] binTrees)
@@ -67,10 +69,11 @@ namespace LeagueConvert.IO.Skin
                 await TryLoadTextures(logger);
             if (mode == SkinMode.MeshAndTextures)
                 return;
-            //TODO
-            /*if (!State.HasFlag(SkinState.SkeletonLoaded))
+
+            if (!State.HasFlag(SkinState.SkeletonLoaded))
                 await TryLoadSkeleton(logger);
-            if (mode == SkinMode.WithSkeleton || !State.HasFlag(SkinState.SkeletonLoaded) ||
+            //TODO
+            /*if (mode == SkinMode.WithSkeleton || !State.HasFlag(SkinState.SkeletonLoaded) ||
                 State.HasFlag(SkinState.AnimationsLoaded))
                 return;
             await LoadAnimations(logger);*/
@@ -139,15 +142,14 @@ namespace LeagueConvert.IO.Skin
                         await stream.DisposeAsync();
             }
         }
-
-        //TODO
-        /*private async Task<bool> TryLoadSkeleton(ILogger logger = null)
+        
+        private async Task<bool> TryLoadSkeleton(ILogger logger = null)
         {
             Stream stream = null;
             try
             {
                 stream = _parent.GetEntryByName(_skeletonFile).GetStream();
-                _skeleton = new Skeleton(stream);
+                Skeleton = new Skeleton(stream);
                 State |= SkinState.SkeletonLoaded;
                 return true;
             }
@@ -162,8 +164,9 @@ namespace LeagueConvert.IO.Skin
                     await stream.DisposeAsync();
             }
         }
-
-        private async Task LoadAnimations(ILogger logger = null)
+        
+        //TODO
+        /*private async Task LoadAnimations(ILogger logger = null)
         {
             _animations = new Dictionary<string, Animation>();
             var streams = new Dictionary<string, Stream>();

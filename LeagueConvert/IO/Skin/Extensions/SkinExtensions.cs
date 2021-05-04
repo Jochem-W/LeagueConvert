@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using ImageMagick;
 using SimpleGltf.Enums;
 using SimpleGltf.Json;
 using SimpleGltf.Json.Extensions;
@@ -11,6 +13,9 @@ namespace LeagueConvert.IO.Skin.Extensions
     {
         public static async Task<GltfAsset> GetGltfAsset(this Skin skin)
         {
+            //TODO
+            var textures = new Dictionary<IMagickImage, Texture>();
+            
             var gltfAsset = new GltfAsset();
             var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
             var buffer = gltfAsset.CreateBuffer();
@@ -18,7 +23,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             var node = gltfAsset.CreateNode("root");
             scene.AddNode(node);
             node.Mesh = gltfAsset.CreateMesh();
-            //node.Scale = new Vector3(1, 1, -1);
+            node.Scale = new Vector3(-1, 1, 1);
             foreach (var subMesh in skin.SimpleSkin.Submeshes)
             {
                 var primitive = node.Mesh.CreatePrimitive();
@@ -89,9 +94,17 @@ namespace LeagueConvert.IO.Skin.Extensions
                 var material = gltfAsset.CreateMaterial(name: subMesh.Name);
                 primitive.Material = material;
                 var pbrMetallicRoughness = material.CreatePbrMetallicRoughness();
+                var magickImage = skin.Textures[subMesh.Name];
+                if (textures.ContainsKey(magickImage))
+                {
+                    pbrMetallicRoughness.SetBaseColorTexture(textures[magickImage]);
+                    continue;
+                }
+                
                 var imageBufferView = gltfAsset.CreateBufferView(buffer);
-                var image = await gltfAsset.CreateImage(imageBufferView, skin.Textures[subMesh.Name]);
+                var image = await gltfAsset.CreateImage(imageBufferView, magickImage);
                 var texture = gltfAsset.CreateTexture(sampler, image);
+                textures[magickImage] = texture;
                 pbrMetallicRoughness.SetBaseColorTexture(texture);
             }
 
