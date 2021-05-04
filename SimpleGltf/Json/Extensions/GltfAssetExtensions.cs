@@ -125,7 +125,7 @@ namespace SimpleGltf.Json.Extensions
             binaryWriter.Seek(4, SeekOrigin.Current);
 
             await WriteChunk(binaryWriter, gltfAsset);
-            
+
             foreach (var buffer in gltfAsset.Buffers)
             {
                 await using var stream = await buffer.GetStreamAsync();

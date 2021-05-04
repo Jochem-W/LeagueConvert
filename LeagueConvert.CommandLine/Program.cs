@@ -210,27 +210,5 @@ namespace LeagueConvert.CommandLine
                 return false;
             }
         }
-
-        /*private static async Task SamplerStuff(IDictionary<ulong, string> gameHashes)
-        {
-            var samplers = new Dictionary<string, IList<string>>();
-            await foreach (var (sampler, texture) in Samplers.EnumerateSamplerNamesAsync(
-                @"C:\Riot Games\League of Legends",
-                gameHashes))
-            {
-                if (!samplers.ContainsKey(sampler))
-                {
-                    samplers[sampler] = new List<string> {texture};
-                    continue;
-                }
-
-                if (!samplers[sampler].Contains(texture))
-                    samplers[sampler].Add(texture);
-            }
-
-            var fileStream = File.Create(@"D:\out.json");
-            await JsonSerializer.SerializeAsync(fileStream, samplers);
-            await fileStream.DisposeAsync();
-        }*/
     }
 }
