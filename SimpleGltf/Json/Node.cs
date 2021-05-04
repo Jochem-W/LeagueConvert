@@ -7,40 +7,27 @@ using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
-    internal class Node
+    public class Node
     {
-        internal readonly GltfAsset GltfAsset;
+        private readonly GltfAsset _gltfAsset;
         private Quaternion _rotation;
         private Vector3 _scale;
         private Vector3 _translation;
         internal IList<Node> Children;
-        internal Mesh Mesh;
 
-        internal Node(GltfAsset gltfAsset, string name)
+        internal Node(GltfAsset gltfAsset, Quaternion rotation, Vector3 scale, Vector3 translation, string name)
         {
-            GltfAsset = gltfAsset;
+            _gltfAsset = gltfAsset;
+            _gltfAsset.Nodes ??= new List<Node>();
+            _gltfAsset.Nodes.Add(this);
             Name = name;
-            Rotation = Quaternion.Identity;
-            Scale = Vector3.One;
-            Translation = Vector3.Zero;
-            GltfAsset.Nodes ??= new List<Node>();
-            GltfAsset.Nodes.Add(this);
-        }
-
-        internal Node(Scene scene, string name) : this(scene.GltfAsset, name)
-        {
-            scene.Nodes ??= new List<Node>();
-            scene.Nodes.Add(this);
-        }
-
-        internal Node(Node parent, string name) : this(parent.GltfAsset, name)
-        {
-            parent.Children ??= new List<Node>();
-            parent.Children.Add(this);
+            _rotation = rotation;
+            _scale = scale;
+            _translation = translation;
         }
 
         [JsonPropertyName("children")]
-        public IEnumerable<int> ChildrenReferences => Children?.Select(node => GltfAsset.Nodes.IndexOf(node));
+        public IEnumerable<int> ChildrenReferences => Children?.Select(node => _gltfAsset.Nodes.IndexOf(node));
 
         [JsonConverter(typeof(Matrix4x4Converter))]
         public Matrix4x4? Matrix
@@ -60,24 +47,26 @@ namespace SimpleGltf.Json
             }
         }
 
-        [JsonPropertyName("mesh")] public int? MeshReference => GltfAsset.Meshes?.NullableIndexOf(Mesh);
+        [JsonIgnore] public Mesh Mesh { get; set; }
+        
+        [JsonPropertyName("mesh")] public int? MeshReference => Mesh == null ? null : _gltfAsset.Meshes.IndexOf(Mesh);
 
         public Quaternion? Rotation
         {
             get => Matrix == null ? _rotation == Quaternion.Identity ? null : _rotation : null;
-            internal set => _rotation = value ?? Quaternion.Identity;
+            set => _rotation = value ?? Quaternion.Identity;
         }
 
         public Vector3? Scale
         {
             get => Matrix == null ? _scale == Vector3.One ? null : _scale : null;
-            internal set => _scale = value ?? Vector3.One;
+            set => _scale = value ?? Vector3.One;
         }
 
         public Vector3? Translation
         {
             get => Matrix == null ? _translation == Vector3.Zero ? null : _translation : null;
-            internal set => _translation = value ?? Vector3.Zero;
+            set => _translation = value ?? Vector3.Zero;
         }
 
         //public IList<float> Weights { get; internal set; }

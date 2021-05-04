@@ -1,15 +1,13 @@
+using System.Collections.Generic;
+
 namespace SimpleGltf.Json.Extensions
 {
-    internal static class NodeExtensions
+    public static class NodeExtensions
     {
-        internal static Node CreateChild(this Node node, string name = null)
+        public static void AddChild(this Node node, Node child)
         {
-            return new(node, name);
-        }
-
-        internal static Mesh CreateMesh(this Node node, string name = null)
-        {
-            return new(node, name);
+            node.Children ??= new List<Node>();
+            node.Children.Add(child);
         }
     }
 }

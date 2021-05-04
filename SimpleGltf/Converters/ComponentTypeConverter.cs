@@ -1,6 +1,5 @@
 using System;
 using SimpleGltf.Enums;
-using SimpleGltf.Json.Enums;
 
 namespace SimpleGltf.Converters
 {

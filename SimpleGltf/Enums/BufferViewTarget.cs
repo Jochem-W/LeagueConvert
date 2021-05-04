@@ -1,6 +1,6 @@
-namespace SimpleGltf.Json.Enums
+namespace SimpleGltf.Enums
 {
-    internal enum BufferViewTarget
+    public enum BufferViewTarget
     {
         ArrayBuffer = 34962,
         ElementArrayBuffer

@@ -1,4 +1,4 @@
-namespace SimpleGltf.Json.Enums
+namespace SimpleGltf.Enums
 {
     public enum AccessorType
     {

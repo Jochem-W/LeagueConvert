@@ -2,15 +2,18 @@ using System.Reflection;
 
 namespace SimpleGltf.Json
 {
-    internal class Asset
+    public class Asset
     {
+        private readonly GltfAsset _gltfAsset;
+
         internal Asset(GltfAsset gltfAsset, string copyright)
         {
+            _gltfAsset = gltfAsset;
+            _gltfAsset.Asset = this;
             Copyright = copyright;
             var assembly = Assembly.GetExecutingAssembly().GetName();
             Generator = $"{assembly.Name}@{assembly.Version}";
             Version = "2.0";
-            gltfAsset.Asset = this;
         }
 
         public string Copyright { get; internal set; }

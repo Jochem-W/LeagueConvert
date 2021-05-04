@@ -4,23 +4,21 @@ using System.Text.Json.Serialization;
 
 namespace SimpleGltf.Json
 {
-    internal class Scene
+    public class Scene
     {
-        internal readonly GltfAsset GltfAsset;
+        private readonly GltfAsset _gltfAsset;
         internal IList<Node> Nodes;
 
-        internal Scene(GltfAsset gltfAsset, string name, bool setDefault)
+        internal Scene(GltfAsset gltfAsset, string name)
         {
-            GltfAsset = gltfAsset;
+            _gltfAsset = gltfAsset;
+            _gltfAsset.Scenes ??= new List<Scene>();
+            _gltfAsset.Scenes.Add(this);
             Name = name;
-            if (setDefault)
-                GltfAsset.Scene = this;
-            GltfAsset.Scenes ??= new List<Scene>();
-            GltfAsset.Scenes.Add(this);
         }
 
         [JsonPropertyName("nodes")]
-        public IEnumerable<int> NodeReferences => Nodes?.Select(node => GltfAsset.Nodes.IndexOf(node));
+        public IEnumerable<int> NodeReferences => Nodes?.Select(node => _gltfAsset.Nodes.IndexOf(node));
 
         public string Name { get; }
     }

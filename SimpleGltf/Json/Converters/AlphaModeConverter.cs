@@ -5,14 +5,14 @@ using SimpleGltf.Enums;
 
 namespace SimpleGltf.Json.Converters
 {
-    internal class AccessorTypeConverter : JsonConverter<AccessorType>
+    public class AlphaModeConverter : JsonConverter<AlphaMode>
     {
-        public override AccessorType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override AlphaMode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public override void Write(Utf8JsonWriter writer, AccessorType value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, AlphaMode value, JsonSerializerOptions options)
         {
             writer.WriteStringValue(value.ToString().ToUpper());
         }

@@ -1,6 +1,6 @@
-namespace SimpleGltf.Json.Enums
+namespace SimpleGltf.Enums
 {
-    internal enum ComponentType
+    public enum ComponentType
     {
         SByte = 5120,
         Byte,

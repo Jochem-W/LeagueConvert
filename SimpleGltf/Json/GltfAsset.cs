@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using SimpleGltf.Extensions;
 using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json
 {
-    internal class GltfAsset
+    public class GltfAsset
     {
-        internal GltfAsset()
+        public GltfAsset()
         {
             this.CreateAsset();
         }
@@ -22,12 +21,20 @@ namespace SimpleGltf.Json
 
         public IList<BufferView> BufferViews { get; internal set; }
 
+        public IList<Image> Images { get; internal set; }
+
+        public IList<Material> Materials { get; internal set; }
+
         public IList<Mesh> Meshes { get; internal set; }
 
         public IList<Node> Nodes { get; internal set; }
 
-        [JsonPropertyName("scene")] public int? SceneReference => Scenes?.NullableIndexOf(Scene);
+        public IList<Sampler> Samplers { get; internal set; }
+
+        [JsonPropertyName("scene")] public int? SceneReference => Scene != null ? Scenes.IndexOf(Scene) : null;
 
         public IList<Scene> Scenes { get; internal set; }
+
+        public IList<Texture> Textures { get; internal set; }
     }
 }

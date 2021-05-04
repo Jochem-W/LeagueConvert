@@ -4,39 +4,43 @@ using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using SimpleGltf.Enums;
 using SimpleGltf.Json.Converters;
-using SimpleGltf.Json.Enums;
 using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json
 {
-    internal class Accessor : IAsyncDisposable
+    public class Accessor : IAsyncDisposable
     {
-        internal readonly BufferView BufferView;
+        private readonly GltfAsset _gltfAsset;
+        private readonly bool _normalized;
+        
+        internal readonly BinaryWriter BinaryWriter;
         internal readonly IList<dynamic> Component;
         internal readonly bool MinMax;
-        internal BinaryWriter BinaryWriter;
+        internal BufferView BufferView;
 
-        internal Accessor(BufferView bufferView, ComponentType componentType, AccessorType accessorType,
-            bool? normalized, string name, bool minMax)
+        internal Accessor(GltfAsset gltfAsset, ComponentType componentType, AccessorType accessorType,
+            bool normalized, string name, bool minMax)
         {
-            Component = new List<dynamic>();
-            MinMax = minMax;
-            BinaryWriter = new BinaryWriter(new MemoryStream());
-            BufferView = bufferView;
+            _gltfAsset = gltfAsset;
+            _gltfAsset.Accessors ??= new List<Accessor>();
+            _gltfAsset.Accessors.Add(this);
             ComponentType = componentType;
             Type = accessorType;
-            Normalized = normalized;
+            _normalized = normalized;
+            Name = name;
+            MinMax = minMax;
+            Component = new List<dynamic>();
+            BinaryWriter = new BinaryWriter(new MemoryStream());
             this.SetSize();
-            BufferView.Buffer.GltfAsset.Accessors ??= new List<Accessor>();
-            BufferView.Buffer.GltfAsset.Accessors.Add(this);
         }
 
         internal int ComponentSize { get; set; }
         internal int ByteLength => ComponentSize * Count;
 
         [JsonPropertyName("bufferView")]
-        public int? BufferViewReference => BufferView.Buffer.GltfAsset.BufferViews.IndexOf(BufferView);
+        public int? BufferViewReference => BufferView == null ? null : _gltfAsset.BufferViews.IndexOf(BufferView);
 
         public int? ByteOffset
         {
@@ -57,7 +61,7 @@ namespace SimpleGltf.Json
 
         public ComponentType ComponentType { get; }
 
-        public bool? Normalized { get; }
+        public bool? Normalized => _normalized == false ? null : _normalized;
 
         public int Count { get; internal set; }
 
@@ -74,10 +78,7 @@ namespace SimpleGltf.Json
 
         public async ValueTask DisposeAsync()
         {
-            if (BinaryWriter == null)
-                return;
             await BinaryWriter.DisposeAsync();
-            BinaryWriter = null;
         }
 
         internal void Write(dynamic value)

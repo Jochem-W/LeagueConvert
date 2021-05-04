@@ -1,8 +1,8 @@
 namespace SimpleGltf.Json.Extensions
 {
-    internal static class MeshExtensions
+    public static class MeshExtensions
     {
-        internal static Primitive CreatePrimitive(this Mesh mesh)
+        public static Primitive CreatePrimitive(this Mesh mesh)
         {
             return new(mesh);
         }
