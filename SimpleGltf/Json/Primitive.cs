@@ -28,6 +28,7 @@ namespace SimpleGltf.Json
 
         [JsonIgnore] public Material Material { get; set; }
 
+        [JsonPropertyName("material")]
         public int? MaterialReference => Material == null ? null : _mesh.GltfAsset.Materials.IndexOf(Material);
     }
 }
