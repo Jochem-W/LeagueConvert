@@ -89,80 +89,82 @@ namespace SimpleGltf.Json.Extensions
             accessor.Component.Clear();
         }
 
-        public static void WriteComponent(this Accessor accessor, params dynamic[] values)
+        public static void WriteElement(this Accessor accessor, params dynamic[] components)
         {
+            if (components.Length != accessor.Type.GetColumns() * accessor.Type.GetRows())
+                throw new NotImplementedException();
             switch (accessor.Type)
             {
                 case AccessorType.Scalar:
-                    WriteElement(accessor, values[0]);
+                    WriteComponent(accessor, components[0]);
                     accessor.NextComponent();
                     break;
                 case AccessorType.Vec2:
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[0]);
-                    WriteElement(accessor, values[1]);
+                    WriteComponent(accessor, components[0]);
+                    WriteComponent(accessor, components[1]);
                     accessor.NextComponent();
                     break;
                 case AccessorType.Vec3:
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[0]);
-                    WriteElement(accessor, values[1]);
-                    WriteElement(accessor, values[2]);
+                    WriteComponent(accessor, components[0]);
+                    WriteComponent(accessor, components[1]);
+                    WriteComponent(accessor, components[2]);
                     accessor.NextComponent();
                     break;
                 case AccessorType.Vec4:
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[0]);
-                    WriteElement(accessor, values[1]);
-                    WriteElement(accessor, values[2]);
-                    WriteElement(accessor, values[3]);
+                    WriteComponent(accessor, components[0]);
+                    WriteComponent(accessor, components[1]);
+                    WriteComponent(accessor, components[2]);
+                    WriteComponent(accessor, components[3]);
                     accessor.NextComponent();
                     break;
                 case AccessorType.Mat2:
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[0]);
-                    WriteElement(accessor, values[2]);
+                    WriteComponent(accessor, components[0]);
+                    WriteComponent(accessor, components[2]);
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[1]);
-                    WriteElement(accessor, values[3]);
+                    WriteComponent(accessor, components[1]);
+                    WriteComponent(accessor, components[3]);
                     accessor.NextComponent();
                     break;
                 case AccessorType.Mat3:
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[0]);
-                    WriteElement(accessor, values[3]);
-                    WriteElement(accessor, values[6]);
+                    WriteComponent(accessor, components[0]);
+                    WriteComponent(accessor, components[3]);
+                    WriteComponent(accessor, components[6]);
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[1]);
-                    WriteElement(accessor, values[4]);
-                    WriteElement(accessor, values[7]);
+                    WriteComponent(accessor, components[1]);
+                    WriteComponent(accessor, components[4]);
+                    WriteComponent(accessor, components[7]);
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[2]);
-                    WriteElement(accessor, values[5]);
-                    WriteElement(accessor, values[8]);
+                    WriteComponent(accessor, components[2]);
+                    WriteComponent(accessor, components[5]);
+                    WriteComponent(accessor, components[8]);
                     accessor.NextComponent();
                     break;
                 case AccessorType.Mat4:
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[0]);
-                    WriteElement(accessor, values[4]);
-                    WriteElement(accessor, values[8]);
-                    WriteElement(accessor, values[12]);
+                    WriteComponent(accessor, components[0]);
+                    WriteComponent(accessor, components[4]);
+                    WriteComponent(accessor, components[8]);
+                    WriteComponent(accessor, components[12]);
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[1]);
-                    WriteElement(accessor, values[5]);
-                    WriteElement(accessor, values[9]);
-                    WriteElement(accessor, values[13]);
+                    WriteComponent(accessor, components[1]);
+                    WriteComponent(accessor, components[5]);
+                    WriteComponent(accessor, components[9]);
+                    WriteComponent(accessor, components[13]);
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[2]);
-                    WriteElement(accessor, values[6]);
-                    WriteElement(accessor, values[10]);
-                    WriteElement(accessor, values[14]);
+                    WriteComponent(accessor, components[2]);
+                    WriteComponent(accessor, components[6]);
+                    WriteComponent(accessor, components[10]);
+                    WriteComponent(accessor, components[14]);
                     accessor.EnsureOffset();
-                    WriteElement(accessor, values[3]);
-                    WriteElement(accessor, values[7]);
-                    WriteElement(accessor, values[11]);
-                    WriteElement(accessor, values[15]);
+                    WriteComponent(accessor, components[3]);
+                    WriteComponent(accessor, components[7]);
+                    WriteComponent(accessor, components[11]);
+                    WriteComponent(accessor, components[15]);
                     accessor.NextComponent();
                     break;
                 default:
@@ -170,7 +172,7 @@ namespace SimpleGltf.Json.Extensions
             }
         }
 
-        private static void WriteElement(Accessor accessor, dynamic value)
+        private static void WriteComponent(Accessor accessor, dynamic value)
         {
             switch (accessor.ComponentType)
             {

@@ -32,6 +32,8 @@ namespace SimpleGltfTest
             {
                 await skin.Load(SkinMode.WithSkeleton);
                 await using var gltfAsset = await skin.GetGltfAsset();
+                if (gltfAsset == null)
+                    continue;
                 await gltfAsset.Save(Path.Combine(@"C:\Users\Joche\Downloads\models", skin.Character,
                     $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
             }

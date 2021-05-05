@@ -10,21 +10,21 @@ namespace SimpleGltf.Json.Extensions
     {
         public static IEnumerable<Accessor> GetAccessors(this BufferView bufferView)
         {
-            return bufferView.GltfAsset.Accessors.Where(accessor => accessor.BufferView == bufferView);
+            return bufferView.Buffer.GltfAsset.Accessors.Where(accessor => accessor.BufferView == bufferView);
         }
 
         public static int? GetByteOffset(this BufferView bufferView)
         {
             var take = true;
-            var byteOffset = bufferView.Buffer.GetBufferViews().TakeWhile(b =>
+            var byteOffset = bufferView.Buffer.GetBufferViews().TakeWhile(bV =>
             {
-                if (b == bufferView)
+                if (bV == bufferView)
                     take = false;
                 return take;
             }).GetLength();
             if (byteOffset == 0)
                 return null;
-            return byteOffset.Offset();
+            return byteOffset + byteOffset.GetOffset();
         }
 
         public static int GetLength(this IEnumerable<BufferView> bufferViews)

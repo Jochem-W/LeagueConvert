@@ -72,8 +72,6 @@ namespace SimpleGltf.Json
 
         public dynamic Min { get; internal set; }
 
-        //public IDictionary<?, ?> Sparse { get; private set; }
-
         public string Name { get; }
 
         public async ValueTask DisposeAsync()

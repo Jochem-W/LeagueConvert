@@ -35,13 +35,13 @@ namespace SimpleGltf.Json.Extensions
 
         public static Buffer CreateBuffer(this GltfAsset gltfAsset, string name = null)
         {
-            return new(gltfAsset, name);
+            return new(gltfAsset) { Name = name };
         }
 
         public static BufferView CreateBufferView(this GltfAsset gltfAsset, Buffer buffer,
             BufferViewTarget? target = null, string name = null)
         {
-            return new(gltfAsset, buffer, target, name);
+            return new(gltfAsset, buffer) { Target = target, Name = name };
         }
 
         public static Image CreateImage(this GltfAsset gltfAsset, string uri, string name = null)

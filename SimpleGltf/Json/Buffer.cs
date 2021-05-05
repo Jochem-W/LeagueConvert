@@ -7,18 +7,15 @@ namespace SimpleGltf.Json
     {
         internal readonly GltfAsset GltfAsset;
 
-        internal Buffer(GltfAsset gltfAsset, string name)
+        internal Buffer(GltfAsset gltfAsset)
         {
             GltfAsset = gltfAsset;
             GltfAsset.Buffers ??= new List<Buffer>();
             GltfAsset.Buffers.Add(this);
-            Name = name;
         }
-
-        public string Uri { get; internal set; }
-
+        
         public int ByteLength => this.GetBufferViews().GetLength();
 
-        public string Name { get; }
+        public string Name { get; set; }
     }
 }

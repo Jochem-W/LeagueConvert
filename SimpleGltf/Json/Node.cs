@@ -46,7 +46,7 @@ namespace SimpleGltf.Json
         [JsonConverter(typeof(Matrix4x4Converter))]
         public Matrix4x4? Matrix
         {
-            get => _trs == Matrix4x4.Identity ? null : _trs;
+            get => Skin != null ? null : _trs == Matrix4x4.Identity ? null : _trs;
             set
             {
                 if (value == null)
@@ -56,7 +56,6 @@ namespace SimpleGltf.Json
                 }
 
                 _trs = value.Value;
-
                 DecomposeTRS();
             }
         }
@@ -71,27 +70,27 @@ namespace SimpleGltf.Json
 
         public Quaternion? Rotation
         {
-            get => Matrix == null ? _rotation == Quaternion.Identity ? null : _rotation : null;
+            get => Matrix != null ? null : _rotation == Quaternion.Identity ? null : _rotation;
             set
             {
                 _rotation = value ?? Quaternion.Identity;
                 CalculateMatrix();
             }
         }
-
+        
         public Vector3? Scale
         {
-            get => Matrix == null ? _scale == Vector3.One ? null : _scale : null;
+            get => Matrix != null ? null : _scale == Vector3.One ? null : _scale;
             set
             {
                 _scale = value ?? Vector3.One;
                 CalculateMatrix();
             }
         }
-
+        
         public Vector3? Translation
         {
-            get => Matrix == null ? _translation == Vector3.Zero ? null : _translation : null;
+            get => Matrix != null ? null : _translation == Vector3.Zero ? null : _translation;
             set
             {
                 _translation = value ?? Vector3.Zero;

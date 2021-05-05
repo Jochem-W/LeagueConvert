@@ -9,25 +9,24 @@ namespace SimpleGltf.Json
 {
     public class BufferView
     {
+        private readonly GltfAsset _gltfAsset;
+        
         internal readonly Buffer Buffer;
-        internal readonly GltfAsset GltfAsset;
         internal Stream PngStream;
 
-        internal BufferView(GltfAsset gltfAsset, Buffer buffer, BufferViewTarget? target, string name)
+        internal BufferView(GltfAsset gltfAsset, Buffer buffer)
         {
-            GltfAsset = gltfAsset;
-            GltfAsset.BufferViews ??= new List<BufferView>();
-            GltfAsset.BufferViews.Add(this);
+            _gltfAsset = gltfAsset;
+            _gltfAsset.BufferViews ??= new List<BufferView>();
+            _gltfAsset.BufferViews.Add(this);
             Buffer = buffer;
-            Target = target;
-            Name = name;
         }
 
-        [JsonPropertyName("buffer")] public int BufferReference => GltfAsset.Buffers.IndexOf(Buffer);
+        [JsonPropertyName("buffer")] public int BufferReference => _gltfAsset.Buffers.IndexOf(Buffer);
 
         public int? ByteOffset => this.GetByteOffset();
 
-        public int ByteLength => PngStream == null ? (int) this.GetAccessors().GetLength() : (int) PngStream.Length;
+        public int ByteLength => PngStream != null ? (int) PngStream.Length : (int) this.GetAccessors().GetLength();
 
         public int? ByteStride
         {
@@ -40,8 +39,8 @@ namespace SimpleGltf.Json
             }
         }
 
-        public BufferViewTarget? Target { get; }
+        public BufferViewTarget? Target { get; init; }
 
-        public string Name { get; }
+        public string Name { get; init; }
     }
 }
