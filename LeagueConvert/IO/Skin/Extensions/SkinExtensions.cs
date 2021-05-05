@@ -3,7 +3,9 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using ImageMagick;
+using LeagueToolkit.IO.SkeletonFile;
 using SimpleGltf.Enums;
+using SimpleGltf.Extensions;
 using SimpleGltf.Json;
 using SimpleGltf.Json.Extensions;
 
@@ -15,17 +17,18 @@ namespace LeagueConvert.IO.Skin.Extensions
         {
             //TODO
             var textures = new Dictionary<IMagickImage, Texture>();
-            
+
             var gltfAsset = new GltfAsset();
             var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
             var buffer = gltfAsset.CreateBuffer();
             var scene = gltfAsset.CreateScene();
-            var node = gltfAsset.CreateNode("root");
+            var node = gltfAsset.CreateNode();
             scene.AddNode(node);
             node.Mesh = gltfAsset.CreateMesh();
             node.Scale = new Vector3(-1, 1, 1);
             foreach (var subMesh in skin.SimpleSkin.Submeshes)
             {
+                //MESH
                 var primitive = node.Mesh.CreatePrimitive();
                 var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
                 var indicesAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Scalar)
@@ -91,6 +94,8 @@ namespace LeagueConvert.IO.Skin.Extensions
                         vertex.Weights[3]);
                 }
 
+
+                //MATERIALS
                 var material = gltfAsset.CreateMaterial(name: subMesh.Name);
                 primitive.Material = material;
                 var pbrMetallicRoughness = material.CreatePbrMetallicRoughness();
@@ -100,12 +105,39 @@ namespace LeagueConvert.IO.Skin.Extensions
                     pbrMetallicRoughness.SetBaseColorTexture(textures[magickImage]);
                     continue;
                 }
-                
+
                 var imageBufferView = gltfAsset.CreateBufferView(buffer);
                 var image = await gltfAsset.CreateImage(imageBufferView, magickImage);
                 var texture = gltfAsset.CreateTexture(sampler, image);
                 textures[magickImage] = texture;
                 pbrMetallicRoughness.SetBaseColorTexture(texture);
+            }
+
+
+            //SKELETON
+            var inverseBindMatricesBufferView = gltfAsset.CreateBufferView(buffer);
+            var inverseBindMatricesAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Mat4);
+            inverseBindMatricesAccessor.SetBufferView(inverseBindMatricesBufferView);
+            var joints = new Dictionary<SkeletonJoint, Node>();
+            foreach (var skeletonJoint in skin.Skeleton.Joints)
+            {
+                inverseBindMatricesAccessor.WriteComponent(skeletonJoint.InverseBindTransform.FixInverseBindMatrix()
+                    .Rotate()
+                    .GetValues().Cast<dynamic>().ToArray());
+                var jointNode = gltfAsset.CreateNode(skeletonJoint.LocalTransform, skeletonJoint.Name);
+                joints[skeletonJoint] = jointNode;
+            }
+
+            var gltfSkin = gltfAsset.CreateSkin();
+            node.Skin = gltfSkin;
+            gltfSkin.InverseBindMatrices = inverseBindMatricesAccessor;
+            foreach (var (skeletonJoint, jointNode) in joints)
+            {
+                var (_, parentNode) = joints.FirstOrDefault(pair => pair.Key.ID == skeletonJoint.ParentID);
+                parentNode?.AddChild(jointNode);
+                if (skeletonJoint.ParentID == -1)
+                    scene.AddNode(jointNode);
+                gltfSkin.Joints.Add(jointNode);
             }
 
             return gltfAsset;

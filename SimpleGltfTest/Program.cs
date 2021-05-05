@@ -16,7 +16,7 @@ namespace SimpleGltfTest
             if (Directory.Exists(@"C:\Users\Joche\Downloads\models"))
                 Directory.Delete(@"C:\Users\Joche\Downloads\models", true);
             using var wad =
-                new StringWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Warwick.wad.client");
+                new StringWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Aatrox.wad.client");
             await Test(wad);
             /*foreach (var file in Directory.EnumerateFiles(@"C:\Riot Games\League of Legends", "*.wad.client",
                 SearchOption.AllDirectories))
@@ -30,7 +30,7 @@ namespace SimpleGltfTest
         {
             await foreach (var skin in wad.GetSkins())
             {
-                await skin.Load(SkinMode.MeshAndTextures);
+                await skin.Load(SkinMode.WithSkeleton);
                 await using var gltfAsset = await skin.GetGltfAsset();
                 await gltfAsset.Save(Path.Combine(@"C:\Users\Joche\Downloads\models", skin.Character,
                     $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));

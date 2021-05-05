@@ -142,7 +142,7 @@ namespace LeagueConvert.IO.Skin
                         await stream.DisposeAsync();
             }
         }
-        
+
         private async Task<bool> TryLoadSkeleton(ILogger logger = null)
         {
             Stream stream = null;
@@ -164,7 +164,7 @@ namespace LeagueConvert.IO.Skin
                     await stream.DisposeAsync();
             }
         }
-        
+
         //TODO
         /*private async Task LoadAnimations(ILogger logger = null)
         {

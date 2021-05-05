@@ -37,8 +37,9 @@ namespace SimpleGltf.Json
 
         public IList<Scene> Scenes { get; internal set; }
 
-        public IList<Texture> Textures { get; internal set; }
+        public IList<Skin> Skins { get; internal set; }
 
+        public IList<Texture> Textures { get; internal set; }
 
         public async ValueTask DisposeAsync()
         {

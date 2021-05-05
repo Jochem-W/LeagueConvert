@@ -73,7 +73,12 @@ namespace SimpleGltf.Json.Extensions
 
         public static Node CreateNode(this GltfAsset gltfAsset, string name = null)
         {
-            return CreateNode(gltfAsset, Quaternion.Identity, Vector3.One, Vector3.Zero, name);
+            return CreateNode(gltfAsset, Matrix4x4.Identity, name);
+        }
+
+        public static Node CreateNode(this GltfAsset gltfAsset, Matrix4x4 transform, string name = null)
+        {
+            return new(gltfAsset, transform, name);
         }
 
         public static Node CreateNode(this GltfAsset gltfAsset, Quaternion rotation, Vector3 scale,
@@ -95,6 +100,11 @@ namespace SimpleGltf.Json.Extensions
             if (setDefault)
                 gltfAsset.SetDefaultScene(scene);
             return scene;
+        }
+
+        public static Skin CreateSkin(this GltfAsset gltfAsset, string name = null)
+        {
+            return new(gltfAsset, name);
         }
 
         public static Texture CreateTexture(this GltfAsset gltfAsset, Sampler sampler, Image image,
