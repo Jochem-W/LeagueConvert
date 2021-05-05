@@ -2,11 +2,18 @@ namespace SimpleGltf.Json
 {
     public class OcclusionTextureInfo : TextureInfo
     {
-        internal OcclusionTextureInfo(Texture texture, int strength, int texCoord) : base(texture, texCoord)
+        private const int StrengthDefault = 1;
+        private int _strength = StrengthDefault;
+        
+        internal OcclusionTextureInfo(Texture texture) : base(texture)
         {
-            Strength = strength;
+            
         }
 
-        public int Strength { get; }
+        public int? Strength
+        {
+            get => _strength == StrengthDefault ? null : _strength;
+            set => _strength = value ?? StrengthDefault;
+        }
     }
 }

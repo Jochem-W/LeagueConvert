@@ -10,7 +10,7 @@ namespace SimpleGltf.Json
     public class BufferView
     {
         private readonly GltfAsset _gltfAsset;
-        
+
         internal readonly Buffer Buffer;
         internal Stream PngStream;
 
@@ -41,6 +41,6 @@ namespace SimpleGltf.Json
 
         public BufferViewTarget? Target { get; init; }
 
-        public string Name { get; init; }
+        public string Name { get; set; }
     }
 }

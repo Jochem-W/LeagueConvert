@@ -8,7 +8,7 @@ namespace SimpleGltf.Json.Extensions
             Vector4? baseColorFactor = null, int texCoord = 0)
         {
             pbrMetallicRoughness.BaseColorFactor = baseColorFactor;
-            pbrMetallicRoughness.BaseColorTexture = new TextureInfo(texture, texCoord);
+            pbrMetallicRoughness.BaseColorTexture = new TextureInfo(texture);
         }
     }
 }

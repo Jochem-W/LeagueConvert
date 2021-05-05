@@ -2,11 +2,18 @@ namespace SimpleGltf.Json
 {
     public class NormalTextureInfo : TextureInfo
     {
-        internal NormalTextureInfo(Texture texture, int scale, int texCoord) : base(texture, texCoord)
+        private const int ScaleDefault = 1;
+        private int _scale = ScaleDefault;
+        
+        internal NormalTextureInfo(Texture texture) : base(texture)
         {
-            Scale = scale;
+            
         }
 
-        public int Scale { get; }
+        public int? Scale
+        {
+            get => _scale == ScaleDefault ? null : _scale;
+            set => _scale = value ?? ScaleDefault;
+        }
     }
 }

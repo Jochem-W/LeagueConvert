@@ -4,22 +4,22 @@ namespace SimpleGltf.Json
 {
     public class Asset
     {
-        private readonly GltfAsset _gltfAsset;
-
-        internal Asset(GltfAsset gltfAsset, string copyright)
+        internal Asset(GltfAsset gltfAsset)
         {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Asset = this;
-            Copyright = copyright;
-            var assembly = Assembly.GetExecutingAssembly().GetName();
-            Generator = $"{assembly.Name}@{assembly.Version}";
-            Version = "2.0";
+            gltfAsset.Asset = this;
         }
 
-        public string Copyright { get; internal set; }
+        public string Copyright { get; set; }
 
-        public string Generator { get; }
+        public string Generator
+        {
+            get
+            {
+                var assembly = Assembly.GetExecutingAssembly().GetName();
+                return $"{assembly.Name}@{assembly.Version}";
+            }
+        }
 
-        public string Version { get; }
+        public string Version => "2.0";
     }
 }

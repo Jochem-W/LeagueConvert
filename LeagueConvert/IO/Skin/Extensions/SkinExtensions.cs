@@ -19,57 +19,62 @@ namespace LeagueConvert.IO.Skin.Extensions
         {
             if (!skin.State.HasFlag(SkinState.MeshLoaded))
                 return null;
-
-            var textures = new Dictionary<IMagickImage, Texture>();
+            
             var gltfAsset = new GltfAsset();
-            var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
-            var buffer = gltfAsset.CreateBuffer();
             var scene = gltfAsset.CreateScene();
             var node = gltfAsset.CreateNode();
+            var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
             scene.AddNode(node);
             node.Mesh = gltfAsset.CreateMesh();
+            var buffer = gltfAsset.CreateBuffer();
+            var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
+            var positionAccessor = gltfAsset
+                .CreateAccessor(ComponentType.Float, AccessorType.Vec3, minMax: true)
+                .SetBufferView(attributesBufferView);
+            var normalAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec3)
+                .SetBufferView(attributesBufferView);
+            var uvAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec2)
+                .SetBufferView(attributesBufferView);
+            
+            
+            //SKELETON
+            Accessor jointsAccessor = null;
+            Accessor weightsAccessor = null;
+            if (skin.State.HasFlag(SkinState.SkeletonLoaded))
+            {
+                jointsAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Vec4)
+                    .SetBufferView(attributesBufferView);
+                weightsAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
+                    .SetBufferView(attributesBufferView);
+            }
+            
+            Accessor colourAccessor = null;
+            if (skin.SimpleSkin.Submeshes[0].Vertices[0].Color != null)
+                colourAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
+                    .SetBufferView(attributesBufferView);
+            var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
+            var indicesAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Scalar)
+                .SetBufferView(indicesBufferView);
+            var textures = new Dictionary<IMagickImage, Texture>();
             foreach (var subMesh in skin.SimpleSkin.Submeshes)
             {
-                //MESH
                 var primitive = node.Mesh.CreatePrimitive();
-                var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
-                var indicesAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Scalar)
-                    .SetBufferView(indicesBufferView);
                 primitive.Indices = indicesAccessor;
                 foreach (var index in subMesh.Indices)
                     indicesAccessor.WriteElement(index);
-                var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
-                var positionAccessor = gltfAsset
-                    .CreateAccessor(ComponentType.Float, AccessorType.Vec3, minMax: true)
-                    .SetBufferView(attributesBufferView);
                 primitive.SetAttribute("POSITION", positionAccessor);
-                var normalAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec3)
-                    .SetBufferView(attributesBufferView);
                 primitive.SetAttribute("NORMAL", normalAccessor);
-                var uvAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec2)
-                    .SetBufferView(attributesBufferView);
                 primitive.SetAttribute("TEXCOORD_0", uvAccessor);
-
+                
                 
                 //SKELETON
-                Accessor jointsAccessor = null;
                 if (skin.State.HasFlag(SkinState.SkeletonLoaded))
                 {
-                    jointsAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Vec4)
-                        .SetBufferView(attributesBufferView);
+                    primitive.SetAttribute("WEIGHTS_0", weightsAccessor);
                     primitive.SetAttribute("JOINTS_0", jointsAccessor);
                 }
-
-
-                var weightsAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
-                    .SetBufferView(attributesBufferView);
-                primitive.SetAttribute("WEIGHTS_0", weightsAccessor);
-                var writeColour = subMesh.Vertices.Select(vertex => vertex.Color).All(color => color != null);
-                var colourAccessor = writeColour
-                    ? gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
-                        .SetBufferView(attributesBufferView)
-                    : null;
-                if (writeColour)
+                
+                if (colourAccessor != null)
                     primitive.SetAttribute("COLOR_0", colourAccessor);
                 foreach (var vertex in subMesh.Vertices)
                 {
@@ -98,10 +103,13 @@ namespace LeagueConvert.IO.Skin.Extensions
                     colourAccessor?.WriteElement(vertex.Color!.Value.R, vertex.Color.Value.G,
                         vertex.Color.Value.B,
                         vertex.Color.Value.A);
-                    weightsAccessor.WriteElement(vertex.Weights[0], vertex.Weights[1], vertex.Weights[2],
+                    weightsAccessor?.WriteElement(vertex.Weights[0], vertex.Weights[1], vertex.Weights[2],
                         vertex.Weights[3]);
                     if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
                         continue;
+                    
+                    
+                    //SKELETON
                     var actualJoints = new List<ushort>();
                     for (var i = 0; i < 4; i++)
                     {

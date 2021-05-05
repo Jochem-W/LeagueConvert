@@ -30,7 +30,7 @@ namespace SimpleGltf.Json.Extensions
 
         public static Asset CreateAsset(this GltfAsset gltfAsset, string copyright = null)
         {
-            return new(gltfAsset, copyright);
+            return new(gltfAsset) { Copyright = copyright };
         }
 
         public static Buffer CreateBuffer(this GltfAsset gltfAsset, string name = null)
