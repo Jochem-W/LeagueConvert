@@ -161,7 +161,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             {
                 inverseBindMatricesAccessor.WriteElement(skeletonJoint.InverseBindTransform
                     .FixInverseBindMatrix()
-                    .Rotate()
+                    .Transpose()
                     .GetValues()
                     .Cast<dynamic>()
                     .ToArray());
