@@ -7,7 +7,6 @@ namespace SimpleGltf.Json
     public class Scene
     {
         private readonly GltfAsset _gltfAsset;
-        internal IList<Node> Nodes;
 
         internal Scene(GltfAsset gltfAsset, string name)
         {
@@ -16,6 +15,8 @@ namespace SimpleGltf.Json
             _gltfAsset.Scenes.Add(this);
             Name = name;
         }
+        
+        [JsonIgnore] public IList<Node> Nodes { get; set; }
 
         [JsonPropertyName("nodes")]
         public IEnumerable<int> NodeReferences => Nodes?.Select(node => _gltfAsset.Nodes.IndexOf(node));

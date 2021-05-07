@@ -12,20 +12,19 @@ namespace SimpleGltf.Json
 {
     public class Accessor : IAsyncDisposable
     {
-        private readonly GltfAsset _gltfAsset;
         private readonly bool _normalized;
 
+        internal readonly GltfAsset GltfAsset;
         internal readonly BinaryWriter BinaryWriter;
         internal readonly IList<dynamic> Component;
         internal readonly bool MinMax;
-        internal BufferView BufferView;
 
         internal Accessor(GltfAsset gltfAsset, ComponentType componentType, AccessorType accessorType,
             bool normalized, string name, bool minMax)
         {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Accessors ??= new List<Accessor>();
-            _gltfAsset.Accessors.Add(this);
+            GltfAsset = gltfAsset;
+            GltfAsset.Accessors ??= new List<Accessor>();
+            GltfAsset.Accessors.Add(this);
             ComponentType = componentType;
             Type = accessorType;
             _normalized = normalized;
@@ -39,8 +38,10 @@ namespace SimpleGltf.Json
         internal int ComponentSize { get; set; }
         internal int ByteLength => ComponentSize * Count;
 
+        [JsonIgnore] public BufferView BufferView { get; set; }
+        
         [JsonPropertyName("bufferView")]
-        public int? BufferViewReference => BufferView == null ? null : _gltfAsset.BufferViews.IndexOf(BufferView);
+        public int? BufferViewReference => BufferView == null ? null : GltfAsset.BufferViews.IndexOf(BufferView);
 
         public int? ByteOffset
         {

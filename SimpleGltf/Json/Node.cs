@@ -8,7 +8,6 @@ namespace SimpleGltf.Json
 {
     public class Node
     {
-        private readonly GltfAsset _gltfAsset;
         private Quaternion _rotation;
         private Vector3 _scale;
         private Vector3 _translation;
@@ -18,11 +17,13 @@ namespace SimpleGltf.Json
 
         private Node(GltfAsset gltfAsset, string name)
         {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Nodes ??= new List<Node>();
-            _gltfAsset.Nodes.Add(this);
+            GltfAsset = gltfAsset;
+            GltfAsset.Nodes ??= new List<Node>();
+            GltfAsset.Nodes.Add(this);
             Name = name;
         }
+        
+        internal readonly GltfAsset GltfAsset;
 
         internal Node(GltfAsset gltfAsset, Quaternion rotation, Vector3 scale, Vector3 translation, string name) : this(
             gltfAsset, name)
@@ -40,7 +41,7 @@ namespace SimpleGltf.Json
         }
 
         [JsonPropertyName("children")]
-        public IEnumerable<int> ChildrenReferences => Children?.Select(node => _gltfAsset.Nodes.IndexOf(node));
+        public IEnumerable<int> ChildrenReferences => Children?.Select(node => GltfAsset.Nodes.IndexOf(node));
 
         //TODO: return null if node is animated
         [JsonConverter(typeof(Matrix4x4Converter))]
@@ -62,11 +63,11 @@ namespace SimpleGltf.Json
 
         [JsonIgnore] public Mesh Mesh { get; set; }
 
-        [JsonPropertyName("mesh")] public int? MeshReference => Mesh == null ? null : _gltfAsset.Meshes.IndexOf(Mesh);
+        [JsonPropertyName("mesh")] public int? MeshReference => Mesh == null ? null : GltfAsset.Meshes.IndexOf(Mesh);
 
         [JsonIgnore] public Skin Skin { get; set; }
 
-        [JsonPropertyName("skin")] public int? SkinReference => Skin == null ? null : _gltfAsset.Skins.IndexOf(Skin);
+        [JsonPropertyName("skin")] public int? SkinReference => Skin == null ? null : GltfAsset.Skins.IndexOf(Skin);
 
         public Quaternion? Rotation
         {

@@ -8,6 +8,7 @@ using LeagueConvert.Enums;
 using LeagueConvert.Helpers;
 using LeagueConvert.IO.PropertyBin;
 using LeagueConvert.IO.WadFile;
+using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.PropertyBin.Properties;
 using LeagueToolkit.IO.SimpleSkinFile;
@@ -29,7 +30,8 @@ namespace LeagueConvert.IO.Skin
 
         internal SimpleSkin SimpleSkin;
         internal Skeleton Skeleton;
-        internal Dictionary<string, IMagickImage> Textures;
+        internal IDictionary<string, IMagickImage> Textures;
+        internal IDictionary<string, Animation> Animations;
 
         internal Skin(string character, string name, ILogger logger = null, params ParentedBinTree[] binTrees)
         {
@@ -72,11 +74,10 @@ namespace LeagueConvert.IO.Skin
 
             if (!State.HasFlag(SkinState.SkeletonLoaded))
                 await TryLoadSkeleton(logger);
-            //TODO
-            /*if (mode == SkinMode.WithSkeleton || !State.HasFlag(SkinState.SkeletonLoaded) ||
+            if (mode == SkinMode.WithSkeleton || !State.HasFlag(SkinState.SkeletonLoaded) ||
                 State.HasFlag(SkinState.AnimationsLoaded))
                 return;
-            await LoadAnimations(logger);*/
+            await LoadAnimations(logger);
         }
 
         private async Task<bool> TryLoadMesh(ILogger logger = null)
@@ -164,11 +165,10 @@ namespace LeagueConvert.IO.Skin
                     await stream.DisposeAsync();
             }
         }
-
-        //TODO
-        /*private async Task LoadAnimations(ILogger logger = null)
+        
+        private async Task LoadAnimations(ILogger logger = null)
         {
-            _animations = new Dictionary<string, Animation>();
+            Animations = new Dictionary<string, Animation>();
             var streams = new Dictionary<string, Stream>();
             var animations = new Dictionary<string, Animation>();
             foreach (var (name, fileName) in _animationFiles)
@@ -185,14 +185,14 @@ namespace LeagueConvert.IO.Skin
             {
                 if (animations.ContainsKey(fileName))
                 {
-                    _animations.Add(name, animations[fileName]);
+                    Animations.Add(name, animations[fileName]);
                     return true;
                 }
 
                 if (!streams.ContainsKey(fileName))
                     streams[fileName] = _parent.GetEntryByName(fileName).GetStream();
                 animations.Add(fileName, new Animation(streams[fileName]));
-                _animations.Add(name, animations[fileName]);
+                Animations.Add(name, animations[fileName]);
                 return true;
             }
             catch (Exception e)
@@ -202,7 +202,7 @@ namespace LeagueConvert.IO.Skin
             }
         }
 
-        public void Save(string filePath, ILogger logger = null)
+        /*public void Save(string filePath, ILogger logger = null)
         {
             logger?.Debug("Saving {Character} skin{Id}", Character, Id);
             try
@@ -213,16 +213,6 @@ namespace LeagueConvert.IO.Skin
             {
                 logger?.Warning(e, "Unexpected error when saving");
             }
-        }
-
-        private ModelRoot GetModelRoot()
-        {
-            if (_animations != null && _animations.Any())
-                return _simpleSkin.ToGltf(_skeleton, _textures,
-                    _animations.Select(pair => (pair.Key, pair.Value)).ToList());
-            return State.HasFlag(SkinState.SkeletonLoaded)
-                ? _simpleSkin.ToGltf(_skeleton, _textures)
-                : _simpleSkin.ToGltf(_textures);
         }*/
 
         private void ParseBinTree(BinTree binTree)

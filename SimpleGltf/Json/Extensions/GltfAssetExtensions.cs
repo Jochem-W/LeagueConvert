@@ -17,15 +17,15 @@ namespace SimpleGltf.Json.Extensions
             IgnoreNullValues = true
         };
 
-        public static void SetDefaultScene(this GltfAsset gltfAsset, Scene scene)
-        {
-            gltfAsset.Scene = scene;
-        }
-
         public static Accessor CreateAccessor(this GltfAsset gltfAsset, ComponentType componentType,
             AccessorType accessorType, bool normalized = false, string name = null, bool minMax = false)
         {
             return new(gltfAsset, componentType, accessorType, normalized, name, minMax);
+        }
+
+        public static Animation CreateAnimation(this GltfAsset gltfAsset)
+        {
+            return new(gltfAsset);
         }
 
         public static Asset CreateAsset(this GltfAsset gltfAsset, string copyright = null)
@@ -94,11 +94,9 @@ namespace SimpleGltf.Json.Extensions
             return new(gltfAsset, magFilter, minFilter, wrapS, wrapT, name);
         }
 
-        public static Scene CreateScene(this GltfAsset gltfAsset, string name = null, bool setDefault = true)
+        public static Scene CreateScene(this GltfAsset gltfAsset, string name = null)
         {
             var scene = new Scene(gltfAsset, name);
-            if (setDefault)
-                gltfAsset.SetDefaultScene(scene);
             return scene;
         }
 
