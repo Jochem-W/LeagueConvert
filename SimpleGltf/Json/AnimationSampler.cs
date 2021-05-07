@@ -7,6 +7,9 @@ namespace SimpleGltf.Json
 {
     public class AnimationSampler
     {
+        private const InterpolationAlgorithm DefaultInterpolationAlgorithm = InterpolationAlgorithm.Linear;
+        private InterpolationAlgorithm _interpolationAlgorithm;
+        
         internal AnimationSampler(Animation animation, Accessor input, Accessor output)
         {
             if (input.Type != AccessorType.Scalar || input.ComponentType != ComponentType.Float)
@@ -21,7 +24,11 @@ namespace SimpleGltf.Json
         [JsonPropertyName("input")] public int InputReference => Input.GltfAsset.Accessors.IndexOf(Input);
 
         [JsonConverter(typeof(InterpolationAlgorithmConverter))]
-        public InterpolationAlgorithm Interpolation { get; set; }
+        public InterpolationAlgorithm? Interpolation
+        {
+            get => _interpolationAlgorithm == DefaultInterpolationAlgorithm ? null : _interpolationAlgorithm;
+            set => _interpolationAlgorithm = value ?? DefaultInterpolationAlgorithm;
+        }
 
         [JsonIgnore] public Accessor Output { get; }
 

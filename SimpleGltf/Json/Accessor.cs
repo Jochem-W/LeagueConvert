@@ -82,9 +82,9 @@ namespace SimpleGltf.Json
         [JsonConverter(typeof(AccessorTypeConverter))]
         public AccessorType Type { get; }
 
-        public dynamic Max { get; internal set; }
+        public IList<dynamic> Max { get; internal set; }
 
-        public dynamic Min { get; internal set; }
+        public IList<dynamic> Min { get; internal set; }
 
         public string Name { get; }
 
