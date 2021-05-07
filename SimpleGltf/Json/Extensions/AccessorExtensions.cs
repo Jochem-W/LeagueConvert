@@ -52,25 +52,7 @@ namespace SimpleGltf.Json.Extensions
                 accessor.Component.Clear();
                 return;
             }
-
-            if (accessor.Component.Count == 1)
-            {
-                if (accessor.Min == null || accessor.Max == null)
-                {
-                    accessor.Min = accessor.Component[0];
-                    accessor.Max = accessor.Component[0];
-                    accessor.Component.Clear();
-                    return;
-                }
-
-                if (accessor.Component[0] < accessor.Min)
-                    accessor.Min = accessor.Component[0];
-                if (accessor.Component[0] > accessor.Max)
-                    accessor.Max = accessor.Component[0];
-                accessor.Component.Clear();
-                return;
-            }
-
+            
             if (accessor.Min == null && accessor.Max == null)
             {
                 accessor.Min = new List<dynamic>(accessor.Component);

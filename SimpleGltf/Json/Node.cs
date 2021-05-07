@@ -42,11 +42,16 @@ namespace SimpleGltf.Json
         [JsonPropertyName("children")]
         public IEnumerable<int> ChildrenReferences => Children?.Select(node => GltfAsset.Nodes.IndexOf(node));
 
-        //TODO: return null if node is animated
         [JsonConverter(typeof(Matrix4x4Converter))]
         public Matrix4x4? Matrix
         {
-            get => Skin != null ? null : _trs == Matrix4x4.Identity ? null : _trs;
+            get
+            {
+                if (GltfAsset.Animations.Any(
+                    animation => animation.Channels.Any(channel => channel.Target.Node == this))) 
+                    return null;
+                return Skin != null ? null : _trs == Matrix4x4.Identity ? null : _trs;
+            }
             set
             {
                 if (value == null)
@@ -68,6 +73,7 @@ namespace SimpleGltf.Json
 
         [JsonPropertyName("skin")] public int? SkinReference => Skin == null ? null : GltfAsset.Skins.IndexOf(Skin);
 
+        [JsonConverter(typeof(NullableQuaternionConverter))]
         public Quaternion? Rotation
         {
             get => Matrix != null ? null : _rotation == Quaternion.Identity ? null : _rotation;
@@ -78,6 +84,7 @@ namespace SimpleGltf.Json
             }
         }
 
+        [JsonConverter(typeof(NullableVector3Converter))]
         public Vector3? Scale
         {
             get => Matrix != null ? null : _scale == Vector3.One ? null : _scale;
@@ -88,6 +95,7 @@ namespace SimpleGltf.Json
             }
         }
 
+        [JsonConverter(typeof(NullableVector3Converter))]
         public Vector3? Translation
         {
             get => Matrix != null ? null : _translation == Vector3.Zero ? null : _translation;
