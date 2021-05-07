@@ -30,18 +30,18 @@ namespace SimpleGltf.Json.Extensions
 
         public static Asset CreateAsset(this GltfAsset gltfAsset, string copyright = null)
         {
-            return new(gltfAsset) { Copyright = copyright };
+            return new(gltfAsset) {Copyright = copyright};
         }
 
         public static Buffer CreateBuffer(this GltfAsset gltfAsset, string name = null)
         {
-            return new(gltfAsset) { Name = name };
+            return new(gltfAsset) {Name = name};
         }
 
         public static BufferView CreateBufferView(this GltfAsset gltfAsset, Buffer buffer,
             BufferViewTarget? target = null, string name = null)
         {
-            return new(gltfAsset, buffer) { Target = target, Name = name };
+            return new(gltfAsset, buffer) {Target = target, Name = name};
         }
 
         public static Image CreateImage(this GltfAsset gltfAsset, string uri, string name = null)
@@ -126,7 +126,7 @@ namespace SimpleGltf.Json.Extensions
             var directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            
+
             await using var binaryWriter = new BinaryWriter(new MemoryStream());
             binaryWriter.Write("glTF".ToMagic());
             binaryWriter.Write((uint) 2);

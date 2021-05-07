@@ -15,7 +15,7 @@ namespace SimpleGltf.Json
             _gltfAsset.Scenes.Add(this);
             Name = name;
         }
-        
+
         [JsonIgnore] public IList<Node> Nodes { get; set; }
 
         [JsonPropertyName("nodes")]

@@ -13,11 +13,11 @@ namespace SimpleGltf.Json
             Sampler = sampler;
             Target = target;
         }
-        
+
         [JsonIgnore] public AnimationSampler Sampler { get; }
 
         [JsonPropertyName("sampler")] public int SamplerReference => _animation.Samplers.IndexOf(Sampler);
-        
+
         public AnimationTarget Target { get; }
     }
 }

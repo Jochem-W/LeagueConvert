@@ -5,7 +5,7 @@ namespace SimpleGltf.Json
     public class Animation
     {
         private readonly GltfAsset _gltfAsset;
-        
+
         internal Animation(GltfAsset gltfAsset)
         {
             _gltfAsset = gltfAsset;
@@ -14,11 +14,11 @@ namespace SimpleGltf.Json
             Channels = new List<Channel>();
             Samplers = new List<AnimationSampler>();
         }
-        
+
         public IList<Channel> Channels { get; }
-        
+
         public IList<AnimationSampler> Samplers { get; }
-        
+
         public string Name { get; set; }
     }
 }

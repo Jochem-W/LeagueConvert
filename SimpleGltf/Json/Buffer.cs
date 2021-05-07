@@ -13,7 +13,7 @@ namespace SimpleGltf.Json
             GltfAsset.Buffers ??= new List<Buffer>();
             GltfAsset.Buffers.Add(this);
         }
-        
+
         public int ByteLength => this.GetBufferViews().GetLength();
 
         public string Name { get; set; }

@@ -14,7 +14,7 @@ namespace SimpleGltf.Json
         }
 
         public IList<Accessor> Accessors { get; internal set; }
-        
+
         public IList<Animation> Animations { get; internal set; }
 
         public Asset Asset { get; internal set; }
@@ -34,9 +34,9 @@ namespace SimpleGltf.Json
         public IList<Sampler> Samplers { get; internal set; }
 
         [JsonIgnore] public Scene Scene { get; set; }
-        
+
         [JsonPropertyName("scene")] public int? SceneReference => Scene != null ? Scenes.IndexOf(Scene) : null;
-        
+
         public IList<Scene> Scenes { get; internal set; }
 
         public IList<Skin> Skins { get; internal set; }

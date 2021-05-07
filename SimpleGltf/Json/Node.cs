@@ -8,6 +8,7 @@ namespace SimpleGltf.Json
 {
     public class Node
     {
+        internal readonly GltfAsset GltfAsset;
         private Quaternion _rotation;
         private Vector3 _scale;
         private Vector3 _translation;
@@ -22,8 +23,6 @@ namespace SimpleGltf.Json
             GltfAsset.Nodes.Add(this);
             Name = name;
         }
-        
-        internal readonly GltfAsset GltfAsset;
 
         internal Node(GltfAsset gltfAsset, Quaternion rotation, Vector3 scale, Vector3 translation, string name) : this(
             gltfAsset, name)
@@ -78,7 +77,7 @@ namespace SimpleGltf.Json
                 CalculateMatrix();
             }
         }
-        
+
         public Vector3? Scale
         {
             get => Matrix != null ? null : _scale == Vector3.One ? null : _scale;
@@ -88,7 +87,7 @@ namespace SimpleGltf.Json
                 CalculateMatrix();
             }
         }
-        
+
         public Vector3? Translation
         {
             get => Matrix != null ? null : _translation == Vector3.Zero ? null : _translation;

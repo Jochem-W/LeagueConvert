@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -66,15 +65,9 @@ namespace LeagueConvert.IO.Skin.Extensions
         {
             //TODO: fix NaN inverse bind matrices
             foreach (var joint in skin.Skeleton.Joints)
-            {
                 if (float.IsNaN(joint.InverseBindTransform.M11))
                 {
-                    
                 }
-            }
-            
-            
-            
         }
 
         public static async Task<GltfAsset> GetGltfAsset(this Skin skin)
@@ -82,7 +75,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             if (!skin.State.HasFlag(SkinState.MeshLoaded))
                 return null;
             Fix(skin);
-            
+
             var gltfAsset = new GltfAsset();
             gltfAsset.Scene = gltfAsset.CreateScene();
             var node = gltfAsset.CreateNode();
@@ -106,7 +99,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                 if (subMesh.Vertices.All(vertex => vertex.Color != null))
                     colourAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
                         .SetBufferView(attributesBufferView);
-            
+
                 //SKELETON
                 Accessor jointsAccessor = null;
                 Accessor weightsAccessor = null;
@@ -117,7 +110,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                     weightsAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
                         .SetBufferView(attributesBufferView);
                 }
-            
+
                 var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
                 indicesBufferView.StartAccessorGroup();
                 var indicesAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Scalar)
@@ -129,15 +122,15 @@ namespace LeagueConvert.IO.Skin.Extensions
                 primitive.SetAttribute("POSITION", positionAccessor);
                 primitive.SetAttribute("NORMAL", normalAccessor);
                 primitive.SetAttribute("TEXCOORD_0", uvAccessor);
-                
-                
+
+
                 //SKELETON
                 if (skin.State.HasFlag(SkinState.SkeletonLoaded))
                 {
                     primitive.SetAttribute("WEIGHTS_0", weightsAccessor);
                     primitive.SetAttribute("JOINTS_0", jointsAccessor);
                 }
-                
+
                 if (colourAccessor != null)
                     primitive.SetAttribute("COLOR_0", colourAccessor);
                 foreach (var vertex in subMesh.Vertices)
@@ -152,8 +145,8 @@ namespace LeagueConvert.IO.Skin.Extensions
                         vertex.Weights[3]);
                     if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
                         continue;
-                    
-                    
+
+
                     //SKELETON
                     var actualJoints = new List<ushort>();
                     for (var i = 0; i < 4; i++)
@@ -163,13 +156,14 @@ namespace LeagueConvert.IO.Skin.Extensions
                             actualJoints.Add(0);
                             continue;
                         }
+
                         actualJoints.Add((ushort) skin.Skeleton.Influences[vertex.BoneIndices[i]]);
                     }
-                    
+
                     jointsAccessor.WriteElement(actualJoints.Cast<dynamic>().ToArray());
                 }
-                
-                
+
+
                 //MATERIALS
                 var material = gltfAsset.CreateMaterial(name: subMesh.Name);
                 primitive.Material = material;
@@ -192,7 +186,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                 pbrMetallicRoughness.SetBaseColorTexture(texture);
             }
 
-            
+
             //SKELETON
             if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
                 return gltfAsset;
@@ -227,19 +221,21 @@ namespace LeagueConvert.IO.Skin.Extensions
                     skeletonRootNode.AddChild(jointNode);
                 gltfSkin.Joints.Add(jointNode);
             }
-            
+
             if (!skin.State.HasFlag(SkinState.AnimationsLoaded))
                 return gltfAsset;
-            
-            
+
+
             //ANIMATIONS
+            var inputBufferView = gltfAsset.CreateBufferView(buffer);
+            var trackBufferView = gltfAsset.CreateBufferView(buffer);
             foreach (var (name, animation) in skin.Animations)
             {
                 var gltfAnimation = gltfAsset.CreateAnimation(name);
-                var inputBufferView = gltfAsset.CreateBufferView(buffer);
+
                 inputBufferView.StartAccessorGroup();
                 var input = gltfAsset
-                    .CreateAccessor(ComponentType.Float, AccessorType.Scalar)
+                    .CreateAccessor(ComponentType.Float, AccessorType.Scalar, minMax: true)
                     .SetBufferView(inputBufferView);
                 foreach (var time in animation.Tracks[0].Rotations.Select(pair => pair.Key))
                     input.WriteElement(time);
@@ -247,8 +243,8 @@ namespace LeagueConvert.IO.Skin.Extensions
                 var jointsAndHash = gltfSkin.Joints
                     .Select(joint => new KeyValuePair<Node, uint>(joint, Cryptography.ElfHash(joint.Name)))
                     .ToList();
-                
-                
+
+
                 foreach (var track in animation.Tracks)
                 {
                     var tracksWithSameId = animation.Tracks
@@ -262,12 +258,11 @@ namespace LeagueConvert.IO.Skin.Extensions
                         continue;
                     var trackPositionAmongSameId = tracksWithSameId.IndexOf(track);
                     var mostLikelyJoint = jointsWithSameId[trackPositionAmongSameId];
-                    
-                    
-                    var trackBufferView = gltfAsset.CreateBufferView(buffer);
+
+
                     trackBufferView.StartAccessorGroup();
-                    
-                    
+
+
                     var translationOutputAccessor = gltfAsset
                         .CreateAccessor(ComponentType.Float, AccessorType.Vec3)
                         .SetBufferView(trackBufferView);
@@ -276,8 +271,8 @@ namespace LeagueConvert.IO.Skin.Extensions
                     gltfAnimation.CreateChannel(translationSampler, translationTarget);
                     foreach (var translation in track.Translations.Select(pair => pair.Value))
                         translationOutputAccessor.WriteElement(translation.X, translation.Y, translation.Z);
-                    
-                    
+
+
                     var rotationOutputAccessor = gltfAsset
                         .CreateAccessor(ComponentType.Float, AccessorType.Vec4)
                         .SetBufferView(trackBufferView);
@@ -286,8 +281,8 @@ namespace LeagueConvert.IO.Skin.Extensions
                     gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
                     foreach (var rotation in track.Rotations.Select(pair => pair.Value))
                         rotationOutputAccessor.WriteElement(rotation.X, rotation.Y, rotation.Z, rotation.W);
-                    
-                    
+
+
                     var scaleOutputAccessor = gltfAsset
                         .CreateAccessor(ComponentType.Float, AccessorType.Vec3)
                         .SetBufferView(trackBufferView);
@@ -298,7 +293,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                         scaleOutputAccessor.WriteElement(scale.X, scale.Y, scale.Z);
                 }
             }
-            
+
             return gltfAsset;
         }
     }

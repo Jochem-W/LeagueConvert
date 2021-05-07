@@ -12,8 +12,8 @@ namespace SimpleGltf.Json
         private readonly GltfAsset _gltfAsset;
 
         internal readonly Buffer Buffer;
-        internal Stream PngStream;
         internal IList<IList<Accessor>> AccessorGroups;
+        internal Stream PngStream;
 
         internal BufferView(GltfAsset gltfAsset, Buffer buffer)
         {

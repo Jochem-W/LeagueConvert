@@ -13,10 +13,10 @@ namespace SimpleGltf.Json
     public class Accessor : IAsyncDisposable
     {
         private readonly bool _normalized;
-
-        internal readonly GltfAsset GltfAsset;
         internal readonly BinaryWriter BinaryWriter;
         internal readonly IList<dynamic> Component;
+
+        internal readonly GltfAsset GltfAsset;
         internal readonly bool MinMax;
         internal BufferView BufferView;
 

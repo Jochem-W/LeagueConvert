@@ -30,7 +30,7 @@ namespace SimpleGltfTest
         {
             await foreach (var skin in wad.GetSkins())
             {
-                await skin.Load(SkinMode.WithSkeleton);
+                await skin.Load(SkinMode.WithAnimations);
                 await using var gltfAsset = await skin.GetGltfAsset();
                 if (gltfAsset == null)
                     continue;

@@ -27,11 +27,11 @@ namespace LeagueConvert.IO.Skin
         private string _simpleSkinFile;
         private string _skeletonFile;
         private string _texture;
+        internal IDictionary<string, Animation> Animations;
 
         internal SimpleSkin SimpleSkin;
         internal Skeleton Skeleton;
         internal IDictionary<string, IMagickImage> Textures;
-        internal IDictionary<string, Animation> Animations;
 
         internal Skin(string character, string name, ILogger logger = null, params ParentedBinTree[] binTrees)
         {
@@ -165,7 +165,7 @@ namespace LeagueConvert.IO.Skin
                     await stream.DisposeAsync();
             }
         }
-        
+
         private async Task LoadAnimations(ILogger logger = null)
         {
             Animations = new Dictionary<string, Animation>();

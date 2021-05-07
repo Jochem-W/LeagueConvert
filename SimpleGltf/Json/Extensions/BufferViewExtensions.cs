@@ -14,7 +14,7 @@ namespace SimpleGltf.Json.Extensions
             bufferView.AccessorGroups ??= new List<IList<Accessor>>();
             bufferView.AccessorGroups.Add(new List<Accessor>());
         }
-        
+
         public static IEnumerable<Accessor> GetAccessors(this BufferView bufferView)
         {
             return bufferView.AccessorGroups == null
@@ -69,7 +69,7 @@ namespace SimpleGltf.Json.Extensions
                 stream.Seek(0, SeekOrigin.Begin);
                 return stream;
             }
-            
+
             foreach (var accessorGroup in bufferView.AccessorGroups)
             {
                 var position = stream.Position;
@@ -82,7 +82,7 @@ namespace SimpleGltf.Json.Extensions
                         await stream.WriteAsync(memory);
                     }
             }
-            
+
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
             /*
@@ -105,7 +105,6 @@ namespace SimpleGltf.Json.Extensions
 
             stream.Seek(0, SeekOrigin.Begin);
             return stream;*/
-            
         }
     }
 }
