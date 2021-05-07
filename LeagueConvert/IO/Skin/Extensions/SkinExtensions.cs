@@ -91,9 +91,9 @@ namespace LeagueConvert.IO.Skin.Extensions
             node.Mesh = gltfAsset.CreateMesh();
             var buffer = gltfAsset.CreateBuffer();
             var textures = new Dictionary<IMagickImage, Texture>();
+            var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
             foreach (var subMesh in skin.SimpleSkin.Submeshes)
             {
-                var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
                 attributesBufferView.StartAccessorGroup();
                 var positionAccessor = gltfAsset
                     .CreateAccessor(ComponentType.Float, AccessorType.Vec3, minMax: true)
@@ -102,7 +102,10 @@ namespace LeagueConvert.IO.Skin.Extensions
                     .SetBufferView(attributesBufferView);
                 var uvAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec2)
                     .SetBufferView(attributesBufferView);
-            
+                Accessor colourAccessor = null;
+                if (subMesh.Vertices.All(vertex => vertex.Color != null))
+                    colourAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
+                        .SetBufferView(attributesBufferView);
             
                 //SKELETON
                 Accessor jointsAccessor = null;
@@ -115,16 +118,10 @@ namespace LeagueConvert.IO.Skin.Extensions
                         .SetBufferView(attributesBufferView);
                 }
             
-                Accessor colourAccessor = null;
-                if (subMesh.Vertices.All(vertex => vertex.Color != null))
-                    colourAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
-                        .SetBufferView(attributesBufferView);
                 var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
                 indicesBufferView.StartAccessorGroup();
                 var indicesAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Scalar)
                     .SetBufferView(indicesBufferView);
-                
-                
                 var primitive = node.Mesh.CreatePrimitive();
                 primitive.Indices = indicesAccessor;
                 foreach (var index in subMesh.Indices)
@@ -233,10 +230,12 @@ namespace LeagueConvert.IO.Skin.Extensions
             
             if (!skin.State.HasFlag(SkinState.AnimationsLoaded))
                 return gltfAsset;
-
+            
+            
+            //ANIMATIONS
             foreach (var (name, animation) in skin.Animations)
             {
-                var gltfAnimation = gltfAsset.CreateAnimation();
+                var gltfAnimation = gltfAsset.CreateAnimation(name);
                 var inputBufferView = gltfAsset.CreateBufferView(buffer);
                 inputBufferView.StartAccessorGroup();
                 var input = gltfAsset

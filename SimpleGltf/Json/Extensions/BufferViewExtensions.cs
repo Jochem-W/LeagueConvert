@@ -72,8 +72,9 @@ namespace SimpleGltf.Json.Extensions
             
             foreach (var accessorGroup in bufferView.AccessorGroups)
             {
+                var position = stream.Position;
                 var totalLength = accessorGroup.GetLength();
-                while (stream.Length != totalLength)
+                while (stream.Length - position != totalLength)
                     foreach (var accessor in accessorGroup)
                     {
                         var memory = new byte[accessor.ComponentSize];

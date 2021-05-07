@@ -23,9 +23,9 @@ namespace SimpleGltf.Json.Extensions
             return new(gltfAsset, componentType, accessorType, normalized, name, minMax);
         }
 
-        public static Animation CreateAnimation(this GltfAsset gltfAsset)
+        public static Animation CreateAnimation(this GltfAsset gltfAsset, string name = null)
         {
-            return new(gltfAsset);
+            return new(gltfAsset) {Name = name};
         }
 
         public static Asset CreateAsset(this GltfAsset gltfAsset, string copyright = null)
