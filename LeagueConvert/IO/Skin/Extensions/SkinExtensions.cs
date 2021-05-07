@@ -94,6 +94,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             foreach (var subMesh in skin.SimpleSkin.Submeshes)
             {
                 var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
+                attributesBufferView.StartAccessorGroup();
                 var positionAccessor = gltfAsset
                     .CreateAccessor(ComponentType.Float, AccessorType.Vec3, minMax: true)
                     .SetBufferView(attributesBufferView);
@@ -119,6 +120,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                     colourAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
                         .SetBufferView(attributesBufferView);
                 var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
+                indicesBufferView.StartAccessorGroup();
                 var indicesAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Scalar)
                     .SetBufferView(indicesBufferView);
                 
@@ -200,6 +202,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             var skeletonRootNode = gltfAsset.CreateNode();
             gltfAsset.Scene.Nodes.Add(skeletonRootNode);
             var inverseBindMatricesBufferView = gltfAsset.CreateBufferView(buffer);
+            inverseBindMatricesBufferView.StartAccessorGroup();
             var inverseBindMatricesAccessor = gltfAsset
                 .CreateAccessor(ComponentType.Float, AccessorType.Mat4)
                 .SetBufferView(inverseBindMatricesBufferView);
@@ -234,7 +237,8 @@ namespace LeagueConvert.IO.Skin.Extensions
             foreach (var (name, animation) in skin.Animations)
             {
                 var gltfAnimation = gltfAsset.CreateAnimation();
-                var inputBufferView = gltfAsset.CreateBufferView(buffer, null);
+                var inputBufferView = gltfAsset.CreateBufferView(buffer);
+                inputBufferView.StartAccessorGroup();
                 var input = gltfAsset
                     .CreateAccessor(ComponentType.Float, AccessorType.Scalar)
                     .SetBufferView(inputBufferView);
@@ -262,6 +266,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                     
                     
                     var trackBufferView = gltfAsset.CreateBufferView(buffer);
+                    trackBufferView.StartAccessorGroup();
                     
                     
                     var translationOutputAccessor = gltfAsset

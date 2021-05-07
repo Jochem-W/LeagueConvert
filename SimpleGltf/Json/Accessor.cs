@@ -18,6 +18,7 @@ namespace SimpleGltf.Json
         internal readonly BinaryWriter BinaryWriter;
         internal readonly IList<dynamic> Component;
         internal readonly bool MinMax;
+        internal BufferView BufferView;
 
         internal Accessor(GltfAsset gltfAsset, ComponentType componentType, AccessorType accessorType,
             bool normalized, string name, bool minMax)
@@ -38,8 +39,6 @@ namespace SimpleGltf.Json
         internal int ComponentSize { get; set; }
         internal int ByteLength => ComponentSize * Count;
 
-        [JsonIgnore] public BufferView BufferView { get; set; }
-        
         [JsonPropertyName("bufferView")]
         public int? BufferViewReference => BufferView == null ? null : GltfAsset.BufferViews.IndexOf(BufferView);
 
@@ -48,15 +47,29 @@ namespace SimpleGltf.Json
             get
             {
                 var take = true;
-                var accessors = BufferView.GetAccessors().TakeWhile(accessor =>
+                var groups = BufferView.AccessorGroups.TakeWhile(group =>
+                {
+                    if (group.Contains(this))
+                        take = false;
+                    return take;
+                }).ToList();
+                var currentGroup = BufferView.AccessorGroups[groups.Count];
+                if (currentGroup.Count == 1)
+                    return null;
+                var offset = groups.SelectMany(group => group).GetLength();
+                take = true;
+                var inGroupBefore = currentGroup.TakeWhile(accessor =>
                 {
                     if (accessor == this)
                         take = false;
                     return take;
                 }).ToList();
-                if (accessors.Count == 0)
-                    return null;
-                return accessors.GetStride();
+                return inGroupBefore.Count switch
+                {
+                    0 when offset == 0 => null,
+                    0 => (int) offset,
+                    _ => inGroupBefore.GetStride() + (int) offset
+                };
             }
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,9 +9,17 @@ namespace SimpleGltf.Json.Extensions
 {
     public static class BufferViewExtensions
     {
+        public static void StartAccessorGroup(this BufferView bufferView)
+        {
+            bufferView.AccessorGroups ??= new List<IList<Accessor>>();
+            bufferView.AccessorGroups.Add(new List<Accessor>());
+        }
+        
         public static IEnumerable<Accessor> GetAccessors(this BufferView bufferView)
         {
-            return bufferView.Buffer.GltfAsset.Accessors.Where(accessor => accessor.BufferView == bufferView);
+            return bufferView.AccessorGroups == null
+                ? Array.Empty<Accessor>()
+                : bufferView.AccessorGroups.SelectMany(group => group);
         }
 
         public static int? GetByteOffset(this BufferView bufferView)
@@ -52,8 +61,30 @@ namespace SimpleGltf.Json.Extensions
 
             var stream = new MemoryStream();
             var stride = bufferView.ByteStride;
-            var accessors = bufferView.GetAccessors().ToList();
-            accessors.SeekToBegin();
+            bufferView.GetAccessors().SeekToBegin();
+            if (stride == null)
+            {
+                foreach (var accessor in bufferView.GetAccessors())
+                    await accessor.BinaryWriter.BaseStream.CopyToAsync(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                return stream;
+            }
+            
+            foreach (var accessorGroup in bufferView.AccessorGroups)
+            {
+                var totalLength = accessorGroup.GetLength();
+                while (stream.Length != totalLength)
+                    foreach (var accessor in accessorGroup)
+                    {
+                        var memory = new byte[accessor.ComponentSize];
+                        await accessor.BinaryWriter.BaseStream.ReadAsync(memory);
+                        await stream.WriteAsync(memory);
+                    }
+            }
+            
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
+            /*
             if (stride == null)
             {
                 foreach (var accessor in accessors)
@@ -72,7 +103,8 @@ namespace SimpleGltf.Json.Extensions
                 }
 
             stream.Seek(0, SeekOrigin.Begin);
-            return stream;
+            return stream;*/
+            
         }
     }
 }

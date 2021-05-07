@@ -13,6 +13,7 @@ namespace SimpleGltf.Json
 
         internal readonly Buffer Buffer;
         internal Stream PngStream;
+        internal IList<IList<Accessor>> AccessorGroups;
 
         internal BufferView(GltfAsset gltfAsset, Buffer buffer)
         {
@@ -26,7 +27,9 @@ namespace SimpleGltf.Json
 
         public int? ByteOffset => this.GetByteOffset();
 
-        public int ByteLength => PngStream != null ? (int) PngStream.Length : (int) this.GetAccessors().GetLength();
+        public int ByteLength => PngStream != null
+            ? (int) PngStream.Length
+            : (int) AccessorGroups.SelectMany(group => group).GetLength();
 
         public int? ByteStride
         {
@@ -34,8 +37,7 @@ namespace SimpleGltf.Json
             {
                 if (Target is BufferViewTarget.ElementArrayBuffer or null)
                     return null;
-                var accessors = this.GetAccessors().ToList();
-                return accessors.Count == 1 ? null : accessors.GetStride();
+                return AccessorGroups[0].Count == 1 ? null : AccessorGroups[0].GetStride();
             }
         }
 

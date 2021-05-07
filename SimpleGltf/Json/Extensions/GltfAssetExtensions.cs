@@ -126,8 +126,8 @@ namespace SimpleGltf.Json.Extensions
             var directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-
-            await using var binaryWriter = new BinaryWriter(File.Create(filePath));
+            
+            await using var binaryWriter = new BinaryWriter(new MemoryStream());
             binaryWriter.Write("glTF".ToMagic());
             binaryWriter.Write((uint) 2);
             binaryWriter.Seek(4, SeekOrigin.Current);
@@ -142,6 +142,9 @@ namespace SimpleGltf.Json.Extensions
 
             binaryWriter.Seek(8, SeekOrigin.Begin);
             binaryWriter.Write((uint) binaryWriter.BaseStream.Length);
+            binaryWriter.Seek(0, SeekOrigin.Begin);
+            await using var fileStream = File.Create(filePath);
+            await binaryWriter.BaseStream.CopyToAsync(fileStream);
         }
 
         //TODO: merge the following two functions

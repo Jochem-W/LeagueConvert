@@ -12,6 +12,7 @@ namespace SimpleGltf.Json.Extensions
         public static Accessor SetBufferView(this Accessor accessor, BufferView bufferView)
         {
             accessor.BufferView = bufferView;
+            bufferView.AccessorGroups[^1].Add(accessor);
             return accessor;
         }
 
