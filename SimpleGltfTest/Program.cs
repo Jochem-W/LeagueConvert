@@ -10,23 +10,31 @@ namespace SimpleGltfTest
 {
     internal static class Program
     {
+        private const string Output = @"C:\Users\Joche\Downloads\models";
+        
         private static async Task Main(string[] args)
         {
             await HashTables.TryLoadLatest();
-            if (Directory.Exists(@"C:\Users\Joche\Downloads\models"))
-                Directory.Delete(@"C:\Users\Joche\Downloads\models", true);
-            using var wad =
-                new StringWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Aatrox.wad.client");
-            await Test(wad);
-            /*foreach (var file in Directory.EnumerateFiles(@"C:\Riot Games\League of Legends", "*.wad.client",
-                SearchOption.AllDirectories))
-            {
-                using var wad = new StringWad(file);
-                await Test(wad);
-            }*/
+            if (Directory.Exists(Output))
+                Directory.Delete(Output, true);
+            //await AllWads(@"C:\Riot Games\League of Legends");
+            await SingleWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Aatrox.wad.client");
         }
 
-        private static async Task Test(StringWad wad)
+        private static async Task AllWads(string path)
+        {
+            foreach (var file in Directory.EnumerateFiles(path, "*.wad.client",
+                SearchOption.AllDirectories))
+                await SingleWad(file);
+        }
+        
+        private static async Task SingleWad(string path)
+        {
+            using var wad = new StringWad(path);
+            await Convert(wad);
+        }
+
+        private static async Task Convert(StringWad wad)
         {
             await foreach (var skin in wad.GetSkins())
             {
@@ -34,8 +42,7 @@ namespace SimpleGltfTest
                 await using var gltfAsset = await skin.GetGltfAsset();
                 if (gltfAsset == null)
                     continue;
-                await gltfAsset.Save(Path.Combine(@"C:\Users\Joche\Downloads\models", skin.Character,
-                    $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
+                await gltfAsset.Save(Path.Combine(Output, skin.Character, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
             }
         }
     }
