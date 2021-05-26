@@ -24,7 +24,7 @@ namespace SimpleGltf.Extensions
         {
             return accessorType switch
             {
-                AccessorType.Scalar => 1,
+                AccessorType.Scalar => GetColumns(accessorType),
                 AccessorType.Vec2 => 2,
                 AccessorType.Vec3 => 3,
                 AccessorType.Vec4 => 4,

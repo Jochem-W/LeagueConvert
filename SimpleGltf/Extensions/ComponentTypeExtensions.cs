@@ -5,7 +5,7 @@ namespace SimpleGltf.Extensions
 {
     internal static class ComponentTypeExtensions
     {
-        internal static int GetElementSize(this ComponentType componentType)
+        internal static int GetComponentSize(this ComponentType componentType)
         {
             return componentType switch
             {

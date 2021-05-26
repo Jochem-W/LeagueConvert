@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -232,14 +233,6 @@ namespace LeagueConvert.IO.Skin.Extensions
             foreach (var (name, animation) in skin.Animations)
             {
                 var gltfAnimation = gltfAsset.CreateAnimation(name);
-
-                inputBufferView.StartAccessorGroup();
-                var input = gltfAsset
-                    .CreateAccessor(ComponentType.Float, AccessorType.Scalar, minMax: true)
-                    .SetBufferView(inputBufferView);
-                foreach (var time in animation.Tracks[0].Rotations.Select(pair => pair.Key))
-                    input.WriteElement(time);
-
                 var jointsAndHash = gltfSkin.Joints
                     .Select(joint => new KeyValuePair<Node, uint>(joint, Cryptography.ElfHash(joint.Name)))
                     .ToList();
@@ -261,36 +254,56 @@ namespace LeagueConvert.IO.Skin.Extensions
 
 
                     trackBufferView.StartAccessorGroup();
+                    inputBufferView.StartAccessorGroup();
+                    
 
-
+                    var translationInputAccessor = gltfAsset
+                        .CreateAccessor(ComponentType.Float, AccessorType.Scalar, minMax: true)
+                        .SetBufferView(inputBufferView);
                     var translationOutputAccessor = gltfAsset
                         .CreateAccessor(ComponentType.Float, AccessorType.Vec3)
                         .SetBufferView(trackBufferView);
-                    var translationSampler = gltfAnimation.CreateSampler(input, translationOutputAccessor);
+                    var translationSampler = gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
                     var translationTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Translation);
                     gltfAnimation.CreateChannel(translationSampler, translationTarget);
-                    foreach (var translation in track.Translations.Select(pair => pair.Value))
+                    foreach (var (time, translation) in track.Translations)
+                    {
                         translationOutputAccessor.WriteElement(translation.X, translation.Y, translation.Z);
+                        translationInputAccessor.WriteElement(time);
+                    }
+                    
 
-
+                    var rotationInputAccessor = gltfAsset
+                        .CreateAccessor(ComponentType.Float, AccessorType.Scalar, minMax: true)
+                        .SetBufferView(inputBufferView);
                     var rotationOutputAccessor = gltfAsset
                         .CreateAccessor(ComponentType.Float, AccessorType.Vec4)
                         .SetBufferView(trackBufferView);
-                    var rotationSampler = gltfAnimation.CreateSampler(input, rotationOutputAccessor);
+                    var rotationSampler = gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
                     var rotationTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Rotation);
                     gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
-                    foreach (var rotation in track.Rotations.Select(pair => pair.Value))
-                        rotationOutputAccessor.WriteElement(rotation.X, rotation.Y, rotation.Z, rotation.W);
+                    foreach (var (time, rotation) in track.Rotations)
+                    {
+                        var normalized = rotation.Length() is 1f ? rotation : Quaternion.Normalize(rotation);
+                        rotationOutputAccessor.WriteElement(normalized.X, normalized.Y, normalized.Z, normalized.W);
+                        rotationInputAccessor.WriteElement(time);
+                    }
 
 
+                    var scaleInputAccessor = gltfAsset
+                        .CreateAccessor(ComponentType.Float, AccessorType.Scalar, minMax: true)
+                        .SetBufferView(inputBufferView);
                     var scaleOutputAccessor = gltfAsset
                         .CreateAccessor(ComponentType.Float, AccessorType.Vec3)
                         .SetBufferView(trackBufferView);
-                    var scaleSampler = gltfAnimation.CreateSampler(input, scaleOutputAccessor);
+                    var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
                     var scaleTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Scale);
                     gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
-                    foreach (var scale in track.Scales.Select(pair => pair.Value))
+                    foreach (var (time, scale) in track.Scales)
+                    {
                         scaleOutputAccessor.WriteElement(scale.X, scale.Y, scale.Z);
+                        scaleInputAccessor.WriteElement(time);
+                    }
                 }
             }
 

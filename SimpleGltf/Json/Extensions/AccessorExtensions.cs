@@ -7,72 +7,34 @@ using SimpleGltf.Extensions;
 
 namespace SimpleGltf.Json.Extensions
 {
-    public static class AccessorExtensions
+    internal static class AccessorExtensions
     {
-        public static Accessor SetBufferView(this Accessor accessor, BufferView bufferView)
-        {
-            accessor.BufferView = bufferView;
-            bufferView.AccessorGroups[^1].Add(accessor);
-            return accessor;
-        }
-
-        public static int GetStride(this IEnumerable<Accessor> accessors)
-        {
-            return accessors.Select(accessor => accessor.ComponentSize).Sum();
-        }
-
-        public static long GetLength(this IEnumerable<Accessor> accessors)
-        {
-            return accessors.Sum(accessor => accessor.ByteLength);
-        }
-
-        public static void SeekToBegin(this IEnumerable<Accessor> accessors)
-        {
-            foreach (var accessor in accessors)
-                accessor.BinaryWriter.Seek(0, SeekOrigin.Begin);
-        }
-
-        public static void SetSize(this Accessor accessor)
-        {
-            var elementSize = accessor.ComponentType.GetElementSize();
-            var rows = accessor.Type.GetRows();
+        internal static void GetElementCountAndSize(this Accessor accessor, out int count, out int size)
+        {   
             var columns = accessor.Type.GetColumns();
+            var rows = accessor.Type.GetRows();
+            count = columns * rows;
+            size = 0;
+            var componentSize = accessor.ComponentType.GetComponentSize();
             for (var i = 0; i < columns; i++)
             {
-                accessor.ComponentSize += accessor.ComponentSize.GetOffset();
-                accessor.ComponentSize += rows * elementSize;
+                size += size.GetOffset();
+                size += rows * componentSize;
             }
         }
-
-        public static void NextComponent(this Accessor accessor)
+        
+        internal static void Seek(this IEnumerable<Accessor> accessors, int offset, SeekOrigin origin)
         {
-            accessor.Count++;
-            if (!accessor.MinMax)
-            {
-                accessor.Component.Clear();
-                return;
-            }
-            
-            if (accessor.Min == null && accessor.Max == null)
-            {
-                accessor.Min = new List<dynamic>(accessor.Component);
-                accessor.Max = new List<dynamic>(accessor.Component);
-                accessor.Component.Clear();
-                return;
-            }
-
-            for (var i = 0; i < accessor.Component.Count; i++)
-            {
-                if (accessor.Component[i] < accessor.Min[i])
-                    accessor.Min[i] = accessor.Component[i];
-                if (accessor.Component[i] > accessor.Max[i])
-                    accessor.Max[i] = accessor.Component[i];
-            }
-
-            accessor.Component.Clear();
+            foreach (var accessor in accessors)
+                accessor.BinaryWriter.Seek(offset, origin);
         }
 
-        public static void WriteElement(this Accessor accessor, params dynamic[] components)
+        internal static long GetByteLength(this IEnumerable<Accessor> accessors)
+        {
+            return accessors.Sum(accessor => accessor.BinaryWriter.BaseStream.Length);
+        }
+        
+        public static void WriteElement(this Accessor accessor, bool offset = false, params dynamic[] components)
         {
             if (components.Length != accessor.Type.GetColumns() * accessor.Type.GetRows())
                 throw new NotImplementedException();
@@ -165,16 +127,58 @@ namespace SimpleGltf.Json.Extensions
                 case ComponentType.UShort when value is ushort:
                 case ComponentType.UInt when value is uint:
                 case ComponentType.Float when value is float:
-                    accessor.Write(value);
+                    accessor.Element.Add(value);
+                    accessor.BinaryWriter.Write(value);
                     break;
                 default:
                     throw new NotImplementedException();
             }
         }
-
-        private static void EnsureOffset(this Accessor accessor)
+        
+        public static void NextComponent(this Accessor accessor)
         {
-            accessor.BinaryWriter.Seek((int) accessor.BinaryWriter.BaseStream.Length.GetOffset(), SeekOrigin.Current);
+            accessor.Count++;
+            if (!accessor.MinMax)
+            {
+                accessor.Component.Clear();
+                return;
+            }
+
+            if (accessor.Component.Count == 1)
+            {
+                if (accessor.Min == null || accessor.Max == null)
+                {
+                    accessor.Min = accessor.Component[0];
+                    accessor.Max = accessor.Component[0];
+                    accessor.Component.Clear();
+                    return;
+                }
+
+                if (accessor.Component[0] < accessor.Min)
+                    accessor.Min = accessor.Component[0];
+                if (accessor.Component[0] > accessor.Max)
+                    accessor.Max = accessor.Component[0];
+                accessor.Component.Clear();
+                return;
+            }
+
+            if (accessor.Min == null && accessor.Max == null)
+            {
+                accessor.Min = new List<dynamic>(accessor.Component);
+                accessor.Max = new List<dynamic>(accessor.Component);
+                accessor.Component.Clear();
+                return;
+            }
+
+            for (var i = 0; i < accessor.Component.Count; i++)
+            {
+                if (accessor.Component[i] < accessor.Min[i])
+                    accessor.Min[i] = accessor.Component[i];
+                if (accessor.Component[i] > accessor.Max[i])
+                    accessor.Max[i] = accessor.Component[i];
+            }
+
+            accessor.Component.Clear();
         }
     }
 }

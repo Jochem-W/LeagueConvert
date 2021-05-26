@@ -1,19 +1,17 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
-using SimpleGltf.Enums;
 using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json
 {
     public class BufferView
     {
+        private const int DefaultByteOffset = 0;
         private readonly GltfAsset _gltfAsset;
 
         internal readonly Buffer Buffer;
         internal IList<IList<Accessor>> AccessorGroups;
-        internal Stream PngStream;
 
         internal BufferView(GltfAsset gltfAsset, Buffer buffer)
         {
@@ -21,28 +19,24 @@ namespace SimpleGltf.Json
             _gltfAsset.BufferViews ??= new List<BufferView>();
             _gltfAsset.BufferViews.Add(this);
             Buffer = buffer;
+            Buffer.BufferViews ??= new List<BufferView>();
+            Buffer.BufferViews.Add(this);
         }
 
         [JsonPropertyName("buffer")] public int BufferReference => _gltfAsset.Buffers.IndexOf(Buffer);
 
-        public int? ByteOffset => this.GetByteOffset();
-
-        public int ByteLength => PngStream != null
-            ? (int) PngStream.Length
-            : (int) AccessorGroups.SelectMany(group => group).GetLength();
-
-        public int? ByteStride
+        public int? ByteOffset
         {
             get
             {
-                if (Target is BufferViewTarget.ElementArrayBuffer or null)
+                var beforeCount = Buffer.BufferViews.IndexOf(this);
+                if (beforeCount == 0)
                     return null;
-                return AccessorGroups[0].Count == 1 ? null : AccessorGroups[0].GetStride();
+                var lastBefore = Buffer.BufferViews.Take(beforeCount).Last();
+                return lastBefore.ByteOffset + lastBefore.ByteLength;
             }
         }
 
-        public BufferViewTarget? Target { get; init; }
-
-        public string Name { get; set; }
+        public int ByteLength => AccessorGroups.Sum(group => (int) group.GetByteLength());
     }
 }
