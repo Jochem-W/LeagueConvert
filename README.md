@@ -23,12 +23,13 @@ a standalone library at some point.)
 Currently implemented:
 * Primitives
 * Skins
+* Materials
 * Animations
 
-Planned:
+To-do:
 
-* Materials
-* Optimise the insanely slow animation stuff
+* Optimisation
+* Check adherence to glTF spec
 
 ### LeagueConvert
 
