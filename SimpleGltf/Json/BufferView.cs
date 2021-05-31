@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json.Serialization;
 using SimpleGltf.Enums;
 
@@ -9,6 +10,7 @@ namespace SimpleGltf.Json
     {
         internal readonly Buffer Buffer;
         internal readonly GltfAsset GltfAsset;
+        internal MemoryStream PngStream;
         
         internal BufferView(Buffer buffer, BufferViewTarget? target, string name)
         {

@@ -81,10 +81,10 @@ namespace LeagueConvert.IO.Skin.Extensions
             gltfAsset.Scene = gltfAsset.CreateScene();
             var node = gltfAsset.CreateNode();
             gltfAsset.Scene.Nodes = new List<Node> {node};
-            //var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
+            var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
             node.Mesh = gltfAsset.CreateMesh();
             var buffer = gltfAsset.CreateBuffer();
-            //var textures = new Dictionary<IMagickImage, Texture>();
+            var textures = new Dictionary<IMagickImage, Texture>();
             foreach (var subMesh in skin.SimpleSkin.Submeshes)
             {
                 var attributesBufferView = buffer.CreateBufferView(BufferViewTarget.ArrayBuffer);
@@ -154,7 +154,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                     jointsAccessor.Write(actualJoints.ToArray());
                 }
 
-                /*
+                
                 //MATERIALS
                 var material = gltfAsset.CreateMaterial(name: subMesh.Name);
                 primitive.Material = material;
@@ -170,11 +170,11 @@ namespace LeagueConvert.IO.Skin.Extensions
                     continue;
                 }
 
-                var imageBufferView = gltfAsset.CreateBufferView(buffer);
+                var imageBufferView = buffer.CreateBufferView();
                 var image = await gltfAsset.CreateImage(imageBufferView, magickImage);
                 var texture = gltfAsset.CreateTexture(sampler, image);
                 textures[magickImage] = texture;
-                pbrMetallicRoughness.SetBaseColorTexture(texture);*/
+                pbrMetallicRoughness.SetBaseColorTexture(texture);
             }
 
             

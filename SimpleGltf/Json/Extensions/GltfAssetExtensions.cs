@@ -39,7 +39,7 @@ namespace SimpleGltf.Json.Extensions
             return new(gltfAsset, uri, name);
         }
 
-        /*public static async Task<Image> CreateImage(this GltfAsset gltfAsset, BufferView bufferView,
+        public static async Task<Image> CreateImage(this GltfAsset gltfAsset, BufferView bufferView,
             IMagickImage magickImage, string name = null)
         {
             if (bufferView.PngStream != null || bufferView.GetAccessors().Any())
@@ -48,7 +48,7 @@ namespace SimpleGltf.Json.Extensions
             await magickImage.WriteAsync(bufferView.PngStream, MagickFormat.Png);
             bufferView.PngStream.Seek(0, SeekOrigin.Begin);
             return new Image(gltfAsset, bufferView, MimeType.Png, name);
-        }*/
+        }
 
         public static Material CreateMaterial(this GltfAsset gltfAsset, Vector3? emissiveFactor = null,
             AlphaMode? alphaMode = null, float? alphaCutoff = null, bool? doubleSided = null, string name = null)
@@ -186,14 +186,15 @@ namespace SimpleGltf.Json.Extensions
             for (var i = 0; i < gltfAsset.Buffers.Count; i++)
             {
                 var buffer = gltfAsset.Buffers[i];
-                if (external)
-                    buffer.Uri = $"buffer_{i}.bin";
+                buffer.Uri = external ? $"buffer_{i}.bin" : null;
                 buffer.MemoryStream = new MemoryStream();
                 var binaryWriter = new BinaryWriter(buffer.MemoryStream, Encoding.Default, true);
                 foreach (var bufferView in gltfAsset.BufferViews.Where(bufferView => bufferView.Buffer == buffer))
                 {
+                    if (bufferView.Target == BufferViewTarget.ArrayBuffer)
+                        binaryWriter.Seek((int) binaryWriter.BaseStream.Position.GetOffset(), SeekOrigin.Current);
                     bufferView.ByteOffset = (int) binaryWriter.BaseStream.Position;
-                    var accessors = gltfAsset.Accessors.Where(accessor => accessor.BufferView == bufferView).ToList();
+                    var accessors = bufferView.GetAccessors().ToList();
                     switch (accessors.Count)
                     {
                         case 1:
@@ -223,8 +224,13 @@ namespace SimpleGltf.Json.Extensions
 
                             break;
                         }
-                        default:
-                            throw new NotImplementedException();
+                        case 0:
+                        {
+                            if (bufferView.PngStream == null)
+                                throw new NotImplementedException();
+                            await bufferView.PngStream.CopyToAsync(buffer.MemoryStream);
+                            break;
+                        }
                     }
 
                     bufferView.ByteLength = (int) (binaryWriter.BaseStream.Position - bufferView.ByteOffset);

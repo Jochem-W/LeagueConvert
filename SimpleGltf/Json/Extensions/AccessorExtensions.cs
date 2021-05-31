@@ -42,7 +42,15 @@ namespace SimpleGltf.Json.Extensions
         {
             var stride = new StrideHelper();
             foreach (var accessor in accessors)
-                stride.Lengths.Add(accessor.ElementSize + accessor.ElementSize.GetOffset());
+            {
+                if (vertexAttributes)
+                {
+                    stride.Lengths.Add(accessor.ElementSize + accessor.ElementSize.GetOffset());
+                    continue;
+                }
+                stride.Lengths.Add(accessor.ElementSize);
+            }
+            
             stride.Total = stride.Lengths.Sum();
             var offset = 0;
             foreach (var length in stride.Lengths)
