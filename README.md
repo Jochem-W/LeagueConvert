@@ -23,11 +23,12 @@ a standalone library at some point.)
 Currently implemented:
 * Primitives
 * Skins
-* Materials
+* Animations
 
 Planned:
 
-* Support for animations
+* Materials
+* Optimise the insanely slow animation stuff
 
 ### LeagueConvert
 
@@ -38,8 +39,7 @@ Planned:
 
 * Rewrite hash table loading code
 * Support for map geometry
-* Support for PBR materials
-* Switch to SimpleGltf
+* Support for texture masks
 
 ### LeagueConvert.CommandLine
 
@@ -67,9 +67,3 @@ Postponed until .NET 6 releases. Will replace LeagueConvert.WPF.
 2. Install the .NET 5.0 SDK (optionally you can use an IDE like Rider or
 Visual Studio)
 3. Execute `dotnet run` in the 'LeagueConvert/LeagueConvert.CommandLine' folder
-
-## To-do
-
-* Extend command line functionality
-* Add GUI (cross-platform)
-* Feature-parity with the existing LeagueBulkConvert
