@@ -14,8 +14,8 @@ namespace SimpleGltf.Json
         internal readonly int ComponentCount;
         internal readonly int ComponentTypeSize;
         internal readonly int ElementSize;
-        internal readonly bool MinMax;
         internal readonly GltfAsset GltfAsset;
+        internal readonly bool MinMax;
         internal List<dynamic> Values;
 
         internal Accessor(BufferView bufferView, ComponentType componentType, AccessorType type, bool minMax,
@@ -35,19 +35,19 @@ namespace SimpleGltf.Json
             ElementSize = ComponentCount * ComponentTypeSize;
             MinMax = minMax;
         }
-        
-        [JsonPropertyName("bufferView")]
-        public int BufferViewReference => GltfAsset.BufferViews.IndexOf(BufferView);
+
+        [JsonPropertyName("bufferView")] public int BufferViewReference => GltfAsset.BufferViews.IndexOf(BufferView);
 
         public int? ByteOffset { get; internal set; }
-        
+
         public ComponentType ComponentType { get; }
 
         public bool? Normalized { get; }
-        
+
         public int Count { get; internal set; }
 
-        [JsonConverter(typeof(AccessorTypeConverter))] public AccessorType Type { get; }
+        [JsonConverter(typeof(AccessorTypeConverter))]
+        public AccessorType Type { get; }
 
         public IList<dynamic> Max
         {
@@ -81,7 +81,7 @@ namespace SimpleGltf.Json
 
         public string Name { get; }
     }
-    
+
     public class Accessor<T> : Accessor where T : struct, IComparable
     {
         internal Accessor(BufferView bufferView, AccessorType type, bool minMax, bool normalized, string name) : base(

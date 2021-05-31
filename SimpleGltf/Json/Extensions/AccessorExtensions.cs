@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 using SimpleGltf.Helpers;
@@ -48,9 +46,10 @@ namespace SimpleGltf.Json.Extensions
                     stride.Lengths.Add(accessor.ElementSize + accessor.ElementSize.GetOffset());
                     continue;
                 }
+
                 stride.Lengths.Add(accessor.ElementSize);
             }
-            
+
             stride.Total = stride.Lengths.Sum();
             var offset = 0;
             foreach (var length in stride.Lengths)
@@ -58,6 +57,7 @@ namespace SimpleGltf.Json.Extensions
                 stride.Offsets.Add(offset);
                 offset += length;
             }
+
             return stride;
         }
     }

@@ -48,7 +48,7 @@ namespace SimpleGltf.Json
             get
             {
                 if (GltfAsset.Animations != null && GltfAsset.Animations.Any(
-                    animation => animation.Channels.Any(channel => channel.Target.Node == this))) 
+                    animation => animation.Channels.Any(channel => channel.Target.Node == this)))
                     return null;
                 return Skin != null ? null : _trs == Matrix4x4.Identity ? null : _trs;
             }

@@ -9,7 +9,7 @@ namespace SimpleGltf.Json
     {
         private const InterpolationAlgorithm DefaultInterpolationAlgorithm = InterpolationAlgorithm.Linear;
         private InterpolationAlgorithm _interpolationAlgorithm;
-        
+
         internal AnimationSampler(Animation animation, Accessor input, Accessor output)
         {
             if (input.Type != AccessorType.Scalar)

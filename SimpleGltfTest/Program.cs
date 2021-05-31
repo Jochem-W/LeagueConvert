@@ -11,7 +11,7 @@ namespace SimpleGltfTest
     internal static class Program
     {
         private const string Output = @"C:\Users\Joche\Downloads\models";
-        
+
         private static async Task Main(string[] args)
         {
             await HashTables.TryLoadLatest();
@@ -27,7 +27,7 @@ namespace SimpleGltfTest
                 SearchOption.AllDirectories))
                 await SingleWad(file);
         }
-        
+
         private static async Task SingleWad(string path)
         {
             using var wad = new StringWad(path, true);
@@ -42,7 +42,8 @@ namespace SimpleGltfTest
                 await using var gltfAsset = await skin.GetGltfAsset();
                 if (gltfAsset == null)
                     continue;
-                await gltfAsset.Save(Path.Combine(Output, skin.Character, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
+                await gltfAsset.Save(Path.Combine(Output, skin.Character,
+                    $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
             }
         }
     }

@@ -1,6 +1,5 @@
 using System.IO;
 using System.Threading.Tasks;
-using LeagueConvert.Helpers;
 using LeagueConvert.IO.WadFile;
 using LeagueToolkit.IO.PropertyBin;
 

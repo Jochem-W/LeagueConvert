@@ -1,5 +1,4 @@
 using System;
-using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -125,10 +124,7 @@ namespace SimpleGltf.Json.Extensions
 
             await WriteChunk(binaryWriter, gltfAsset);
 
-            foreach (var buffer in gltfAsset.Buffers)
-            {
-                await WriteChunk(binaryWriter, "BIN", buffer.MemoryStream);
-            }
+            foreach (var buffer in gltfAsset.Buffers) await WriteChunk(binaryWriter, "BIN", buffer.MemoryStream);
 
             binaryWriter.Seek(8, SeekOrigin.Begin);
             binaryWriter.Write((uint) binaryWriter.BaseStream.Length);
