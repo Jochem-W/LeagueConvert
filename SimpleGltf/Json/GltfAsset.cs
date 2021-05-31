@@ -15,7 +15,7 @@ namespace SimpleGltf.Json
 
         public IList<Accessor> Accessors { get; internal set; }
 
-        //public IList<Animation> Animations { get; internal set; }
+        public IList<Animation> Animations { get; internal set; }
 
         public Asset Asset { get; internal set; }
 

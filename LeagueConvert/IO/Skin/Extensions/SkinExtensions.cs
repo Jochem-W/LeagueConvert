@@ -211,11 +211,9 @@ namespace LeagueConvert.IO.Skin.Extensions
 
             if (!skin.State.HasFlag(SkinState.AnimationsLoaded))
                 return gltfAsset;
-
-            /*
+            
+            
             //ANIMATIONS
-            var inputBufferView = gltfAsset.CreateBufferView(buffer);
-            var trackBufferView = gltfAsset.CreateBufferView(buffer);
             foreach (var (name, animation) in skin.Animations)
             {
                 var gltfAnimation = gltfAsset.CreateAnimation(name);
@@ -237,61 +235,51 @@ namespace LeagueConvert.IO.Skin.Extensions
                         continue;
                     var trackPositionAmongSameId = tracksWithSameId.IndexOf(track);
                     var mostLikelyJoint = jointsWithSameId[trackPositionAmongSameId];
+                    var inputBufferViewA = buffer.CreateBufferView(name: "input");
+                    var inputBufferViewB = buffer.CreateBufferView(name: "input");
+                    var inputBufferViewC = buffer.CreateBufferView(name: "input");
+                    var trackBufferViewA = buffer.CreateBufferView(name: "track");
+                    var trackBufferViewB = buffer.CreateBufferView(name: "track");
+                    var trackBufferViewC = buffer.CreateBufferView(name: "track");
 
 
-                    trackBufferView.StartAccessorGroup();
-                    inputBufferView.StartAccessorGroup();
-                    
-
-                    var translationInputAccessor = gltfAsset
-                        .CreateAccessor(ComponentType.Float, AccessorType.Scalar, minMax: true)
-                        .SetBufferView(inputBufferView);
-                    var translationOutputAccessor = gltfAsset
-                        .CreateAccessor(ComponentType.Float, AccessorType.Vec3)
-                        .SetBufferView(trackBufferView);
+                    var translationInputAccessor = inputBufferViewA.CreateAccessor<float>(AccessorType.Scalar, true);
+                    var translationOutputAccessor = trackBufferViewA.CreateAccessor<float>(AccessorType.Vec3);
                     var translationSampler = gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
                     var translationTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Translation);
                     gltfAnimation.CreateChannel(translationSampler, translationTarget);
                     foreach (var (time, translation) in track.Translations)
                     {
-                        translationOutputAccessor.WriteElement(translation.X, translation.Y, translation.Z);
-                        translationInputAccessor.WriteElement(time);
+                        translationOutputAccessor.Write(translation.X, translation.Y, translation.Z);
+                        translationInputAccessor.Write(time);
                     }
                     
 
-                    var rotationInputAccessor = gltfAsset
-                        .CreateAccessor(ComponentType.Float, AccessorType.Scalar, minMax: true)
-                        .SetBufferView(inputBufferView);
-                    var rotationOutputAccessor = gltfAsset
-                        .CreateAccessor(ComponentType.Float, AccessorType.Vec4)
-                        .SetBufferView(trackBufferView);
+                    var rotationInputAccessor = inputBufferViewB.CreateAccessor<float>(AccessorType.Scalar, true);
+                    var rotationOutputAccessor = trackBufferViewB.CreateAccessor<float>(AccessorType.Vec4);
                     var rotationSampler = gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
                     var rotationTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Rotation);
                     gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
                     foreach (var (time, rotation) in track.Rotations)
                     {
                         var normalized = rotation.Length() is 1f ? rotation : Quaternion.Normalize(rotation);
-                        rotationOutputAccessor.WriteElement(normalized.X, normalized.Y, normalized.Z, normalized.W);
-                        rotationInputAccessor.WriteElement(time);
+                        rotationOutputAccessor.Write(normalized.X, normalized.Y, normalized.Z, normalized.W);
+                        rotationInputAccessor.Write(time);
                     }
 
 
-                    var scaleInputAccessor = gltfAsset
-                        .CreateAccessor(ComponentType.Float, AccessorType.Scalar, minMax: true)
-                        .SetBufferView(inputBufferView);
-                    var scaleOutputAccessor = gltfAsset
-                        .CreateAccessor(ComponentType.Float, AccessorType.Vec3)
-                        .SetBufferView(trackBufferView);
+                    var scaleInputAccessor = inputBufferViewC.CreateAccessor<float>(AccessorType.Scalar, true);
+                    var scaleOutputAccessor = trackBufferViewC.CreateAccessor<float>(AccessorType.Vec3);
                     var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
                     var scaleTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Scale);
                     gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
                     foreach (var (time, scale) in track.Scales)
                     {
-                        scaleOutputAccessor.WriteElement(scale.X, scale.Y, scale.Z);
-                        scaleInputAccessor.WriteElement(time);
+                        scaleOutputAccessor.Write(scale.X, scale.Y, scale.Z);
+                        scaleInputAccessor.Write(time);
                     }
                 }
-            }*/
+            }
 
             return gltfAsset;
         }

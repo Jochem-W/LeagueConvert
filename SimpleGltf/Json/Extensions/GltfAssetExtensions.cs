@@ -19,10 +19,10 @@ namespace SimpleGltf.Json.Extensions
             IgnoreNullValues = true
         };
 
-        /*public static Animation CreateAnimation(this GltfAsset gltfAsset, string name = null)
+        public static Animation CreateAnimation(this GltfAsset gltfAsset, string name = null)
         {
-            return new(gltfAsset) {Name = name};
-        }*/
+            return new(gltfAsset, name);
+        }
 
         public static Asset CreateAsset(this GltfAsset gltfAsset, string copyright = null)
         {
