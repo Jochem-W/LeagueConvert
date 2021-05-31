@@ -82,10 +82,9 @@ namespace LeagueConvert.IO.Skin
 
         private async Task<bool> TryLoadMesh(ILogger logger = null)
         {
-            Stream stream = null;
             try
             {
-                stream = _parent.GetEntryByName(_simpleSkinFile).GetStream();
+                await using var stream = _parent.GetEntryByName(_simpleSkinFile).GetStream();
                 SimpleSkin = new SimpleSkin(stream);
                 State |= SkinState.MeshLoaded;
                 return true;
@@ -95,11 +94,6 @@ namespace LeagueConvert.IO.Skin
                 logger?.Warning(e, "Couldn't load mesh '{File}'", _simpleSkinFile);
                 State = 0;
                 return false;
-            }
-            finally
-            {
-                if (stream != null)
-                    await stream.DisposeAsync();
             }
         }
 
@@ -146,10 +140,9 @@ namespace LeagueConvert.IO.Skin
 
         private async Task<bool> TryLoadSkeleton(ILogger logger = null)
         {
-            Stream stream = null;
             try
             {
-                stream = _parent.GetEntryByName(_skeletonFile).GetStream();
+                await using var stream = _parent.GetEntryByName(_skeletonFile).GetStream();
                 Skeleton = new Skeleton(stream);
                 State |= SkinState.SkeletonLoaded;
                 return true;
@@ -158,11 +151,6 @@ namespace LeagueConvert.IO.Skin
             {
                 logger?.Warning(e, "Couldn't load skeleton '{File}'", _skeletonFile);
                 return false;
-            }
-            finally
-            {
-                if (stream != null)
-                    await stream.DisposeAsync();
             }
         }
 

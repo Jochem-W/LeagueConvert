@@ -17,9 +17,8 @@ namespace LeagueConvert.IO.PropertyBin
 
         public static async Task<ParentedBinTree> FromWadEntry(ParentedWadEntry entry)
         {
-            var stream = await entry.GetStream().Version3ToVersion2();
+            await using var stream = entry.GetStream();
             var binTree = new ParentedBinTree(entry.Parent, stream);
-            await stream.DisposeAsync();
             return binTree;
         }
     }
