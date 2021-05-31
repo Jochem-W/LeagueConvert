@@ -1,42 +1,36 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using SimpleGltf.Json.Extensions;
+using SimpleGltf.Enums;
 
 namespace SimpleGltf.Json
 {
     public class BufferView
     {
-        private const int DefaultByteOffset = 0;
-        private readonly GltfAsset _gltfAsset;
-
         internal readonly Buffer Buffer;
-        internal IList<IList<Accessor>> AccessorGroups;
-
-        internal BufferView(GltfAsset gltfAsset, Buffer buffer)
+        internal readonly GltfAsset GltfAsset;
+        
+        internal BufferView(Buffer buffer, BufferViewTarget target, string name)
         {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.BufferViews ??= new List<BufferView>();
-            _gltfAsset.BufferViews.Add(this);
             Buffer = buffer;
-            Buffer.BufferViews ??= new List<BufferView>();
-            Buffer.BufferViews.Add(this);
+            GltfAsset = buffer.GltfAsset;
+            GltfAsset.BufferViews ??= new List<BufferView>();
+            GltfAsset.BufferViews.Add(this);
+            Target = target;
+            Name = name;
         }
 
-        [JsonPropertyName("buffer")] public int BufferReference => _gltfAsset.Buffers.IndexOf(Buffer);
+        [JsonPropertyName("buffer")]
+        public int BufferReference => GltfAsset.Buffers.IndexOf(Buffer);
 
-        public int? ByteOffset
-        {
-            get
-            {
-                var beforeCount = Buffer.BufferViews.IndexOf(this);
-                if (beforeCount == 0)
-                    return null;
-                var lastBefore = Buffer.BufferViews.Take(beforeCount).Last();
-                return lastBefore.ByteOffset + lastBefore.ByteLength;
-            }
-        }
+        public int ByteOffset { get; internal set; }
 
-        public int ByteLength => AccessorGroups.Sum(group => (int) group.GetByteLength());
+        public int ByteLength { get; internal set; }
+
+        public int? ByteStride { get; internal set; }
+
+        public BufferViewTarget Target { get; }
+        
+        public string Name { get; }
     }
 }

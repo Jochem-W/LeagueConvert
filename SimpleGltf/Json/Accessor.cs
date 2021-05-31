@@ -1,43 +1,93 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using SimpleGltf.Converters;
 using SimpleGltf.Enums;
+using SimpleGltf.Extensions;
 using SimpleGltf.Json.Converters;
-using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json
 {
-    public class Accessor : IAsyncDisposable
+    public class Accessor
     {
-        private readonly GltfAsset _gltfAsset;
-        internal IList<dynamic> Element;
-        
-        internal readonly BinaryWriter BinaryWriter;
+        internal readonly BufferView BufferView;
+        internal readonly int ComponentCount;
+        internal readonly int ComponentTypeSize;
         internal readonly int ElementSize;
+        internal readonly bool MinMax;
+        internal readonly GltfAsset GltfAsset;
+        internal List<dynamic> Values;
 
-        internal Accessor(GltfAsset gltfAsset, ComponentType componentType, AccessorType type)
+        internal Accessor(BufferView bufferView, ComponentType componentType, AccessorType type, bool minMax,
+            bool normalized, string name)
         {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Accessors ??= new List<Accessor>();
-            _gltfAsset.Accessors.Add(this);
+            BufferView = bufferView;
+            GltfAsset = BufferView.GltfAsset;
+            GltfAsset.Accessors ??= new List<Accessor>();
+            GltfAsset.Accessors.Add(this);
             ComponentType = componentType;
             Type = type;
-            BinaryWriter = new BinaryWriter(new MemoryStream());
-            this.GetElementCountAndSize(out _, out ElementSize);
+            if (normalized)
+                Normalized = true;
+            Name = name;
+            ComponentCount = Type.GetColumns() * Type.GetRows();
+            ComponentTypeSize = ComponentType.GetSize();
+            ElementSize = ComponentCount * ComponentTypeSize;
+            MinMax = minMax;
         }
         
-        [JsonConverter(typeof(ComponentTypeConverter))] public ComponentType ComponentType { get; }
+        [JsonPropertyName("bufferView")]
+        public int BufferViewReference => GltfAsset.BufferViews.IndexOf(BufferView);
 
+        public int? ByteOffset { get; internal set; }
+        
+        public ComponentType ComponentType { get; }
+
+        public bool? Normalized { get; }
+        
         public int Count { get; internal set; }
-        
+
         [JsonConverter(typeof(AccessorTypeConverter))] public AccessorType Type { get; }
-        
-        public ValueTask DisposeAsync()
+
+        public IList<dynamic> Max
         {
-            return BinaryWriter.DisposeAsync();
+            get
+            {
+                if (!MinMax)
+                    return null;
+                var value = Values.Batch(ComponentCount).First();
+                foreach (var element in Values.Batch(ComponentCount).Skip(1))
+                    for (var i = 0; i < ComponentCount; i++)
+                        if (element[i] > value[i])
+                            value[i] = element[i];
+                return value;
+            }
+        }
+
+        public IList<dynamic> Min
+        {
+            get
+            {
+                if (!MinMax)
+                    return null;
+                var value = Values.Batch(ComponentCount).First();
+                foreach (var element in Values.Batch(ComponentCount).Skip(1))
+                    for (var i = 0; i < ComponentCount; i++)
+                        if (element[i] < value[i])
+                            value[i] = element[i];
+                return value;
+            }
+        }
+
+        public string Name { get; }
+    }
+    
+    public class Accessor<T> : Accessor where T : struct, IComparable
+    {
+        internal Accessor(BufferView bufferView, AccessorType type, bool minMax, bool normalized, string name) : base(
+            bufferView, typeof(T).GetComponentType(), type, minMax, normalized, name)
+        {
+            Values = new List<dynamic>();
         }
     }
 }

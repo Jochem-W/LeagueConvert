@@ -81,45 +81,35 @@ namespace LeagueConvert.IO.Skin.Extensions
             gltfAsset.Scene = gltfAsset.CreateScene();
             var node = gltfAsset.CreateNode();
             gltfAsset.Scene.Nodes = new List<Node> {node};
-            var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
+            //var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
             node.Mesh = gltfAsset.CreateMesh();
             var buffer = gltfAsset.CreateBuffer();
-            var textures = new Dictionary<IMagickImage, Texture>();
-            var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
+            //var textures = new Dictionary<IMagickImage, Texture>();
             foreach (var subMesh in skin.SimpleSkin.Submeshes)
             {
-                attributesBufferView.StartAccessorGroup();
-                var positionAccessor = gltfAsset
-                    .CreateAccessor(ComponentType.Float, AccessorType.Vec3, minMax: true)
-                    .SetBufferView(attributesBufferView);
-                var normalAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec3)
-                    .SetBufferView(attributesBufferView);
-                var uvAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec2)
-                    .SetBufferView(attributesBufferView);
-                Accessor colourAccessor = null;
+                var attributesBufferView = buffer.CreateBufferView(BufferViewTarget.ArrayBuffer);
+                var positionAccessor = attributesBufferView.CreateAccessor<float>(AccessorType.Vec3, true);
+                var normalAccessor =attributesBufferView.CreateAccessor<float>(AccessorType.Vec3, true);
+                var uvAccessor = attributesBufferView.CreateAccessor<float>(AccessorType.Vec2, true);
+                Accessor<float> colourAccessor = null;
                 if (subMesh.Vertices.All(vertex => vertex.Color != null))
-                    colourAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
-                        .SetBufferView(attributesBufferView);
+                    colourAccessor = attributesBufferView.CreateAccessor<float>(AccessorType.Vec4, true);
 
                 //SKELETON
-                Accessor jointsAccessor = null;
-                Accessor weightsAccessor = null;
+                Accessor<ushort> jointsAccessor = null;
+                Accessor<float> weightsAccessor = null;
                 if (skin.State.HasFlag(SkinState.SkeletonLoaded))
                 {
-                    jointsAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Vec4)
-                        .SetBufferView(attributesBufferView);
-                    weightsAccessor = gltfAsset.CreateAccessor(ComponentType.Float, AccessorType.Vec4)
-                        .SetBufferView(attributesBufferView);
+                    jointsAccessor = attributesBufferView.CreateAccessor<ushort>(AccessorType.Vec4, true);
+                    weightsAccessor = attributesBufferView.CreateAccessor<float>(AccessorType.Vec4, true);
                 }
 
-                var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
-                indicesBufferView.StartAccessorGroup();
-                var indicesAccessor = gltfAsset.CreateAccessor(ComponentType.UShort, AccessorType.Scalar)
-                    .SetBufferView(indicesBufferView);
+                var indicesBufferView = buffer.CreateBufferView(BufferViewTarget.ElementArrayBuffer);
+                var indicesAccessor = indicesBufferView.CreateAccessor<ushort>(AccessorType.Scalar);
                 var primitive = node.Mesh.CreatePrimitive();
                 primitive.Indices = indicesAccessor;
                 foreach (var index in subMesh.Indices)
-                    indicesAccessor.WriteElement(index);
+                    indicesAccessor.Write(index);
                 primitive.SetAttribute("POSITION", positionAccessor);
                 primitive.SetAttribute("NORMAL", normalAccessor);
                 primitive.SetAttribute("TEXCOORD_0", uvAccessor);
@@ -136,13 +126,13 @@ namespace LeagueConvert.IO.Skin.Extensions
                     primitive.SetAttribute("COLOR_0", colourAccessor);
                 foreach (var vertex in subMesh.Vertices)
                 {
-                    positionAccessor.WriteElement(vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
-                    normalAccessor.WriteElement(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
-                    uvAccessor.WriteElement(vertex.UV.X, vertex.UV.Y);
-                    colourAccessor?.WriteElement(vertex.Color!.Value.R, vertex.Color.Value.G,
+                    positionAccessor.Write(vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
+                    normalAccessor.Write(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+                    uvAccessor.Write(vertex.UV.X, vertex.UV.Y);
+                    colourAccessor?.Write(vertex.Color!.Value.R, vertex.Color.Value.G,
                         vertex.Color.Value.B,
                         vertex.Color.Value.A);
-                    weightsAccessor?.WriteElement(vertex.Weights[0], vertex.Weights[1], vertex.Weights[2],
+                    weightsAccessor?.Write(vertex.Weights[0], vertex.Weights[1], vertex.Weights[2],
                         vertex.Weights[3]);
                     if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
                         continue;
@@ -161,10 +151,10 @@ namespace LeagueConvert.IO.Skin.Extensions
                         actualJoints.Add((ushort) skin.Skeleton.Influences[vertex.BoneIndices[i]]);
                     }
 
-                    jointsAccessor.WriteElement(actualJoints.Cast<dynamic>().ToArray());
+                    jointsAccessor.Write(actualJoints.ToArray());
                 }
 
-
+                /*
                 //MATERIALS
                 var material = gltfAsset.CreateMaterial(name: subMesh.Name);
                 primitive.Material = material;
@@ -184,10 +174,10 @@ namespace LeagueConvert.IO.Skin.Extensions
                 var image = await gltfAsset.CreateImage(imageBufferView, magickImage);
                 var texture = gltfAsset.CreateTexture(sampler, image);
                 textures[magickImage] = texture;
-                pbrMetallicRoughness.SetBaseColorTexture(texture);
+                pbrMetallicRoughness.SetBaseColorTexture(texture);*/
             }
 
-
+            /*
             //SKELETON
             if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
                 return gltfAsset;
@@ -305,7 +295,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                         scaleInputAccessor.WriteElement(time);
                     }
                 }
-            }
+            }*/
 
             return gltfAsset;
         }

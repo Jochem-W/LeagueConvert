@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace SimpleGltf.Json
 {
-    public class Channel
+    /*public class Channel
     {
         private readonly Animation _animation;
 
@@ -19,5 +19,5 @@ namespace SimpleGltf.Json
         [JsonPropertyName("sampler")] public int SamplerReference => _animation.Samplers.IndexOf(Sampler);
 
         public AnimationTarget Target { get; }
-    }
+    }*/
 }

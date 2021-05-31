@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace SimpleGltf.Json
 {
-    public class Animation
+    /*public class Animation
     {
         private readonly GltfAsset _gltfAsset;
 
@@ -20,5 +20,5 @@ namespace SimpleGltf.Json
         public IList<AnimationSampler> Samplers { get; }
 
         public string Name { get; set; }
-    }
+    }*/
 }

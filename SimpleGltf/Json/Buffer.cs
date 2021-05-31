@@ -1,43 +1,27 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json
 {
     public class Buffer
     {
-        private readonly GltfAsset _gltfAsset;
+        internal MemoryStream MemoryStream;
+        internal readonly GltfAsset GltfAsset;
 
-        internal IList<BufferView> BufferViews;
+        internal Buffer(GltfAsset gltfAsset, string name)
+        {
+            GltfAsset = gltfAsset;
+            GltfAsset.Buffers ??= new List<Buffer>();
+            GltfAsset.Buffers.Add(this);
+            Name = name;
+            MemoryStream = null;
+        }
         
-        internal Buffer(GltfAsset gltfAsset)
-        {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Buffers ??= new List<Buffer>();
-            _gltfAsset.Buffers.Add(this);
-        }
+        public string Uri { get; internal set; }
 
-        public int ByteLength => _gltfAsset.BufferViews
-            .Where(bufferView => bufferView.Buffer == this)
-            .Sum(bufferView => bufferView.ByteLength);
-
-        public async Task<Stream> GetStreamAsync()
-        {
-            var stream = new MemoryStream();
-            foreach (var bufferView in BufferViews)
-            foreach (var accessorGroup in bufferView.AccessorGroups)
-            {
-                var currentLength = stream.Length;
-                var bytesToWrite = accessorGroup.GetByteLength();
-                accessorGroup.Seek(0, SeekOrigin.Begin);
-                while (stream.Length - currentLength != bytesToWrite) 
-                    foreach (var accessor in accessorGroup) 
-                        await accessor.BinaryWriter.BaseStream.CopyToAsync(stream, accessor.ElementSize);
-            }
-
-            return stream;
-        }
+        public int ByteLength => (int) MemoryStream.Length;
+        
+        public string Name { get; }
     }
 }

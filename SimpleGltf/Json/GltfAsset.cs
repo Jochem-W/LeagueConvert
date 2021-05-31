@@ -15,7 +15,7 @@ namespace SimpleGltf.Json
 
         public IList<Accessor> Accessors { get; internal set; }
 
-        public IList<Animation> Animations { get; internal set; }
+        //public IList<Animation> Animations { get; internal set; }
 
         public Asset Asset { get; internal set; }
 
@@ -45,10 +45,10 @@ namespace SimpleGltf.Json
 
         public async ValueTask DisposeAsync()
         {
-            if (Accessors == null)
+            if (Buffers == null)
                 return;
-            foreach (var accessor in Accessors)
-                await accessor.DisposeAsync();
+            foreach (var buffer in Buffers)
+                await buffer.MemoryStream.DisposeAsync();
         }
     }
 }
