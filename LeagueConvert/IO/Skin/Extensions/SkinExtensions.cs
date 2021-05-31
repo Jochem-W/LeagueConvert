@@ -235,16 +235,13 @@ namespace LeagueConvert.IO.Skin.Extensions
                         continue;
                     var trackPositionAmongSameId = tracksWithSameId.IndexOf(track);
                     var mostLikelyJoint = jointsWithSameId[trackPositionAmongSameId];
-                    var inputBufferViewA = buffer.CreateBufferView(name: "input");
-                    var inputBufferViewB = buffer.CreateBufferView(name: "input");
-                    var inputBufferViewC = buffer.CreateBufferView(name: "input");
-                    var trackBufferViewA = buffer.CreateBufferView(name: "track");
-                    var trackBufferViewB = buffer.CreateBufferView(name: "track");
-                    var trackBufferViewC = buffer.CreateBufferView(name: "track");
+                    var translationBufferView = buffer.CreateBufferView();
+                    var rotationBufferView = buffer.CreateBufferView();
+                    var scaleBufferView = buffer.CreateBufferView();
 
 
-                    var translationInputAccessor = inputBufferViewA.CreateAccessor<float>(AccessorType.Scalar, true);
-                    var translationOutputAccessor = trackBufferViewA.CreateAccessor<float>(AccessorType.Vec3);
+                    var translationInputAccessor = translationBufferView.CreateAccessor<float>(AccessorType.Scalar, true);
+                    var translationOutputAccessor = translationBufferView.CreateAccessor<float>(AccessorType.Vec3);
                     var translationSampler = gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
                     var translationTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Translation);
                     gltfAnimation.CreateChannel(translationSampler, translationTarget);
@@ -255,8 +252,8 @@ namespace LeagueConvert.IO.Skin.Extensions
                     }
                     
 
-                    var rotationInputAccessor = inputBufferViewB.CreateAccessor<float>(AccessorType.Scalar, true);
-                    var rotationOutputAccessor = trackBufferViewB.CreateAccessor<float>(AccessorType.Vec4);
+                    var rotationInputAccessor = rotationBufferView.CreateAccessor<float>(AccessorType.Scalar, true);
+                    var rotationOutputAccessor = rotationBufferView.CreateAccessor<float>(AccessorType.Vec4);
                     var rotationSampler = gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
                     var rotationTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Rotation);
                     gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
@@ -268,8 +265,8 @@ namespace LeagueConvert.IO.Skin.Extensions
                     }
 
 
-                    var scaleInputAccessor = inputBufferViewC.CreateAccessor<float>(AccessorType.Scalar, true);
-                    var scaleOutputAccessor = trackBufferViewC.CreateAccessor<float>(AccessorType.Vec3);
+                    var scaleInputAccessor = scaleBufferView.CreateAccessor<float>(AccessorType.Scalar, true);
+                    var scaleOutputAccessor = scaleBufferView.CreateAccessor<float>(AccessorType.Vec3);
                     var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
                     var scaleTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Scale);
                     gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
