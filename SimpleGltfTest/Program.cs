@@ -30,7 +30,7 @@ namespace SimpleGltfTest
         
         private static async Task SingleWad(string path)
         {
-            using var wad = new StringWad(path);
+            using var wad = new StringWad(path, true);
             await Convert(wad);
         }
 
