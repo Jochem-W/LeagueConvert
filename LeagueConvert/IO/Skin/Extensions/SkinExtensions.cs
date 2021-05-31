@@ -177,25 +177,21 @@ namespace LeagueConvert.IO.Skin.Extensions
                 pbrMetallicRoughness.SetBaseColorTexture(texture);*/
             }
 
-            /*
+            
             //SKELETON
             if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
                 return gltfAsset;
             var skeletonRootNode = gltfAsset.CreateNode();
             gltfAsset.Scene.Nodes.Add(skeletonRootNode);
-            var inverseBindMatricesBufferView = gltfAsset.CreateBufferView(buffer);
-            inverseBindMatricesBufferView.StartAccessorGroup();
-            var inverseBindMatricesAccessor = gltfAsset
-                .CreateAccessor(ComponentType.Float, AccessorType.Mat4)
-                .SetBufferView(inverseBindMatricesBufferView);
+            var inverseBindMatricesBufferView = buffer.CreateBufferView();
+            var inverseBindMatricesAccessor = inverseBindMatricesBufferView.CreateAccessor<float>(AccessorType.Mat4);
             var joints = new Dictionary<SkeletonJoint, Node>();
             foreach (var skeletonJoint in skin.Skeleton.Joints)
             {
-                inverseBindMatricesAccessor.WriteElement(skeletonJoint.InverseBindTransform
+                inverseBindMatricesAccessor.Write(skeletonJoint.InverseBindTransform
                     .FixInverseBindMatrix()
                     .Transpose()
                     .GetValues()
-                    .Cast<dynamic>()
                     .ToArray());
                 var jointNode = gltfAsset.CreateNode(skeletonJoint.LocalTransform, skeletonJoint.Name);
                 joints[skeletonJoint] = jointNode;
@@ -216,7 +212,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             if (!skin.State.HasFlag(SkinState.AnimationsLoaded))
                 return gltfAsset;
 
-
+            /*
             //ANIMATIONS
             var inputBufferView = gltfAsset.CreateBufferView(buffer);
             var trackBufferView = gltfAsset.CreateBufferView(buffer);

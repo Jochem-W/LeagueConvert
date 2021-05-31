@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 using SimpleGltf.Helpers;
 
@@ -13,7 +14,20 @@ namespace SimpleGltf.Json.Extensions
     {
         public static void Write<T>(this Accessor<T> accessor, params T[] components) where T : struct, IComparable
         {
-            accessor.Values.AddRange(components.Cast<dynamic>());
+            if (accessor.Type != AccessorType.Mat2 &&
+                accessor.Type != AccessorType.Mat3 &&
+                accessor.Type != AccessorType.Mat4)
+            {
+                accessor.Values.AddRange(components.Cast<dynamic>());
+                accessor.Count++;
+                return;
+            }
+
+            var rows = accessor.Type.GetRows();
+            var columns = accessor.Type.GetColumns();
+            for (var i = 0; i < columns; i++)
+            for (var j = 0; j < rows; j++)
+                accessor.Values.Add(components[rows * j + i]);
             accessor.Count++;
         }
 

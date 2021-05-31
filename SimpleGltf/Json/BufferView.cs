@@ -10,7 +10,7 @@ namespace SimpleGltf.Json
         internal readonly Buffer Buffer;
         internal readonly GltfAsset GltfAsset;
         
-        internal BufferView(Buffer buffer, BufferViewTarget target, string name)
+        internal BufferView(Buffer buffer, BufferViewTarget? target, string name)
         {
             Buffer = buffer;
             GltfAsset = buffer.GltfAsset;
@@ -29,7 +29,7 @@ namespace SimpleGltf.Json
 
         public int? ByteStride { get; internal set; }
 
-        public BufferViewTarget Target { get; }
+        public BufferViewTarget? Target { get; }
         
         public string Name { get; }
     }
