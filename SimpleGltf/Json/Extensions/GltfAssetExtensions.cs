@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ImageMagick;
@@ -126,7 +125,8 @@ namespace SimpleGltf.Json.Extensions
 
             await WriteChunk(binaryWriter, gltfAsset);
 
-            foreach (var buffer in gltfAsset.Buffers) await WriteChunk(binaryWriter, "BIN", buffer.BinaryWriter.BaseStream);
+            foreach (var buffer in gltfAsset.Buffers)
+                await WriteChunk(binaryWriter, "BIN", buffer.BinaryWriter.BaseStream);
 
             binaryWriter.Seek(8, SeekOrigin.Begin);
             binaryWriter.Write((uint) binaryWriter.BaseStream.Length);
@@ -236,7 +236,8 @@ namespace SimpleGltf.Json.Extensions
                         }
                     }
 
-                    bufferView.ByteLength = (int) (buffer.BinaryWriter.BaseStream.Position - bufferView.ByteOffset.GetValueOrDefault());
+                    bufferView.ByteLength = (int) (buffer.BinaryWriter.BaseStream.Position -
+                                                   bufferView.ByteOffset.GetValueOrDefault());
                 }
             }
         }

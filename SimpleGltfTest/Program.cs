@@ -17,8 +17,8 @@ namespace SimpleGltfTest
             await HashTables.TryLoadLatest();
             if (Directory.Exists(Output))
                 Directory.Delete(Output, true);
-            //await AllWads(@"C:\Riot Games\League of Legends");
-            await SingleWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Aatrox.wad.client");
+            await AllWads(@"C:\Riot Games\League of Legends");
+            //await SingleWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Aatrox.wad.client");
         }
 
         private static async Task AllWads(string path)

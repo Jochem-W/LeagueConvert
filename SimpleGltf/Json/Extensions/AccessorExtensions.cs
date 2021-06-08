@@ -63,7 +63,7 @@ namespace SimpleGltf.Json.Extensions
                 accessor.ByteOffset = offset;
                 bytesBefore = offset + accessor.ElementSize;
             }
-            
+
             accessorList[0].BufferView.ByteStride = bytesBefore;
         }
     }
