@@ -40,11 +40,8 @@ namespace LeagueConvert.IO.WadFile
         public ParentedWadEntry GetEntryByName(string name)
         {
             if (name == null)
-                throw new NotImplementedException();
-            var entry = Entries.FirstOrDefault(pair => pair.Key == name.ToLower()).Value;
-            if (entry == null)
-                throw new NotImplementedException();
-            return entry;
+                throw new ArgumentException("Name cannot be null", nameof(name));
+            return Entries.FirstOrDefault(pair => pair.Key == name.ToLower()).Value;
         }
 
         public async IAsyncEnumerable<Skin.Skin> GetSkins(ILogger logger = null)

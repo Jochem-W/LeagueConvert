@@ -41,8 +41,10 @@ namespace SimpleGltf.Json.Extensions
         public static async Task<Image> CreateImage(this GltfAsset gltfAsset, BufferView bufferView,
             IMagickImage magickImage, string name = null)
         {
-            if (bufferView.PngStream != null || bufferView.GetAccessors().Any())
-                throw new NotImplementedException();
+            if (bufferView.GetAccessors().Any())
+                throw new ArgumentException("BufferView can't be referenced by accessors", nameof(bufferView));
+            if (bufferView.PngStream != null)
+                await bufferView.PngStream.DisposeAsync();
             bufferView.PngStream = new MemoryStream();
             await magickImage.WriteAsync(bufferView.PngStream, MagickFormat.Png);
             bufferView.PngStream.Seek(0, SeekOrigin.Begin);
@@ -223,14 +225,18 @@ namespace SimpleGltf.Json.Extensions
                         }
                         case 0:
                         {
-                            if (bufferView.PngStream == null)
-                                throw new NotImplementedException();
-                            await bufferView.PngStream.CopyToAsync(buffer.BinaryWriter.BaseStream);
+                            if (bufferView.PngStream != null)
+                            {
+                                await bufferView.PngStream.CopyToAsync(buffer.BinaryWriter.BaseStream);
+                                break;
+                            }
+
+                            gltfAsset.BufferViews.Remove(bufferView);
                             break;
                         }
                     }
 
-                    bufferView.ByteLength = (int) (buffer.BinaryWriter.BaseStream.Position - bufferView.ByteOffset);
+                    bufferView.ByteLength = (int) (buffer.BinaryWriter.BaseStream.Position - bufferView.ByteOffset.GetValueOrDefault());
                 }
             }
         }

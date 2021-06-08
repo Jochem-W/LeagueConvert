@@ -52,7 +52,7 @@ namespace SimpleGltf.Json.Extensions
         {
             var accessorList = accessors.ToList();
             if (accessorList.Select(accessor => accessor.BufferView).Distinct().Count() > 1)
-                throw new NotImplementedException(); // multiple bufferViews
+                throw new ArgumentException("Supplied accessors need to use the same bufferView", nameof(accessors));
             var bytesBefore = 0;
             foreach (var accessor in accessorList)
             {
