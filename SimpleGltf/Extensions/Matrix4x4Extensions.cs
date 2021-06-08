@@ -18,7 +18,7 @@ namespace SimpleGltf.Extensions
 
         public static Matrix4x4 FixInverseBindMatrix(this Matrix4x4 matrix)
         {
-            return Matrix4x4.Multiply(matrix, 1 / matrix.M44);
+            return matrix * (1 / matrix.M44);
         }
 
         public static Matrix4x4 Transpose(this Matrix4x4 matrix)

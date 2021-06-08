@@ -6,7 +6,6 @@ using ImageMagick;
 using LeagueConvert.Enums;
 using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.IO.SimpleSkinFile;
-using LeagueToolkit.IO.SkeletonFile;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 using SimpleGltf.Json;
@@ -20,8 +19,6 @@ namespace LeagueConvert.IO.Skin.Extensions
         {
             if (skin.State.HasFlag(SkinState.MeshLoaded))
                 FixMesh(skin);
-            if (skin.State.HasFlag(SkinState.SkeletonLoaded))
-                FixSkeleton(skin);
         }
 
         private static void FixMesh(Skin skin)
@@ -59,15 +56,6 @@ namespace LeagueConvert.IO.Skin.Extensions
             else if (float.IsNegativeInfinity(vertex.UV.Y))
                 y = float.MinValue;
             vertex.UV = new Vector2(x, y);
-        }
-
-        private static void FixSkeleton(Skin skin)
-        {
-            //TODO: fix NaN inverse bind matrices
-            foreach (var joint in skin.Skeleton.Joints)
-                if (float.IsNaN(joint.InverseBindTransform.M11))
-                {
-                }
         }
 
         public static async Task<GltfAsset> GetGltfAsset(this Skin skin)
@@ -184,7 +172,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             gltfAsset.Scene.Nodes.Add(skeletonRootNode);
             var inverseBindMatricesBufferView = buffer.CreateBufferView();
             var inverseBindMatricesAccessor = inverseBindMatricesBufferView.CreateAccessor<float>(AccessorType.Mat4);
-            var joints = new Dictionary<SkeletonJoint, Node>();
+            var joints = new Dictionary<Joint, Node>();
             foreach (var skeletonJoint in skin.Skeleton.Joints)
             {
                 inverseBindMatricesAccessor.Write(skeletonJoint.InverseBindTransform
@@ -201,9 +189,9 @@ namespace LeagueConvert.IO.Skin.Extensions
             gltfSkin.InverseBindMatrices = inverseBindMatricesAccessor;
             foreach (var (skeletonJoint, jointNode) in joints)
             {
-                var (_, parentNode) = joints.FirstOrDefault(pair => pair.Key.ID == skeletonJoint.ParentID);
+                var (_, parentNode) = joints.FirstOrDefault(pair => pair.Key.Id == skeletonJoint.ParentId);
                 parentNode?.AddChild(jointNode);
-                if (skeletonJoint.ParentID == -1)
+                if (skeletonJoint.ParentId == -1)
                     skeletonRootNode.AddChild(jointNode);
                 gltfSkin.Joints.Add(jointNode);
             }
