@@ -44,9 +44,6 @@ but it's not done yet. Check the 'vnext' branch for more information.
 * **Save as separate files (.gltf)**: save the model as a .gltf, with separate
   .bin and .png files
 
-* **Read version 3 binary files \[EXPERIMENTAL\]**: temporary workaround to
-  allow LeagueBulkConvert to work with newer League versions
-
 ## Troubleshooting
 
 ### Why are some skins not converted?
