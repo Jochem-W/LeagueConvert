@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
-using SimpleGltf.Helpers;
 
 namespace SimpleGltf.Json.Extensions
 {
@@ -36,29 +35,36 @@ namespace SimpleGltf.Json.Extensions
                 binaryWriter.Write(accessor.Values[i + offset]);
         }
 
-        internal static StrideHelper GetStride(this IEnumerable<Accessor> accessors, bool vertexAttributes)
+        internal static void CalculateOffset(this Accessor accessor)
         {
-            var stride = new StrideHelper();
-            foreach (var accessor in accessors)
+            int offset;
+            if (accessor.BufferView.Target == BufferViewTarget.ArrayBuffer ||
+                accessor.Type is AccessorType.Mat2 or AccessorType.Mat3 or AccessorType.Mat4)
+                offset = accessor.BufferView.ByteOffset.GetValueOrDefault().GetOffset(4);
+            else
+                offset = accessor.BufferView.ByteOffset.GetValueOrDefault().GetOffset(accessor.ComponentTypeLength);
+            if (offset == 0)
+                return;
+            accessor.BufferView.ByteOffset += offset;
+        }
+
+        internal static void CalculateStride(this IEnumerable<Accessor> accessors)
+        {
+            var accessorList = accessors.ToList();
+            if (accessorList.Select(accessor => accessor.BufferView).Distinct().Count() > 1)
+                throw new NotImplementedException(); // multiple bufferViews
+            var bytesBefore = 0;
+            foreach (var accessor in accessorList)
             {
-                if (vertexAttributes)
-                {
-                    stride.Lengths.Add(accessor.ElementSize + accessor.ElementSize.GetOffset());
-                    continue;
-                }
-
-                stride.Lengths.Add(accessor.ElementSize);
+                var offset = bytesBefore;
+                if (accessor.BufferView.Target == BufferViewTarget.ArrayBuffer ||
+                    accessor.Type is AccessorType.Mat2 or AccessorType.Mat3 or AccessorType.Mat4)
+                    offset += bytesBefore.GetOffset(4);
+                accessor.ByteOffset = offset;
+                bytesBefore = offset + accessor.ElementSize;
             }
-
-            stride.Total = stride.Lengths.Sum();
-            var offset = 0;
-            foreach (var length in stride.Lengths)
-            {
-                stride.Offsets.Add(offset);
-                offset += length;
-            }
-
-            return stride;
+            
+            accessorList[0].BufferView.ByteStride = bytesBefore;
         }
     }
 }

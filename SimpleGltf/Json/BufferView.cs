@@ -23,7 +23,7 @@ namespace SimpleGltf.Json
 
         [JsonPropertyName("buffer")] public int BufferReference => GltfAsset.Buffers.IndexOf(Buffer);
 
-        public int ByteOffset { get; internal set; }
+        public int? ByteOffset { get; internal set; }
 
         public int ByteLength { get; internal set; }
 

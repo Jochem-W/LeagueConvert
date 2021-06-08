@@ -124,7 +124,7 @@ namespace SimpleGltf.Json.Extensions
 
             await WriteChunk(binaryWriter, gltfAsset);
 
-            foreach (var buffer in gltfAsset.Buffers) await WriteChunk(binaryWriter, "BIN", buffer.MemoryStream);
+            foreach (var buffer in gltfAsset.Buffers) await WriteChunk(binaryWriter, "BIN", buffer.BinaryWriter.BaseStream);
 
             binaryWriter.Seek(8, SeekOrigin.Begin);
             binaryWriter.Write((uint) binaryWriter.BaseStream.Length);
@@ -142,7 +142,7 @@ namespace SimpleGltf.Json.Extensions
             var start = binaryWriter.BaseStream.Position;
             data.Seek(0, SeekOrigin.Begin);
             await data.CopyToAsync(binaryWriter.BaseStream);
-            binaryWriter.Write(new byte[binaryWriter.BaseStream.Position.GetOffset()]);
+            binaryWriter.Write(new byte[binaryWriter.BaseStream.Position.GetOffset(4)]);
             var end = binaryWriter.BaseStream.Position;
             var length = end - start;
             binaryWriter.Seek((int) headerStart, SeekOrigin.Begin);
@@ -157,7 +157,7 @@ namespace SimpleGltf.Json.Extensions
             binaryWriter.Write("JSON".ToMagic());
             var start = binaryWriter.BaseStream.Position;
             await JsonSerializer.SerializeAsync(binaryWriter.BaseStream, gltfAsset, JsonSerializerOptions);
-            var offset = binaryWriter.BaseStream.Position.GetOffset();
+            var offset = binaryWriter.BaseStream.Position.GetOffset(4);
             for (var i = 0; i < offset; i++)
                 binaryWriter.Write(' ');
             var end = binaryWriter.BaseStream.Position;
@@ -183,40 +183,41 @@ namespace SimpleGltf.Json.Extensions
             {
                 var buffer = gltfAsset.Buffers[i];
                 buffer.Uri = external ? $"buffer_{i}.bin" : null;
-                buffer.MemoryStream = new MemoryStream();
-                var binaryWriter = new BinaryWriter(buffer.MemoryStream, Encoding.Default, true);
+                buffer.BinaryWriter = new BinaryWriter(new MemoryStream());
                 foreach (var bufferView in gltfAsset.BufferViews.Where(bufferView => bufferView.Buffer == buffer))
                 {
+                    bufferView.ByteOffset = (int) buffer.BinaryWriter.BaseStream.Position;
                     if (bufferView.Target == BufferViewTarget.ArrayBuffer)
-                        binaryWriter.Seek((int) binaryWriter.BaseStream.Position.GetOffset(), SeekOrigin.Current);
-                    bufferView.ByteOffset = (int) binaryWriter.BaseStream.Position;
+                        bufferView.ByteOffset += (int) buffer.BinaryWriter.BaseStream.Position.GetOffset(4);
                     var accessors = bufferView.GetAccessors().ToList();
                     switch (accessors.Count)
                     {
                         case 1:
                         {
                             var accessor = accessors[0];
+                            accessor.CalculateOffset();
+                            buffer.BinaryWriter.Seek(bufferView.ByteOffset.GetValueOrDefault(), SeekOrigin.Begin);
                             for (var j = 0; j < accessor.Count; j++)
-                                accessor.WriteToBinaryWriter(binaryWriter, j);
+                                accessor.WriteToBinaryWriter(buffer.BinaryWriter, j);
                             break;
                         }
                         case > 1:
                         {
+                            buffer.BinaryWriter.Seek(bufferView.ByteOffset.GetValueOrDefault(), SeekOrigin.Begin);
+                            var beginPosition = buffer.BinaryWriter.BaseStream.Position;
                             var counts = accessors.Select(accessor => accessor.Count).Distinct().ToList();
                             if (counts.Count != 1)
                                 throw new NotImplementedException();
-                            var stride = accessors.GetStride(bufferView.Target == BufferViewTarget.ArrayBuffer);
-                            bufferView.ByteStride = stride.Total;
-                            for (var j = 0; j < accessors.Count; j++)
-                                accessors[j].ByteOffset = stride.Offsets[j];
+                            accessors.CalculateStride();
                             var count = counts[0];
                             for (var j = 0; j < count; j++)
-                            for (var k = 0; k < accessors.Count; k++)
-                            {
-                                var nextPosition = buffer.MemoryStream.Position + stride.Lengths[k];
-                                accessors[k].WriteToBinaryWriter(binaryWriter, j);
-                                binaryWriter.Seek((int) nextPosition, SeekOrigin.Begin);
-                            }
+                                foreach (var accessor in accessors)
+                                {
+                                    buffer.BinaryWriter.Seek(
+                                        (int) (beginPosition + j * bufferView.ByteStride.GetValueOrDefault() +
+                                               accessor.ByteOffset.GetValueOrDefault()), SeekOrigin.Begin);
+                                    accessor.WriteToBinaryWriter(buffer.BinaryWriter, j);
+                                }
 
                             break;
                         }
@@ -224,15 +225,13 @@ namespace SimpleGltf.Json.Extensions
                         {
                             if (bufferView.PngStream == null)
                                 throw new NotImplementedException();
-                            await bufferView.PngStream.CopyToAsync(buffer.MemoryStream);
+                            await bufferView.PngStream.CopyToAsync(buffer.BinaryWriter.BaseStream);
                             break;
                         }
                     }
 
-                    bufferView.ByteLength = (int) (binaryWriter.BaseStream.Position - bufferView.ByteOffset);
+                    bufferView.ByteLength = (int) (buffer.BinaryWriter.BaseStream.Position - bufferView.ByteOffset);
                 }
-
-                await binaryWriter.DisposeAsync();
             }
         }
     }

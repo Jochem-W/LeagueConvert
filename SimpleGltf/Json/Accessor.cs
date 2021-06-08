@@ -12,7 +12,7 @@ namespace SimpleGltf.Json
     {
         internal readonly BufferView BufferView;
         internal readonly int ComponentCount;
-        internal readonly int ComponentTypeSize;
+        internal readonly int ComponentTypeLength;
         internal readonly int ElementSize;
         internal readonly GltfAsset GltfAsset;
         internal readonly bool MinMax;
@@ -31,8 +31,8 @@ namespace SimpleGltf.Json
                 Normalized = true;
             Name = name;
             ComponentCount = Type.GetColumns() * Type.GetRows();
-            ComponentTypeSize = ComponentType.GetSize();
-            ElementSize = ComponentCount * ComponentTypeSize;
+            ComponentTypeLength = ComponentType.GetSize();
+            ElementSize = ComponentCount * ComponentTypeLength;
             MinMax = minMax;
         }
 
