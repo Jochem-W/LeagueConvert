@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
 using SimpleGltf.Enums;
+using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
     public class BufferView
     {
-        internal readonly Buffer Buffer;
         internal readonly GltfAsset GltfAsset;
         internal MemoryStream PngStream;
 
@@ -21,7 +21,8 @@ namespace SimpleGltf.Json
             Name = name;
         }
 
-        [JsonPropertyName("buffer")] public int BufferReference => GltfAsset.Buffers.IndexOf(Buffer);
+        [JsonConverter(typeof(BufferConverter))]
+        public Buffer Buffer { get; }
 
         public int? ByteOffset { get; internal set; }
 

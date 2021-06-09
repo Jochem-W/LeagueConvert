@@ -8,7 +8,7 @@ namespace SimpleGltf.Json
 {
     public class Material
     {
-        private readonly GltfAsset _gltfAsset;
+        internal readonly GltfAsset GltfAsset;
         private float _alphaCutoff;
         private AlphaMode _alphaMode;
         private bool _doubleSided;
@@ -17,9 +17,9 @@ namespace SimpleGltf.Json
         internal Material(GltfAsset gltfAsset, Vector3? emissiveFactor, AlphaMode? alphaMode,
             float? alphaCutoff, bool? doubleSided, string name)
         {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Materials ??= new List<Material>();
-            _gltfAsset.Materials.Add(this);
+            GltfAsset = gltfAsset;
+            GltfAsset.Materials ??= new List<Material>();
+            GltfAsset.Materials.Add(this);
             EmissiveFactor = emissiveFactor;
             AlphaMode = alphaMode;
             AlphaCutoff = alphaCutoff;
@@ -30,10 +30,6 @@ namespace SimpleGltf.Json
         public string Name { get; }
 
         public PbrMetallicRoughness PbrMetallicRoughness { get; internal set; }
-
-        public NormalTextureInfo NormalTexture { get; }
-
-        public OcclusionTextureInfo OcclusionTexture { get; }
 
         public TextureInfo EmissiveTexture { get; }
 

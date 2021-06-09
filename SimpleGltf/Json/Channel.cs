@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
@@ -14,9 +15,8 @@ namespace SimpleGltf.Json
             Target = target;
         }
 
-        [JsonIgnore] public AnimationSampler Sampler { get; }
-
-        [JsonPropertyName("sampler")] public int SamplerReference => _animation.Samplers.IndexOf(Sampler);
+        [JsonConverter(typeof(AnimationSamplerConverter))]
+        public AnimationSampler Sampler { get; }
 
         public AnimationTarget Target { get; }
     }

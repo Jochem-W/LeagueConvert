@@ -1,37 +1,29 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
+using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
     public class Skin
     {
-        private readonly GltfAsset _gltfAsset;
+        internal readonly GltfAsset GltfAsset;
 
         internal Skin(GltfAsset gltfAsset, string name)
         {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Skins ??= new List<Skin>();
-            _gltfAsset.Skins.Add(this);
+            GltfAsset = gltfAsset;
+            GltfAsset.Skins ??= new List<Skin>();
+            GltfAsset.Skins.Add(this);
             Joints = new List<Node>();
             Name = name;
         }
 
-        [JsonIgnore] public Accessor InverseBindMatrices { get; set; }
+        [JsonConverter(typeof(AccessorConverter))]
+        public Accessor InverseBindMatrices { get; set; }
 
-        [JsonPropertyName("inverseBindMatrices")]
-        public int? InverseBindMatricesReference =>
-            InverseBindMatrices == null ? null : _gltfAsset.Accessors.IndexOf(InverseBindMatrices);
+        [JsonConverter(typeof(NodeConverter))] public Node Skeleton { get; }
 
-        [JsonIgnore] public Node Skeleton { get; set; }
-
-        [JsonPropertyName("skeleton")]
-        public int? SkeletonReference => Skeleton == null ? null : _gltfAsset.Nodes.IndexOf(Skeleton);
-
-        [JsonIgnore] public IList<Node> Joints { get; }
-
-        [JsonPropertyName("joints")]
-        public IEnumerable<int> JointReferences => Joints.Select(joint => _gltfAsset.Nodes.IndexOf(joint));
+        [JsonConverter(typeof(NodeListConverter))]
+        public IList<Node> Joints { get; }
 
         public string Name { get; set; }
     }

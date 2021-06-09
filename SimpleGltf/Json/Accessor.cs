@@ -10,7 +10,6 @@ namespace SimpleGltf.Json
 {
     public class Accessor
     {
-        internal readonly BufferView BufferView;
         internal readonly int ComponentCount;
         internal readonly int ComponentTypeLength;
         internal readonly int ElementSize;
@@ -36,7 +35,8 @@ namespace SimpleGltf.Json
             MinMax = minMax;
         }
 
-        [JsonPropertyName("bufferView")] public int BufferViewReference => GltfAsset.BufferViews.IndexOf(BufferView);
+        [JsonConverter(typeof(BufferViewConverter))]
+        public BufferView BufferView { get; }
 
         public int? ByteOffset { get; internal set; }
 

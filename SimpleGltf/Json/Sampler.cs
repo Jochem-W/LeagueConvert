@@ -6,7 +6,7 @@ namespace SimpleGltf.Json
 {
     public class Sampler
     {
-        private readonly GltfAsset _gltfAsset;
+        internal readonly GltfAsset GltfAsset;
 
         internal Sampler(GltfAsset gltfAsset, ScaleFilter? magFilter, ScaleFilter? minFilter, WrappingMode wrapS,
             WrappingMode wrapT, string name)
@@ -14,9 +14,9 @@ namespace SimpleGltf.Json
             if (magFilter != ScaleFilter.Linear && magFilter != ScaleFilter.Nearest && magFilter != null)
                 throw new ArgumentOutOfRangeException(nameof(magFilter), magFilter,
                     "Only Linear and Nearest ScaleFilter are allowed for magFilter!");
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Samplers ??= new List<Sampler>();
-            _gltfAsset.Samplers.Add(this);
+            GltfAsset = gltfAsset;
+            GltfAsset.Samplers ??= new List<Sampler>();
+            GltfAsset.Samplers.Add(this);
             MagFilter = magFilter;
             MinFilter = minFilter;
             WrapS = wrapS == WrappingMode.Repeat ? wrapS : null;

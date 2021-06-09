@@ -14,8 +14,6 @@ namespace SimpleGltf.Json
         private Vector3 _translation;
         private Matrix4x4 _trs;
 
-        [JsonIgnore] public IList<Node> Children;
-
         private Node(GltfAsset gltfAsset, string name)
         {
             GltfAsset = gltfAsset;
@@ -39,8 +37,8 @@ namespace SimpleGltf.Json
             DecomposeTRS();
         }
 
-        [JsonPropertyName("children")]
-        public IEnumerable<int> ChildrenReferences => Children?.Select(node => GltfAsset.Nodes.IndexOf(node));
+        [JsonConverter(typeof(NodeListConverter))]
+        public IList<Node> Children { get; set; }
 
         [JsonConverter(typeof(Matrix4x4Converter))]
         public Matrix4x4? Matrix
@@ -65,13 +63,9 @@ namespace SimpleGltf.Json
             }
         }
 
-        [JsonIgnore] public Mesh Mesh { get; set; }
+        [JsonConverter(typeof(MeshConverter))] public Mesh Mesh { get; set; }
 
-        [JsonPropertyName("mesh")] public int? MeshReference => Mesh == null ? null : GltfAsset.Meshes.IndexOf(Mesh);
-
-        [JsonIgnore] public Skin Skin { get; set; }
-
-        [JsonPropertyName("skin")] public int? SkinReference => Skin == null ? null : GltfAsset.Skins.IndexOf(Skin);
+        [JsonConverter(typeof(SkinConverter))] public Skin Skin { get; set; }
 
         [JsonConverter(typeof(NullableQuaternionConverter))]
         public Quaternion? Rotation

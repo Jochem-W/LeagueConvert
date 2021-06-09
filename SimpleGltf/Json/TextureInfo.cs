@@ -1,14 +1,16 @@
+using System.Text.Json.Serialization;
+using SimpleGltf.Json.Converters;
+
 namespace SimpleGltf.Json
 {
     public class TextureInfo
     {
         private const int TexCoordDefault = 0;
-        private readonly Texture _texture;
         private int _texCoord = TexCoordDefault;
 
         internal TextureInfo(Texture texture)
         {
-            _texture = texture;
+            Texture = texture;
         }
 
         public int? TexCoord
@@ -17,6 +19,8 @@ namespace SimpleGltf.Json
             set => _texCoord = value ?? TexCoordDefault;
         }
 
-        public int Index => _texture.GltfAsset.Textures.IndexOf(_texture);
+        [JsonPropertyName("index")]
+        [JsonConverter(typeof(TextureConverter))]
+        public Texture Texture { get; }
     }
 }

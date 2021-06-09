@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using SimpleGltf.Json.Converters;
 using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json
@@ -33,9 +34,8 @@ namespace SimpleGltf.Json
 
         public IList<Sampler> Samplers { get; internal set; }
 
-        [JsonIgnore] public Scene Scene { get; set; }
-
-        [JsonPropertyName("scene")] public int? SceneReference => Scene != null ? Scenes.IndexOf(Scene) : null;
+        [JsonConverter(typeof(SceneConverter))]
+        public Scene Scene { get; set; }
 
         public IList<Scene> Scenes { get; internal set; }
 

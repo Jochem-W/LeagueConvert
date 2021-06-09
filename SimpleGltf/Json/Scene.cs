@@ -1,25 +1,23 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
+using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
     public class Scene
     {
-        private readonly GltfAsset _gltfAsset;
+        internal readonly GltfAsset GltfAsset;
 
         internal Scene(GltfAsset gltfAsset, string name)
         {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Scenes ??= new List<Scene>();
-            _gltfAsset.Scenes.Add(this);
+            GltfAsset = gltfAsset;
+            GltfAsset.Scenes ??= new List<Scene>();
+            GltfAsset.Scenes.Add(this);
             Name = name;
         }
 
-        [JsonIgnore] public IList<Node> Nodes { get; set; }
-
-        [JsonPropertyName("nodes")]
-        public IEnumerable<int> NodeReferences => Nodes?.Select(node => _gltfAsset.Nodes.IndexOf(node));
+        [JsonConverter(typeof(NodeListConverter))]
+        public IList<Node> Nodes { get; set; }
 
         public string Name { get; }
     }

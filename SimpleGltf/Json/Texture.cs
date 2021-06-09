@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
     public class Texture
     {
-        private readonly Image _image;
-        private readonly Sampler _sampler;
-
         internal readonly GltfAsset GltfAsset;
 
         internal Texture(GltfAsset gltfAsset, Sampler sampler, Image image, string name)
@@ -15,14 +13,16 @@ namespace SimpleGltf.Json
             GltfAsset = gltfAsset;
             GltfAsset.Textures ??= new List<Texture>();
             GltfAsset.Textures.Add(this);
-            _sampler = sampler;
-            _image = image;
+            Sampler = sampler;
+            Source = image;
             Name = name;
         }
 
-        [JsonPropertyName("sampler")] public int? SamplerReference => GltfAsset.Samplers.IndexOf(_sampler);
+        [JsonConverter(typeof(SamplerConverter))]
+        public Sampler Sampler { get; }
 
-        [JsonPropertyName("source")] public int? ImageReference => GltfAsset.Images.IndexOf(_image);
+        [JsonConverter(typeof(ImageConverter))]
+        public Image Source { get; }
 
         public string Name { get; }
     }
