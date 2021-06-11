@@ -7,12 +7,14 @@ namespace SimpleGltf.Json
 {
     public class Image
     {
+        internal readonly int Index;
         internal readonly GltfAsset GltfAsset;
 
         private Image(GltfAsset gltfAsset)
         {
             GltfAsset = gltfAsset;
             GltfAsset.Images ??= new List<Image>();
+            Index = GltfAsset.Images.Count;
             GltfAsset.Images.Add(this);
         }
 
@@ -34,8 +36,9 @@ namespace SimpleGltf.Json
         [JsonConverter(typeof(MimeTypeConverter))]
         public MimeType? MimeType { get; }
 
-        [JsonConverter(typeof(BufferViewConverter))]
-        public BufferView BufferView { get; }
+        [JsonIgnore] public BufferView BufferView { get; }
+
+        [JsonPropertyName("bufferView")] public int BufferViewIndex => BufferView.Index;
 
         public string Name { get; }
     }

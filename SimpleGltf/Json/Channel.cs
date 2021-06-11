@@ -14,9 +14,10 @@ namespace SimpleGltf.Json
             Sampler = sampler;
             Target = target;
         }
+        
+        [JsonIgnore] public AnimationSampler Sampler { get; }
 
-        [JsonConverter(typeof(AnimationSamplerConverter))]
-        public AnimationSampler Sampler { get; }
+        [JsonPropertyName("sampler")] public int SamplerIndex => Sampler.Index;
 
         public AnimationTarget Target { get; }
     }

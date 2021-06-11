@@ -34,8 +34,9 @@ namespace SimpleGltf.Json
 
         public IList<Sampler> Samplers { get; internal set; }
 
-        [JsonConverter(typeof(SceneConverter))]
-        public Scene Scene { get; set; }
+        [JsonIgnore] public Scene Scene { get; set; }
+
+        [JsonPropertyName("scene")] public int SceneIndex => Scene.Index;
 
         public IList<Scene> Scenes { get; internal set; }
 

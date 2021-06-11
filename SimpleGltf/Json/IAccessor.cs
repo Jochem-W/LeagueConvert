@@ -1,5 +1,4 @@
 using System.Collections;
-using System.IO;
 using System.Text.Json.Serialization;
 using SimpleGltf.Enums;
 using SimpleGltf.Json.Converters;
@@ -8,10 +7,13 @@ namespace SimpleGltf.Json
 {
     public interface IAccessor
     {
+        [JsonIgnore] int Index { get; }
+        
         [JsonIgnore] GltfAsset GltfAsset { get; }
         
-        [JsonConverter(typeof(BufferViewConverter))]
-        BufferView BufferView { get; }
+        [JsonIgnore] BufferView BufferView { get; }
+
+        [JsonPropertyName("bufferView")] int BufferViewIndex => BufferView.Index;
 
         int? ByteOffset { get; }
 

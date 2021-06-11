@@ -12,7 +12,9 @@ namespace SimpleGltf.Json
             Path = path;
         }
 
-        [JsonConverter(typeof(NodeConverter))] public Node Node { get; }
+        [JsonIgnore] public Node Node { get; }
+
+        [JsonPropertyName("node")] public int NodeIndex => Node.Index;
 
         [JsonConverter(typeof(AnimationPathConverter))]
         public AnimationPath Path { get; }

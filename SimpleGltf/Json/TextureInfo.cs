@@ -19,8 +19,8 @@ namespace SimpleGltf.Json
             set => _texCoord = value ?? TexCoordDefault;
         }
 
-        [JsonPropertyName("index")]
-        [JsonConverter(typeof(TextureConverter))]
-        public Texture Texture { get; }
+        [JsonIgnore] public Texture Texture { get; }
+
+        public int Index => Texture.Index;
     }
 }

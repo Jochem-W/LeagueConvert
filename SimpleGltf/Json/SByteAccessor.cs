@@ -23,6 +23,7 @@ namespace SimpleGltf.Json
             BufferView = bufferView;
             GltfAsset = BufferView.GltfAsset;
             GltfAsset.Accessors ??= new List<IAccessor>();
+            Index = GltfAsset.Accessors.Count;
             GltfAsset.Accessors.Add(this);
             ComponentType = ComponentType.SByte;
             Type = type;
@@ -44,6 +45,8 @@ namespace SimpleGltf.Json
                 _max[i] = sbyte.MinValue;
             }
         }
+        
+        public int Index { get; }
 
         public GltfAsset GltfAsset { get; }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using SimpleGltf.Json.Converters;
 
@@ -16,13 +17,18 @@ namespace SimpleGltf.Json
             _mesh.Primitives.Add(this);
         }
 
-        [JsonConverter(typeof(AttributesConverter))]
-        public IDictionary<string, IAccessor> Attributes { get; }
+        [JsonIgnore] public IDictionary<string, IAccessor> Attributes { get; }
 
-        [JsonConverter(typeof(IAccessorConverter))]
-        public IAccessor Indices { get; set; }
+        [JsonPropertyName("attributes")]
+        public IDictionary<string, int> AttributesIndices =>
+            Attributes.ToDictionary(pair => pair.Key, pair => pair.Value.Index);
 
-        [JsonConverter(typeof(MaterialConverter))]
-        public Material Material { get; set; }
+        [JsonIgnore] public IAccessor Indices { get; set; }
+
+        [JsonPropertyName("indices")] public int IndicesIndex => Indices.Index;
+        
+        [JsonIgnore] public Material Material { get; set; }
+
+        [JsonPropertyName("material")] public int MaterialIndex => Material.Index;
     }
 }

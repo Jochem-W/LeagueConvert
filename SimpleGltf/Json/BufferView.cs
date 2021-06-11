@@ -12,16 +12,18 @@ namespace SimpleGltf.Json
     {
         internal readonly GltfAsset GltfAsset;
         internal MemoryStream PngStream;
-        internal BinaryWriter BinaryWriter;
+        internal readonly BinaryWriter BinaryWriter;
         internal int ActualByteStride;
         internal int ActualByteOffset;
         internal bool Stride;
+        internal readonly int Index;
 
         internal BufferView(Buffer buffer, BufferViewTarget? target, string name)
         {
             Buffer = buffer;
             GltfAsset = buffer.GltfAsset;
             GltfAsset.BufferViews ??= new List<BufferView>();
+            Index = GltfAsset.BufferViews.Count;
             GltfAsset.BufferViews.Add(this);
             Target = target;
             Name = name;
@@ -30,8 +32,9 @@ namespace SimpleGltf.Json
             Stride = true;
         }
 
-        [JsonConverter(typeof(BufferConverter))]
-        public Buffer Buffer { get; }
+        [JsonIgnore] public Buffer Buffer { get; }
+
+        [JsonPropertyName("buffer")] public int BufferIndex => Buffer.Index;
 
         public int? ByteOffset => ActualByteOffset != 0 ? ActualByteOffset : null;
 
