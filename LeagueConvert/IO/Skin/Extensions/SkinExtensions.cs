@@ -67,6 +67,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             var gltfAsset = new GltfAsset();
             gltfAsset.Scene = gltfAsset.CreateScene();
             var node = gltfAsset.CreateNode();
+            node.Scale = new Vector3(-1, 1, 1);
             gltfAsset.Scene.Nodes = new List<Node> {node};
             var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
             node.Mesh = gltfAsset.CreateMesh();
@@ -172,6 +173,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
                 return gltfAsset;
             var skeletonRootNode = gltfAsset.CreateNode();
+            skeletonRootNode.Scale = new Vector3(-1, 1, 1);
             gltfAsset.Scene.Nodes.Add(skeletonRootNode);
             var inverseBindMatricesBufferView = buffer.CreateBufferView();
             inverseBindMatricesBufferView.StopStride();
