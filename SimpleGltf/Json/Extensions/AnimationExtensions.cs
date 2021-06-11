@@ -7,7 +7,7 @@ namespace SimpleGltf.Json.Extensions
             return new(animation, sampler, target);
         }
 
-        public static AnimationSampler CreateSampler(this Animation animation, Accessor input, Accessor output)
+        public static AnimationSampler CreateSampler(this Animation animation, FloatAccessor input, IAccessor output)
         {
             return new(animation, input, output);
         }

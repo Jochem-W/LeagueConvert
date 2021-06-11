@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
@@ -9,33 +8,7 @@ namespace SimpleGltf.Json.Extensions
 {
     public static class AccessorExtensions
     {
-        public static void Write<T>(this Accessor<T> accessor, params T[] components) where T : struct, IComparable
-        {
-            if (accessor.Type != AccessorType.Mat2 &&
-                accessor.Type != AccessorType.Mat3 &&
-                accessor.Type != AccessorType.Mat4)
-            {
-                accessor.Values.AddRange(components.Cast<dynamic>());
-                accessor.Count++;
-                return;
-            }
-
-            var rows = accessor.Type.GetRows();
-            var columns = accessor.Type.GetColumns();
-            for (var i = 0; i < columns; i++)
-            for (var j = 0; j < rows; j++)
-                accessor.Values.Add(components[rows * j + i]);
-            accessor.Count++;
-        }
-
-        internal static void WriteToBinaryWriter(this Accessor accessor, BinaryWriter binaryWriter, int index)
-        {
-            var offset = index * accessor.ComponentCount;
-            for (var i = 0; i < accessor.ComponentCount; i++)
-                binaryWriter.Write(accessor.Values[i + offset]);
-        }
-
-        internal static void CalculateOffset(this Accessor accessor)
+        internal static void CalculateOffset(this IAccessor accessor)
         {
             int offset;
             if (accessor.BufferView.Target == BufferViewTarget.ArrayBuffer ||
@@ -48,7 +21,7 @@ namespace SimpleGltf.Json.Extensions
             accessor.BufferView.ByteOffset += offset;
         }
 
-        internal static void CalculateStride(this IEnumerable<Accessor> accessors)
+        internal static void CalculateStride(this IEnumerable<IAccessor> accessors)
         {
             var accessorList = accessors.ToList();
             if (accessorList.Select(accessor => accessor.BufferView).Distinct().Count() > 1)

@@ -17,8 +17,8 @@ namespace SimpleGltf.Json
             Name = name;
         }
 
-        [JsonConverter(typeof(AccessorConverter))]
-        public Accessor InverseBindMatrices { get; set; }
+        [JsonConverter(typeof(IAccessorConverter))]
+        public IAccessor InverseBindMatrices { get; set; }
 
         [JsonConverter(typeof(NodeConverter))] public Node Skeleton { get; }
 

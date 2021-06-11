@@ -4,14 +4,14 @@ using System.Text.Json.Serialization;
 
 namespace SimpleGltf.Json.Converters
 {
-    public class AccessorConverter : JsonConverter<Accessor>
+    public class IAccessorConverter : JsonConverter<IAccessor>
     {
-        public override Accessor Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override IAccessor Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public override void Write(Utf8JsonWriter writer, Accessor value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, IAccessor value, JsonSerializerOptions options)
         {
             writer.WriteNumberValue(value.GltfAsset.Accessors.IndexOf(value));
         }

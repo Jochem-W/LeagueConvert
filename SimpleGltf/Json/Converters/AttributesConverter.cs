@@ -5,15 +5,15 @@ using System.Text.Json.Serialization;
 
 namespace SimpleGltf.Json.Converters
 {
-    public class AttributesConverter : JsonConverter<IDictionary<string, Accessor>>
+    public class AttributesConverter : JsonConverter<IDictionary<string, IAccessor>>
     {
-        public override IDictionary<string, Accessor> Read(ref Utf8JsonReader reader, Type typeToConvert,
+        public override IDictionary<string, IAccessor> Read(ref Utf8JsonReader reader, Type typeToConvert,
             JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public override void Write(Utf8JsonWriter writer, IDictionary<string, Accessor> value,
+        public override void Write(Utf8JsonWriter writer, IDictionary<string, IAccessor> value,
             JsonSerializerOptions options)
         {
             writer.WriteStartObject();
