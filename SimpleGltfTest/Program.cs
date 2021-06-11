@@ -26,12 +26,12 @@ namespace SimpleGltfTest
 
             var timeSpanList = new List<TimeSpan>();
             var stopwatch = new Stopwatch();
-            for (var i = 0; i < 1; i++)
+            for (var i = 0; i < 10; i++)
             {
                 stopwatch.Reset();
                 stopwatch.Start();
                 await SingleWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Aatrox.wad.client",
-                    SkinMode.WithAnimations);
+                    SkinMode.MeshAndTextures);
                 stopwatch.Stop();
                 timeSpanList.Add(stopwatch.Elapsed);
             }
@@ -64,7 +64,6 @@ namespace SimpleGltfTest
                     continue;
                 await gltfAsset.Save(Path.Combine(Output, skin.Character,
                     $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
-                return;
             }
         }
     }
