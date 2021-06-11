@@ -1,7 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 
@@ -13,7 +13,10 @@ namespace SimpleGltf.Json
         private readonly int _componentCount;
         private readonly bool _minMax;
         private readonly int _rows;
-        private readonly List<ushort> _values;
+        private readonly ushort[] _min;
+        private readonly ushort[] _max;
+        private bool _firstElement;
+        private int _actualByteOffset;
 
         internal UShortAccessor(BufferView bufferView, AccessorType type, bool minMax, bool normalized, string name)
         {
@@ -27,19 +30,26 @@ namespace SimpleGltf.Json
                 Normalized = true;
             Name = name;
             _componentCount = Type.GetColumns() * Type.GetRows();
-            ComponentTypeLength = ComponentType.GetSize();
-            ElementSize = _componentCount * ComponentTypeLength;
             _minMax = minMax;
             _rows = Type.GetRows();
             _columns = Type.GetColumns();
-            _values = new List<ushort>();
+            _firstElement = true;
+            if (!_minMax)
+                return;
+            _min = new ushort[_componentCount];
+            _max = new ushort[_componentCount];
+            for (var i = 0; i < _componentCount; i++)
+            {
+                _min[i] = ushort.MaxValue;
+                _max[i] = ushort.MinValue;
+            }
         }
 
         public GltfAsset GltfAsset { get; }
 
         public BufferView BufferView { get; }
 
-        public int? ByteOffset { get; set; }
+        public int? ByteOffset => _actualByteOffset != 0 ? _actualByteOffset : null;
 
         public ComponentType ComponentType { get; }
 
@@ -48,67 +58,71 @@ namespace SimpleGltf.Json
         public int Count { get; private set; }
 
         public AccessorType Type { get; }
+        
+        public IEnumerable Max => _max;
 
-        public IEnumerable Max
-        {
-            get
-            {
-                if (!_minMax)
-                    return null;
-                var elements = _values.Batch(_componentCount).ToList();
-                var value = elements[0];
-                foreach (var element in elements.Skip(1))
-                    for (var i = 0; i < _componentCount; i++)
-                        if (element[i].CompareTo(value[i]) > 0)
-                            value[i] = element[i];
-                return value;
-            }
-        }
-
-        public IEnumerable Min
-        {
-            get
-            {
-                if (!_minMax)
-                    return null;
-                var elements = _values.Batch(_componentCount).ToList();
-                var value = elements[0];
-                foreach (var element in elements.Skip(1))
-                    for (var i = 0; i < _componentCount; i++)
-                        if (element[i].CompareTo(value[i]) < 0)
-                            value[i] = element[i];
-                return value;
-            }
-        }
+        public IEnumerable Min => _min;
 
         public string Name { get; }
 
-        public int ComponentTypeLength { get; }
-
-        public int ElementSize { get; }
-
-        public void WriteToBinaryWriter(BinaryWriter binaryWriter, int index)
-        {
-            var offset = index * _componentCount;
-            for (var i = 0; i < _componentCount; i++)
-                binaryWriter.Write(_values[i + offset]);
-        }
-
         public void Write(params ushort[] components)
         {
-            if (Type != AccessorType.Mat2 &&
-                Type != AccessorType.Mat3 &&
-                Type != AccessorType.Mat4)
+            if (BufferView.Target == BufferViewTarget.ArrayBuffer)
+                BufferView.BinaryWriter.Seek((int) BufferView.BinaryWriter.BaseStream.Position.GetOffset(4),
+                    SeekOrigin.Current);
+            if (_firstElement)
+                _actualByteOffset = (int) BufferView.BinaryWriter.BaseStream.Position;
+            var element = new List<ushort>(_componentCount);
+            switch (Type)
             {
-                _values.AddRange(components);
-                Count++;
-                return;
+                case AccessorType.Scalar:
+                case AccessorType.Vec2:
+                case AccessorType.Vec3:
+                case AccessorType.Vec4:
+                    foreach (var component in components)
+                    {
+                        BufferView.BinaryWriter.Write(component);
+                        element.Add(component);
+                    }
+
+                    break;
+                case AccessorType.Mat2:
+                case AccessorType.Mat3:
+                case AccessorType.Mat4:
+                    for (var i = 0; i < _columns; i++)
+                    {
+                        BufferView.BinaryWriter.Seek((int) BufferView.BinaryWriter.BaseStream.Position.GetOffset(4),
+                            SeekOrigin.Current);
+                        for (var j = 0; j < _rows; j++)
+                        {
+                            var component = components[_rows * j + i];
+                            BufferView.BinaryWriter.Write(component);
+                            element.Add(component);
+                        }
+                    }
+
+                    break;
+                default:
+                    throw new NotImplementedException();
             }
 
-            for (var i = 0; i < _columns; i++)
-            for (var j = 0; j < _rows; j++)
-                _values.Add(components[_rows * j + i]);
             Count++;
+            if (_firstElement)
+            {
+                if (BufferView.Stride)
+                    BufferView.ActualByteStride = (int) BufferView.BinaryWriter.BaseStream.Position;
+                _firstElement = false;
+            }
+
+            if (!_minMax)
+                return;
+            for (var i = 0; i < element.Count; i++)
+            {
+                if (element[i] < _min[i])
+                    _min[i] = element[i];
+                if (element[i] > _max[i])
+                    _max[i] = element[i];
+            }
         }
     }
 }

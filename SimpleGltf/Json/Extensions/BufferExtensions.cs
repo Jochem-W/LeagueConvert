@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using SimpleGltf.Enums;
 
 namespace SimpleGltf.Json.Extensions
@@ -8,6 +10,11 @@ namespace SimpleGltf.Json.Extensions
             string name = null)
         {
             return new(buffer, target, name);
+        }
+
+        public static IEnumerable<BufferView> GetBufferViews(this Buffer buffer)
+        {
+            return buffer.GltfAsset.BufferViews.Where(bufferView => bufferView.Buffer == buffer);
         }
     }
 }

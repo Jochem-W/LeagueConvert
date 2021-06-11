@@ -6,7 +6,7 @@ namespace SimpleGltf.Json
     public class Buffer
     {
         internal readonly GltfAsset GltfAsset;
-        internal BinaryWriter BinaryWriter;
+        internal Stream Stream;
 
         internal Buffer(GltfAsset gltfAsset, string name)
         {
@@ -14,12 +14,12 @@ namespace SimpleGltf.Json
             GltfAsset.Buffers ??= new List<Buffer>();
             GltfAsset.Buffers.Add(this);
             Name = name;
-            BinaryWriter = null;
+            Stream = null;
         }
 
         public string Uri { get; internal set; }
 
-        public int ByteLength => (int) BinaryWriter.BaseStream.Length;
+        public int ByteLength => (int) Stream.Length;
 
         public string Name { get; }
     }

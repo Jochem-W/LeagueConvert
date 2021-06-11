@@ -9,11 +9,11 @@ namespace SimpleGltf.Json
     public interface IAccessor
     {
         [JsonIgnore] GltfAsset GltfAsset { get; }
-
+        
         [JsonConverter(typeof(BufferViewConverter))]
         BufferView BufferView { get; }
 
-        int? ByteOffset { get; set; }
+        int? ByteOffset { get; }
 
         ComponentType ComponentType { get; }
 
@@ -29,11 +29,5 @@ namespace SimpleGltf.Json
         IEnumerable Min { get; }
 
         string Name { get; }
-
-        [JsonIgnore] int ComponentTypeLength { get; }
-
-        [JsonIgnore] int ElementSize { get; }
-
-        void WriteToBinaryWriter(BinaryWriter binaryWriter, int index);
     }
 }

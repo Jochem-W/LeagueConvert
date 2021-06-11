@@ -48,7 +48,9 @@ namespace SimpleGltf.Json
             if (Buffers == null)
                 return;
             foreach (var buffer in Buffers)
-                await buffer.BinaryWriter.DisposeAsync();
+                await buffer.Stream.DisposeAsync();
+            foreach (var bufferView in BufferViews)
+                await bufferView.BinaryWriter.DisposeAsync();
         }
     }
 }

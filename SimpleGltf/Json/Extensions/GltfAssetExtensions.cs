@@ -126,7 +126,7 @@ namespace SimpleGltf.Json.Extensions
             await WriteChunk(binaryWriter, gltfAsset);
 
             foreach (var buffer in gltfAsset.Buffers)
-                await WriteChunk(binaryWriter, "BIN", buffer.BinaryWriter.BaseStream);
+                await WriteChunk(binaryWriter, "BIN", buffer.Stream);
 
             binaryWriter.Seek(8, SeekOrigin.Begin);
             binaryWriter.Write((uint) binaryWriter.BaseStream.Length);
@@ -181,63 +181,33 @@ namespace SimpleGltf.Json.Extensions
 
         private static async Task WriteBuffers(this GltfAsset gltfAsset, bool external = false)
         {
-            for (var i = 0; i < gltfAsset.Buffers.Count; i++)
+            foreach (var buffer in gltfAsset.Buffers)
             {
-                var buffer = gltfAsset.Buffers[i];
-                buffer.Uri = external ? $"buffer_{i}.bin" : null;
-                buffer.BinaryWriter = new BinaryWriter(new MemoryStream());
-                foreach (var bufferView in gltfAsset.BufferViews.Where(bufferView => bufferView.Buffer == buffer))
+                buffer.Stream = new MemoryStream();
+                foreach (var bufferView in buffer.GetBufferViews())
                 {
-                    bufferView.ByteOffset = (int) buffer.BinaryWriter.BaseStream.Position;
-                    if (bufferView.Target == BufferViewTarget.ArrayBuffer)
-                        bufferView.ByteOffset += (int) buffer.BinaryWriter.BaseStream.Position.GetOffset(4);
-                    var accessors = bufferView.GetAccessors().ToList();
-                    switch (accessors.Count)
+                    var firstAccessor = bufferView.GetAccessors().FirstOrDefault();
+                    if (bufferView.Target == BufferViewTarget.ArrayBuffer ||
+                        firstAccessor?.Type is AccessorType.Mat2 or AccessorType.Mat3 or AccessorType.Mat4)
+                        buffer.Stream.Seek(buffer.Stream.Position.GetOffset(4), SeekOrigin.Current);
+                    if (firstAccessor != null)
+                        buffer.Stream.Seek(buffer.Stream.Position.GetOffset(firstAccessor.ComponentType.GetSize()),
+                            SeekOrigin.Current);
+                    bufferView.ActualByteOffset = (int) buffer.Stream.Position;
+                    switch (firstAccessor == null)
                     {
-                        case 1:
-                        {
-                            var accessor = accessors[0];
-                            accessor.CalculateOffset();
-                            buffer.BinaryWriter.Seek(bufferView.ByteOffset.GetValueOrDefault(), SeekOrigin.Begin);
-                            for (var j = 0; j < accessor.Count; j++)
-                                accessor.WriteToBinaryWriter(buffer.BinaryWriter, j);
+                        case false:
+                            bufferView.BinaryWriter.Seek(0, SeekOrigin.Begin);
+                            await bufferView.BinaryWriter.BaseStream.CopyToAsync(buffer.Stream);
                             break;
-                        }
-                        case > 1:
-                        {
-                            buffer.BinaryWriter.Seek(bufferView.ByteOffset.GetValueOrDefault(), SeekOrigin.Begin);
-                            var beginPosition = buffer.BinaryWriter.BaseStream.Position;
-                            var counts = accessors.Select(accessor => accessor.Count).Distinct().ToList();
-                            if (counts.Count != 1)
+                        case true:
+                            if (bufferView.PngStream == null)
                                 throw new NotImplementedException();
-                            accessors.CalculateStride();
-                            var count = counts[0];
-                            for (var j = 0; j < count; j++)
-                                foreach (var accessor in accessors)
-                                {
-                                    buffer.BinaryWriter.Seek(
-                                        (int) (beginPosition + j * bufferView.ByteStride.GetValueOrDefault() +
-                                               accessor.ByteOffset.GetValueOrDefault()), SeekOrigin.Begin);
-                                    accessor.WriteToBinaryWriter(buffer.BinaryWriter, j);
-                                }
-
+                            await bufferView.PngStream.CopyToAsync(buffer.Stream);
                             break;
-                        }
-                        case 0:
-                        {
-                            if (bufferView.PngStream != null)
-                            {
-                                await bufferView.PngStream.CopyToAsync(buffer.BinaryWriter.BaseStream);
-                                break;
-                            }
-
-                            gltfAsset.BufferViews.Remove(bufferView);
-                            break;
-                        }
                     }
 
-                    bufferView.ByteLength = (int) (buffer.BinaryWriter.BaseStream.Position -
-                                                   bufferView.ByteOffset.GetValueOrDefault());
+                    bufferView.ByteLength = (int) buffer.Stream.Position - bufferView.ActualByteOffset;
                 }
             }
         }
