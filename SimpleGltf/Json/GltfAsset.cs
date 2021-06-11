@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using SimpleGltf.Json.Converters;
 using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json

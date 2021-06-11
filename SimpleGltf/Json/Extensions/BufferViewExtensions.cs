@@ -42,8 +42,7 @@ namespace SimpleGltf.Json.Extensions
             return new(bufferView, accessorType, minMax, normalized, name);
         }
 
-
-        public static IEnumerable<IAccessor> GetAccessors(this BufferView bufferView)
+        internal static IEnumerable<IAccessor> GetAccessors(this BufferView bufferView)
         {
             return bufferView.GltfAsset.Accessors.Where(accessor => accessor.BufferView == bufferView);
         }

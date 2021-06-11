@@ -12,7 +12,7 @@ namespace SimpleGltf.Json.Extensions
             return new(buffer, target, name);
         }
 
-        public static IEnumerable<BufferView> GetBufferViews(this Buffer buffer)
+        internal static IEnumerable<BufferView> GetBufferViews(this Buffer buffer)
         {
             return buffer.GltfAsset.BufferViews.Where(bufferView => bufferView.Buffer == buffer);
         }

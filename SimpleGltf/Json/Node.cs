@@ -8,8 +8,8 @@ namespace SimpleGltf.Json
 {
     public class Node
     {
+        private readonly GltfAsset _gltfAsset;
         internal readonly int Index;
-        internal readonly GltfAsset GltfAsset;
         private Quaternion _rotation;
         private Vector3 _scale;
         private Vector3 _translation;
@@ -17,10 +17,10 @@ namespace SimpleGltf.Json
 
         private Node(GltfAsset gltfAsset, string name)
         {
-            GltfAsset = gltfAsset;
-            GltfAsset.Nodes ??= new List<Node>();
-            Index = GltfAsset.Nodes.Count;
-            GltfAsset.Nodes.Add(this);
+            _gltfAsset = gltfAsset;
+            _gltfAsset.Nodes ??= new List<Node>();
+            Index = _gltfAsset.Nodes.Count;
+            _gltfAsset.Nodes.Add(this);
             Name = name;
         }
 
@@ -41,14 +41,15 @@ namespace SimpleGltf.Json
 
         [JsonIgnore] public IList<Node> Children { get; set; }
 
-        [JsonPropertyName("children")] public IEnumerable<int> ChildrenIndices => Children?.Select(child => child.Index);
+        [JsonPropertyName("children")]
+        public IEnumerable<int> ChildrenIndices => Children?.Select(child => child.Index);
 
         [JsonConverter(typeof(Matrix4x4Converter))]
         public Matrix4x4? Matrix
         {
             get
             {
-                if (GltfAsset.Animations != null && GltfAsset.Animations.Any(
+                if (_gltfAsset.Animations != null && _gltfAsset.Animations.Any(
                     animation => animation.Channels.Any(channel => channel.Target.Node == this)))
                     return null;
                 return Skin != null ? null : _trs == Matrix4x4.Identity ? null : _trs;

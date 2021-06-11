@@ -1,22 +1,19 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json.Serialization;
 using SimpleGltf.Enums;
-using SimpleGltf.Json.Converters;
-using SimpleGltf.Json.Extensions;
 
 namespace SimpleGltf.Json
 {
     public class BufferView
     {
-        internal readonly GltfAsset GltfAsset;
-        internal MemoryStream PngStream;
         internal readonly BinaryWriter BinaryWriter;
-        internal int ActualByteStride;
-        internal int ActualByteOffset;
-        internal bool Stride;
+        internal readonly GltfAsset GltfAsset;
         internal readonly int Index;
+        internal int ActualByteOffset;
+        internal int ActualByteStride;
+        internal MemoryStream PngStream;
+        internal bool Stride;
 
         internal BufferView(Buffer buffer, BufferViewTarget? target, string name)
         {

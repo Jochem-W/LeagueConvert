@@ -5,14 +5,12 @@ namespace SimpleGltf.Json
     public class Mesh
     {
         internal readonly int Index;
-        internal readonly GltfAsset GltfAsset;
 
         internal Mesh(GltfAsset gltfAsset, string name)
         {
-            GltfAsset = gltfAsset;
-            GltfAsset.Meshes ??= new List<Mesh>();
-            Index = GltfAsset.Meshes.Count;
-            GltfAsset.Meshes.Add(this);
+            gltfAsset.Meshes ??= new List<Mesh>();
+            Index = gltfAsset.Meshes.Count;
+            gltfAsset.Meshes.Add(this);
             Name = name;
         }
 

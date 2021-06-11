@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {

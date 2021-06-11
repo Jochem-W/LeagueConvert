@@ -1,21 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
     public class Skin
     {
         internal readonly int Index;
-        internal readonly GltfAsset GltfAsset;
 
         internal Skin(GltfAsset gltfAsset, string name)
         {
-            GltfAsset = gltfAsset;
-            GltfAsset.Skins ??= new List<Skin>();
-            Index = GltfAsset.Skins.Count;
-            GltfAsset.Skins.Add(this);
+            gltfAsset.Skins ??= new List<Skin>();
+            Index = gltfAsset.Skins.Count;
+            gltfAsset.Skins.Add(this);
             Joints = new List<Node>();
             Name = name;
         }

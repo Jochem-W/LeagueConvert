@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace SimpleGltf.Extensions
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
-        public static uint ToMagic(this string value)
+        internal static uint ToMagic(this string value)
         {
             var chars = value.ToCharArray().Reverse();
             var bytes = chars.Select(character => (byte) character);

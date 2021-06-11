@@ -8,9 +8,9 @@ namespace SimpleGltf.Json
     public interface IAccessor
     {
         [JsonIgnore] int Index { get; }
-        
+
         [JsonIgnore] GltfAsset GltfAsset { get; }
-        
+
         [JsonIgnore] BufferView BufferView { get; }
 
         [JsonPropertyName("bufferView")] int BufferViewIndex => BufferView.Index;

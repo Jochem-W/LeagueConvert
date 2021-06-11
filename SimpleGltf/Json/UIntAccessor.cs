@@ -11,12 +11,12 @@ namespace SimpleGltf.Json
     {
         private readonly int _columns;
         private readonly int _componentCount;
+        private readonly uint[] _max;
+        private readonly uint[] _min;
         private readonly bool _minMax;
         private readonly int _rows;
-        private readonly uint[] _min;
-        private readonly uint[] _max;
-        private bool _firstElement;
         private int _actualByteOffset;
+        private bool _firstElement;
 
         internal UIntAccessor(BufferView bufferView, AccessorType type, bool minMax, bool normalized, string name)
         {
@@ -45,7 +45,7 @@ namespace SimpleGltf.Json
                 _max[i] = uint.MinValue;
             }
         }
-        
+
         public int Index { get; }
 
         public GltfAsset GltfAsset { get; }
@@ -61,7 +61,7 @@ namespace SimpleGltf.Json
         public int Count { get; private set; }
 
         public AccessorType Type { get; }
-        
+
         public IEnumerable Max => _max;
 
         public IEnumerable Min => _min;

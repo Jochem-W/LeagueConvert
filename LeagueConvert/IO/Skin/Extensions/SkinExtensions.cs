@@ -77,7 +77,6 @@ namespace LeagueConvert.IO.Skin.Extensions
             indicesBufferView.StopStride();
             foreach (var subMesh in skin.SimpleSkin.Submeshes)
             {
-                
                 var positionAccessor = attributesBufferView.CreateFloatAccessor(AccessorType.Vec3, true);
                 var normalAccessor = attributesBufferView.CreateFloatAccessor(AccessorType.Vec3, true);
                 var uvAccessor = attributesBufferView.CreateFloatAccessor(AccessorType.Vec2, true);
@@ -93,7 +92,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                     jointsAccessor = attributesBufferView.CreateUShortAccessor(AccessorType.Vec4, true);
                     weightsAccessor = attributesBufferView.CreateFloatAccessor(AccessorType.Vec4, true);
                 }
-                
+
                 var indicesAccessor = indicesBufferView.CreateUShortAccessor(AccessorType.Scalar);
                 var primitive = node.Mesh.CreatePrimitive();
                 primitive.Indices = indicesAccessor;
@@ -208,7 +207,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             var translationBufferView = buffer.CreateBufferView();
             var rotationBufferView = buffer.CreateBufferView();
             var scaleBufferView = buffer.CreateBufferView();
-            
+
             //ANIMATIONS
             foreach (var (name, animation) in skin.Animations)
             {
@@ -244,7 +243,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                         translationOutputAccessor.Write(translation.X, translation.Y, translation.Z);
                         translationInputAccessor.Write(time);
                     }
-                    
+
                     translationBufferView.StopStride();
 
 
@@ -259,7 +258,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                         rotationOutputAccessor.Write(normalized.X, normalized.Y, normalized.Z, normalized.W);
                         rotationInputAccessor.Write(time);
                     }
-                    
+
                     rotationBufferView.StopStride();
 
 
@@ -273,7 +272,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                         scaleOutputAccessor.Write(scale.X, scale.Y, scale.Z);
                         scaleInputAccessor.Write(time);
                     }
-                    
+
                     scaleBufferView.StopStride();
                 }
             }

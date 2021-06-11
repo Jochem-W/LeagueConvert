@@ -5,8 +5,8 @@ namespace SimpleGltf.Json
 {
     public class Buffer
     {
-        internal readonly int Index;
         internal readonly GltfAsset GltfAsset;
+        internal readonly int Index;
         internal Stream Stream;
 
         internal Buffer(GltfAsset gltfAsset, string name)

@@ -9,7 +9,6 @@ namespace SimpleGltf.Json
     public class Material
     {
         internal readonly int Index;
-        internal readonly GltfAsset GltfAsset;
         private float _alphaCutoff;
         private AlphaMode _alphaMode;
         private bool _doubleSided;
@@ -18,10 +17,9 @@ namespace SimpleGltf.Json
         internal Material(GltfAsset gltfAsset, Vector3? emissiveFactor, AlphaMode? alphaMode,
             float? alphaCutoff, bool? doubleSided, string name)
         {
-            GltfAsset = gltfAsset;
-            GltfAsset.Materials ??= new List<Material>();
-            Index = GltfAsset.Materials.Count;
-            GltfAsset.Materials.Add(this);
+            gltfAsset.Materials ??= new List<Material>();
+            Index = gltfAsset.Materials.Count;
+            gltfAsset.Materials.Add(this);
             EmissiveFactor = emissiveFactor;
             AlphaMode = alphaMode;
             AlphaCutoff = alphaCutoff;

@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace SimpleGltf.Extensions
 {
-    public static class Matrix4x4Extensions
+    public static class Matrix4X4Extensions
     {
         public static IEnumerable<float> GetValues(this Matrix4x4 matrix)
         {

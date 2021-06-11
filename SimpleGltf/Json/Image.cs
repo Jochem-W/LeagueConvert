@@ -8,14 +8,12 @@ namespace SimpleGltf.Json
     public class Image
     {
         internal readonly int Index;
-        internal readonly GltfAsset GltfAsset;
 
         private Image(GltfAsset gltfAsset)
         {
-            GltfAsset = gltfAsset;
-            GltfAsset.Images ??= new List<Image>();
-            Index = GltfAsset.Images.Count;
-            GltfAsset.Images.Add(this);
+            gltfAsset.Images ??= new List<Image>();
+            Index = gltfAsset.Images.Count;
+            gltfAsset.Images.Add(this);
         }
 
         internal Image(GltfAsset gltfAsset, BufferView bufferView, MimeType mimeType, string name) : this(gltfAsset)
