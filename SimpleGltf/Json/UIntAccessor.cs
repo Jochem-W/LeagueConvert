@@ -9,9 +9,9 @@ namespace SimpleGltf.Json
 {
     public class UIntAccessor : IAccessor
     {
-        private readonly bool _minMax;
-        private readonly int _componentCount;
         private readonly int _columns;
+        private readonly int _componentCount;
+        private readonly bool _minMax;
         private readonly int _rows;
         private readonly List<uint> _values;
 
@@ -45,7 +45,7 @@ namespace SimpleGltf.Json
 
         public bool? Normalized { get; }
 
-        public int Count { get; internal set; }
+        public int Count { get; private set; }
 
         public AccessorType Type { get; }
 
