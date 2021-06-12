@@ -9,14 +9,14 @@ namespace SimpleGltf.Json
         internal Primitive(Mesh mesh)
         {
             mesh.Primitives.Add(this);
-            Attributes = new Dictionary<string, IAccessor>();
+            Attributes = new Dictionary<string, Accessor>();
         }
 
-        [JsonConverter(typeof(DictionaryIndexableConverter<IAccessor>))]
-        public IDictionary<string, IAccessor> Attributes { get; }
+        [JsonConverter(typeof(DictionaryIndexableConverter<Accessor>))]
+        public IDictionary<string, Accessor> Attributes { get; }
 
-        [JsonConverter(typeof(IndexableConverter<IAccessor>))]
-        public IAccessor Indices { get; set; }
+        [JsonConverter(typeof(IndexableConverter<Accessor>))]
+        public Accessor Indices { get; set; }
 
         [JsonConverter(typeof(IndexableConverter<Material>))]
         public Material Material { get; set; }

@@ -7,7 +7,7 @@ namespace SimpleGltf.Json
 {
     public class AnimationSampler : IIndexable
     {
-        internal AnimationSampler(Animation animation, FloatAccessor input, IAccessor output)
+        internal AnimationSampler(Animation animation, FloatAccessor input, Accessor output)
         {
             if (input.Type != AccessorType.Scalar)
                 throw new ArgumentException("Input has to be a scalar accessor with floats!", nameof(input));
@@ -17,11 +17,11 @@ namespace SimpleGltf.Json
             Output = output;
         }
 
-        [JsonConverter(typeof(IndexableConverter<IAccessor>))]
-        public IAccessor Input { get; }
+        [JsonConverter(typeof(IndexableConverter<Accessor>))]
+        public Accessor Input { get; }
 
-        [JsonConverter(typeof(IndexableConverter<IAccessor>))]
-        public IAccessor Output { get; }
+        [JsonConverter(typeof(IndexableConverter<Accessor>))]
+        public Accessor Output { get; }
 
         [JsonIgnore] public int Index { get; }
     }

@@ -7,29 +7,20 @@ using SimpleGltf.Extensions;
 
 namespace SimpleGltf.Json
 {
-    public class SByteAccessor : IAccessor
+    public class SByteAccessor : Accessor
     {
-        private readonly int _columns;
         private readonly int _componentCount;
-        private readonly sbyte[] _max;
-        private readonly sbyte[] _min;
         private readonly bool _minMax;
         private readonly int _rows;
-        private int _actualByteOffset;
+        private readonly int _columns;
         private bool _firstElement;
+        private readonly sbyte[] _max;
+        private readonly sbyte[] _min;
 
-        internal SByteAccessor(BufferView bufferView, AccessorType type, bool minMax, bool normalized, string name)
+        internal SByteAccessor(BufferView bufferView, AccessorType type, bool minMax, bool normalized) :
+            base(bufferView, type, normalized)
         {
-            BufferView = bufferView;
-            GltfAsset = BufferView.GltfAsset;
-            GltfAsset.Accessors ??= new List<IAccessor>();
-            Index = GltfAsset.Accessors.Count;
-            GltfAsset.Accessors.Add(this);
             ComponentType = ComponentType.SByte;
-            Type = type;
-            if (normalized)
-                Normalized = true;
-            Name = name;
             _componentCount = Type.GetColumns() * Type.GetRows();
             _minMax = minMax;
             _rows = Type.GetRows();
@@ -46,36 +37,15 @@ namespace SimpleGltf.Json
             }
         }
 
-        public int Index { get; }
-
-        public GltfAsset GltfAsset { get; }
-
-        public BufferView BufferView { get; }
-
-        public int? ByteOffset => _actualByteOffset != 0 ? _actualByteOffset : null;
-
-        public ComponentType ComponentType { get; }
-
-        public bool? Normalized { get; }
-
-        public int Count { get; private set; }
-
-        public AccessorType Type { get; }
-
-        public IEnumerable Max => _max;
-
-        public IEnumerable Min => _min;
-
-        public string Name { get; }
-
         public void Write(params sbyte[] components)
         {
             if (BufferView.Target == BufferViewTarget.ArrayBuffer)
                 BufferView.BinaryWriter.Seek((int) BufferView.BinaryWriter.BaseStream.Position.GetOffset(4),
                     SeekOrigin.Current);
             if (_firstElement)
-                _actualByteOffset = (int) BufferView.BinaryWriter.BaseStream.Position;
+                ActualByteOffset = (int) BufferView.BinaryWriter.BaseStream.Position;
             var element = new List<sbyte>(_componentCount);
+
             switch (Type)
             {
                 case AccessorType.Scalar:
@@ -126,6 +96,9 @@ namespace SimpleGltf.Json
                 if (element[i] > _max[i])
                     _max[i] = element[i];
             }
+            
+            Max = _max;
+            Min = _min;
         }
     }
 }

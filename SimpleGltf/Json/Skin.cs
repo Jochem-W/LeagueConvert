@@ -14,8 +14,8 @@ namespace SimpleGltf.Json
             Joints = new List<Node>();
         }
 
-        [JsonConverter(typeof(IndexableConverter<IAccessor>))]
-        public IAccessor InverseBindMatrices { get; set; }
+        [JsonConverter(typeof(IndexableConverter<Accessor>))]
+        public Accessor InverseBindMatrices { get; set; }
 
         [JsonConverter(typeof(EnumerableIndexableConverter<Node>))]
         public IList<Node> Joints { get; }
