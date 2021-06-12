@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using SimpleGltf.Enums;
@@ -9,13 +8,13 @@ namespace SimpleGltf.Json
 {
     public class ByteAccessor : Accessor
     {
-        private readonly int _componentCount;
-        private readonly bool _minMax;
-        private readonly int _rows;
         private readonly int _columns;
-        private bool _firstElement;
+        private readonly int _componentCount;
         private readonly byte[] _max;
         private readonly byte[] _min;
+        private readonly bool _minMax;
+        private readonly int _rows;
+        private bool _firstElement;
 
         internal ByteAccessor(BufferView bufferView, AccessorType type, bool minMax, bool normalized) :
             base(bufferView, type, normalized)
@@ -96,7 +95,7 @@ namespace SimpleGltf.Json
                 if (element[i] > _max[i])
                     _max[i] = element[i];
             }
-            
+
             Max = _max;
             Min = _min;
         }

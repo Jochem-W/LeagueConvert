@@ -6,7 +6,7 @@ namespace SimpleGltf.Json.Extensions
     public static class MaterialExtensions
     {
         private const string Unlit = "KHR_materials_unlit";
-        
+
         public static PbrMetallicRoughness CreatePbrMetallicRoughness(this Material material)
         {
             var pbrMetallicRoughness = new PbrMetallicRoughness();

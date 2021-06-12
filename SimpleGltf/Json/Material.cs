@@ -7,7 +7,7 @@ namespace SimpleGltf.Json
     public class Material : IIndexable
     {
         internal GltfAsset GltfAsset;
-        
+
         internal Material(GltfAsset gltfAsset)
         {
             GltfAsset = gltfAsset;
@@ -19,7 +19,7 @@ namespace SimpleGltf.Json
         public PbrMetallicRoughness PbrMetallicRoughness { get; internal set; }
 
         public string Name { get; init; }
-        
+
         public IDictionary<string, IDictionary> Extensions { get; internal set; }
 
         [JsonIgnore] public int Index { get; }

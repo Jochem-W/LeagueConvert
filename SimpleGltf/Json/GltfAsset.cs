@@ -23,7 +23,7 @@ namespace SimpleGltf.Json
         public IList<Buffer> Buffers { get; internal set; }
 
         public IList<BufferView> BufferViews { get; internal set; }
-        
+
         public IList<string> ExtensionsUsed { get; internal set; }
 
         public IList<Image> Images { get; internal set; }

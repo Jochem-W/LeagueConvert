@@ -1,10 +1,7 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Text.Json.Serialization;
 using SimpleGltf.Enums;
-using SimpleGltf.Extensions;
 using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
@@ -25,11 +22,10 @@ namespace SimpleGltf.Json
                 Normalized = true;
         }
 
-        [JsonIgnore] public int Index { get; }
-
         [JsonIgnore] public GltfAsset GltfAsset { get; }
 
-        [JsonConverter(typeof(IndexableConverter<BufferView>))] public BufferView BufferView { get; }
+        [JsonConverter(typeof(IndexableConverter<BufferView>))]
+        public BufferView BufferView { get; }
 
         public int? ByteOffset => ActualByteOffset != 0 ? ActualByteOffset : null;
 
@@ -47,5 +43,7 @@ namespace SimpleGltf.Json
         public IEnumerable Min { get; internal set; }
 
         public string Name { get; }
+
+        [JsonIgnore] public int Index { get; }
     }
 }
