@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SimpleGltf.Extensions;
 
 namespace SimpleGltf.Json.Converters
 {
@@ -15,6 +16,7 @@ namespace SimpleGltf.Json.Converters
 
         public override void Write(Utf8JsonWriter writer, Matrix4x4 value, JsonSerializerOptions options)
         {
+            value = value.Transpose();
             writer.WriteStartArray();
             writer.WriteNumberValue(value.M11);
             writer.WriteNumberValue(value.M12);

@@ -142,7 +142,7 @@ namespace LeagueConvert.IO.Skin.Extensions
 
                     jointsAccessor.Write(actualJoints.ToArray());
                 }
-                
+
                 attributesBufferView.StopStride();
 
 
@@ -184,11 +184,11 @@ namespace LeagueConvert.IO.Skin.Extensions
             foreach (var skeletonJoint in skin.Skeleton.Joints)
             {
                 inverseBindMatricesAccessor.Write(skeletonJoint.InverseBindTransform
-                    .FixInverseBindMatrix()
                     .Transpose()
+                    .FixInverseBindMatrix()
                     .GetValues()
                     .ToArray());
-                var jointNode = gltfAsset.CreateNode(skeletonJoint.LocalTransform, skeletonJoint.Name);
+                var jointNode = gltfAsset.CreateNode(skeletonJoint.LocalTransform.Transpose(), skeletonJoint.Name);
                 joints[skeletonJoint] = jointNode;
             }
 

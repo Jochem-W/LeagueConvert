@@ -2,17 +2,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text.Json.Serialization;
+using SimpleGltf.Extensions;
 using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
     public class Node : IIndexable
     {
+        private readonly Quaternion _defaultRotation = Quaternion.Identity;
+        private readonly Vector3 _defaultScale = Vector3.Zero;
+        private readonly Vector3 _defaultTranslation = Vector3.Zero;
         private readonly GltfAsset _gltfAsset;
+        private Matrix4x4 _matrix;
         private Quaternion _rotation;
         private Vector3 _scale;
         private Vector3 _translation;
-        private Matrix4x4 _trs;
 
         private Node(GltfAsset gltfAsset, string name)
         {
@@ -21,12 +25,16 @@ namespace SimpleGltf.Json
             Index = _gltfAsset.Nodes.Count;
             _gltfAsset.Nodes.Add(this);
             Name = name;
+            _translation = _defaultTranslation;
+            _rotation = _defaultRotation;
+            _scale = _defaultScale;
         }
 
         internal Node(GltfAsset gltfAsset, Matrix4x4 transform, string name) : this(gltfAsset, name)
         {
-            _trs = transform;
-            DecomposeTRS();
+            _matrix = transform;
+            DecomposeMatrix();
+            CalculateMatrix();
         }
 
         [JsonConverter(typeof(EnumerableIndexableConverter<Node>))]
@@ -37,21 +45,17 @@ namespace SimpleGltf.Json
         {
             get
             {
-                if (_gltfAsset.Animations != null && _gltfAsset.Animations.Any(
-                    animation => animation.Channels.Any(channel => channel.Target.Node == this)))
+                if (_matrix == Matrix4x4.Identity)
                     return null;
-                return Skin != null ? null : _trs == Matrix4x4.Identity ? null : _trs;
+                if (_gltfAsset.Animations != null && _gltfAsset.Animations.Any(animation =>
+                    animation.Channels.Any(channel => channel.Target.Node == this))) //TODO
+                    return null;
+                return _matrix;
             }
             set
             {
-                if (value == null)
-                {
-                    _trs = Matrix4x4.Identity;
-                    return;
-                }
-
-                _trs = value.Value;
-                DecomposeTRS();
+                _matrix = value ?? Matrix4x4.Identity;
+                DecomposeMatrix();
             }
         }
 
@@ -64,10 +68,10 @@ namespace SimpleGltf.Json
         [JsonConverter(typeof(NullableQuaternionConverter))]
         public Quaternion? Rotation
         {
-            get => Matrix != null ? null : _rotation == Quaternion.Identity ? null : _rotation;
+            get => Matrix == null ? _rotation != _defaultRotation ? _rotation : null : null;
             set
             {
-                _rotation = value ?? Quaternion.Identity;
+                _rotation = value.HasValue ? Quaternion.Normalize(value.Value) : _defaultRotation;
                 CalculateMatrix();
             }
         }
@@ -75,10 +79,10 @@ namespace SimpleGltf.Json
         [JsonConverter(typeof(NullableVector3Converter))]
         public Vector3? Scale
         {
-            get => Matrix != null ? null : _scale == Vector3.One ? null : _scale;
+            get => Matrix == null ? _scale != _defaultScale ? _scale : null : null;
             set
             {
-                _scale = value ?? Vector3.One;
+                _scale = value ?? _defaultScale;
                 CalculateMatrix();
             }
         }
@@ -86,10 +90,10 @@ namespace SimpleGltf.Json
         [JsonConverter(typeof(NullableVector3Converter))]
         public Vector3? Translation
         {
-            get => Matrix != null ? null : _translation == Vector3.Zero ? null : _translation;
+            get => Matrix == null ? _translation != _defaultTranslation ? _translation : null : null;
             set
             {
-                _translation = value ?? Vector3.Zero;
+                _translation = value ?? _defaultTranslation;
                 CalculateMatrix();
             }
         }
@@ -100,15 +104,16 @@ namespace SimpleGltf.Json
 
         private void CalculateMatrix()
         {
-            var translationMatrix = Matrix4x4.CreateTranslation(_translation);
-            var rotationMatrix = Matrix4x4.CreateFromQuaternion(_rotation);
-            var scaleMatrix = Matrix4x4.CreateScale(_scale);
-            _trs = translationMatrix * rotationMatrix * scaleMatrix;
+            _matrix = Matrix4x4.CreateTranslation(_translation).Transpose() *
+                      Matrix4x4.CreateFromQuaternion(_rotation).Transpose() * Matrix4x4.CreateScale(_scale);
         }
 
-        private void DecomposeTRS()
+        private void DecomposeMatrix()
         {
-            Matrix4x4.Decompose(_trs, out _scale, out _rotation, out _translation);
+            Matrix4x4.Decompose(_matrix.Transpose(), out var scale, out var rotation, out var translation);
+            Scale = scale;
+            Rotation = rotation;
+            Translation = translation;
         }
     }
 }
