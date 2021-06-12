@@ -11,8 +11,6 @@ namespace SimpleGltf.Json
 {
     public class Accessor : IIndexable
     {
-        //private readonly byte[] _max;
-        //private readonly byte[] _min;
         internal int ActualByteOffset;
 
         internal Accessor(BufferView bufferView, AccessorType type, bool normalized)
@@ -22,7 +20,6 @@ namespace SimpleGltf.Json
             GltfAsset.Accessors ??= new List<Accessor>();
             Index = GltfAsset.Accessors.Count;
             GltfAsset.Accessors.Add(this);
-            //ComponentType = ComponentType.Byte;
             Type = type;
             if (normalized)
                 Normalized = true;
