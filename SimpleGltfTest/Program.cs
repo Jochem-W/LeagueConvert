@@ -21,17 +21,14 @@ namespace SimpleGltfTest
             await HashTables.TryLoadLatest();
             if (Directory.Exists(Output))
                 Directory.Delete(Output, true);
-
-            //await AllWads(@"C:\Riot Games\League of Legends");
-
             var timeSpanList = new List<TimeSpan>();
             var stopwatch = new Stopwatch();
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 1; i++)
             {
                 stopwatch.Reset();
                 stopwatch.Start();
-                await SingleWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Aatrox.wad.client",
-                    SkinMode.MeshAndTextures);
+                //await SingleWad(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Aatrox.wad.client", SkinMode.WithAnimations);
+                //await AllWads(@"C:\Riot Games\League of Legends");
                 stopwatch.Stop();
                 timeSpanList.Add(stopwatch.Elapsed);
             }
