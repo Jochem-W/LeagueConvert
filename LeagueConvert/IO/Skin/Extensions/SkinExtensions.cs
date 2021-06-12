@@ -148,6 +148,7 @@ namespace LeagueConvert.IO.Skin.Extensions
 
                 //MATERIALS
                 var material = gltfAsset.CreateMaterial(subMesh.Name);
+                material.SetUnlit();
                 primitive.Material = material;
                 if (!skin.State.HasFlag(SkinState.TexturesLoaded))
                     continue;
