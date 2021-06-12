@@ -38,7 +38,7 @@ namespace SimpleGltfTest
         private static async Task AllWads(string path, string output, SkinMode mode)
         {
             if (Directory.Exists(output))
-                Directory.Delete(output);
+                Directory.Delete(output, true);
             foreach (var file in Directory.EnumerateFiles(path, "*.wad.client",
                 SearchOption.AllDirectories))
                 await SingleWad(file, output, mode);
