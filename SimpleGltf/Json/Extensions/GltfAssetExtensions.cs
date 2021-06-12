@@ -27,9 +27,9 @@ namespace SimpleGltf.Json.Extensions
             return new(gltfAsset) {Copyright = copyright};
         }
 
-        public static Buffer CreateBuffer(this GltfAsset gltfAsset, string name = null)
+        public static Buffer CreateBuffer(this GltfAsset gltfAsset)
         {
-            return new(gltfAsset, name);
+            return new(gltfAsset);
         }
 
         public static Image CreateImage(this GltfAsset gltfAsset, string uri, string name = null)
@@ -42,23 +42,20 @@ namespace SimpleGltf.Json.Extensions
         {
             if (bufferView.GetAccessors().Any())
                 throw new ArgumentException("BufferView can't be referenced by accessors", nameof(bufferView));
-            if (bufferView.PngStream != null)
-                await bufferView.PngStream.DisposeAsync();
-            bufferView.PngStream = new MemoryStream();
-            await magickImage.WriteAsync(bufferView.PngStream, MagickFormat.Png);
-            bufferView.PngStream.Seek(0, SeekOrigin.Begin);
+            if (bufferView.BinaryWriter.BaseStream.Length != 0)
+                throw new ArgumentException("BufferView has to be empty", nameof(bufferView));
+            await magickImage.WriteAsync(bufferView.BinaryWriter.BaseStream, MagickFormat.Png);
             return new Image(gltfAsset, bufferView, MimeType.Png, name);
         }
 
-        public static Material CreateMaterial(this GltfAsset gltfAsset, Vector3? emissiveFactor = null,
-            AlphaMode? alphaMode = null, float? alphaCutoff = null, bool? doubleSided = null, string name = null)
+        public static Material CreateMaterial(this GltfAsset gltfAsset, string name = null)
         {
-            return new(gltfAsset, emissiveFactor, alphaMode, alphaCutoff, doubleSided, name);
+            return new(gltfAsset) {Name = name};
         }
 
-        public static Mesh CreateMesh(this GltfAsset gltfAsset, string name = null)
+        public static Mesh CreateMesh(this GltfAsset gltfAsset)
         {
-            return new(gltfAsset, name);
+            return new(gltfAsset);
         }
 
         public static Node CreateNode(this GltfAsset gltfAsset, string name = null)
@@ -71,34 +68,25 @@ namespace SimpleGltf.Json.Extensions
             return new(gltfAsset, transform, name);
         }
 
-        public static Node CreateNode(this GltfAsset gltfAsset, Quaternion rotation, Vector3 scale,
-            Vector3 translation, string name = null)
+        public static Sampler CreateSampler(this GltfAsset gltfAsset, WrappingMode? wrapS = null,
+            WrappingMode? wrapT = null)
         {
-            return new(gltfAsset, rotation, scale, translation, name);
+            return new(gltfAsset) {WrapS = wrapS, WrapT = wrapT};
         }
 
-        public static Sampler CreateSampler(this GltfAsset gltfAsset, ScaleFilter? magFilter = null,
-            ScaleFilter? minFilter = null, WrappingMode wrapS = WrappingMode.Repeat,
-            WrappingMode wrapT = WrappingMode.Repeat, string name = null)
+        public static Scene CreateScene(this GltfAsset gltfAsset)
         {
-            return new(gltfAsset, magFilter, minFilter, wrapS, wrapT, name);
+            return new(gltfAsset);
         }
 
-        public static Scene CreateScene(this GltfAsset gltfAsset, string name = null)
+        public static Skin CreateSkin(this GltfAsset gltfAsset)
         {
-            var scene = new Scene(gltfAsset, name);
-            return scene;
+            return new(gltfAsset);
         }
 
-        public static Skin CreateSkin(this GltfAsset gltfAsset, string name = null)
+        public static Texture CreateTexture(this GltfAsset gltfAsset, Sampler sampler = null, Image image = null)
         {
-            return new(gltfAsset, name);
-        }
-
-        public static Texture CreateTexture(this GltfAsset gltfAsset, Sampler sampler, Image image,
-            string name = null)
-        {
-            return new(gltfAsset, sampler, image, name);
+            return new(gltfAsset) {Sampler = sampler, Source = image};
         }
 
         public static async Task Save(this GltfAsset gltfAsset, string path)
@@ -194,20 +182,8 @@ namespace SimpleGltf.Json.Extensions
                         buffer.Stream.Seek(buffer.Stream.Position.GetOffset(firstAccessor.ComponentType.GetSize()),
                             SeekOrigin.Current);
                     bufferView.ActualByteOffset = (int) buffer.Stream.Position;
-                    switch (firstAccessor == null)
-                    {
-                        case false:
-                            bufferView.BinaryWriter.Seek(0, SeekOrigin.Begin);
-                            await bufferView.BinaryWriter.BaseStream.CopyToAsync(buffer.Stream);
-                            break;
-                        case true:
-                            if (bufferView.PngStream == null)
-                                throw new NotImplementedException();
-                            await bufferView.PngStream.CopyToAsync(buffer.Stream);
-                            break;
-                    }
-
-                    bufferView.ByteLength = (int) buffer.Stream.Position - bufferView.ActualByteOffset;
+                    bufferView.BinaryWriter.Seek(0, SeekOrigin.Begin);
+                    await bufferView.BinaryWriter.BaseStream.CopyToAsync(buffer.Stream);
                 }
             }
         }

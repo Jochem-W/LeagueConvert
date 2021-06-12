@@ -5,10 +5,8 @@ using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
-    public class Image
+    public class Image : IIndexable
     {
-        internal readonly int Index;
-
         private Image(GltfAsset gltfAsset)
         {
             gltfAsset.Images ??= new List<Image>();
@@ -29,14 +27,14 @@ namespace SimpleGltf.Json
             Name = name;
         }
 
+        [JsonIgnore] public int Index { get; }
+        
         public string Uri { get; }
 
         [JsonConverter(typeof(MimeTypeConverter))]
         public MimeType? MimeType { get; }
 
-        [JsonIgnore] public BufferView BufferView { get; }
-
-        [JsonPropertyName("bufferView")] public int BufferViewIndex => BufferView.Index;
+        [JsonConverter(typeof(IndexableConverter<BufferView>))] public BufferView BufferView { get; }
 
         public string Name { get; }
     }

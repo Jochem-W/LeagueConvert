@@ -1,35 +1,23 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
+using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
-    public class Skin
+    public class Skin : IIndexable
     {
-        internal readonly int Index;
-
-        internal Skin(GltfAsset gltfAsset, string name)
+        internal Skin(GltfAsset gltfAsset)
         {
             gltfAsset.Skins ??= new List<Skin>();
             Index = gltfAsset.Skins.Count;
             gltfAsset.Skins.Add(this);
             Joints = new List<Node>();
-            Name = name;
         }
+        
+        [JsonIgnore] public int Index { get; }
 
-        [JsonIgnore] public IAccessor InverseBindMatrices { get; set; }
+        [JsonConverter(typeof(IndexableConverter<IAccessor>))] public IAccessor InverseBindMatrices { get; set; }
 
-        [JsonPropertyName("inverseBindMatrices")]
-        public int InverseBindMatricesIndex => InverseBindMatrices.Index;
-
-        [JsonIgnore] public Node Skeleton { get; }
-
-        [JsonPropertyName("skeleton")] public int? SkeletonIndex => Skeleton?.Index;
-
-        [JsonIgnore] public IList<Node> Joints { get; }
-
-        [JsonPropertyName("joints")] public IEnumerable<int> JointsIndices => Joints.Select(joint => joint.Index);
-
-        public string Name { get; set; }
+        [JsonConverter(typeof(EnumerableIndexableConverter<Node>))] public IList<Node> Joints { get; }
     }
 }

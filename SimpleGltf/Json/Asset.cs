@@ -9,7 +9,7 @@ namespace SimpleGltf.Json
             gltfAsset.Asset = this;
         }
 
-        public string Copyright { get; set; }
+        public string Copyright { get; init; }
 
         public string Generator
         {

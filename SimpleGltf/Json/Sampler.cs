@@ -1,37 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using SimpleGltf.Enums;
 
 namespace SimpleGltf.Json
 {
-    public class Sampler
+    public class Sampler : IIndexable
     {
-        internal readonly int Index;
-
-        internal Sampler(GltfAsset gltfAsset, ScaleFilter? magFilter, ScaleFilter? minFilter, WrappingMode wrapS,
-            WrappingMode wrapT, string name)
+        internal Sampler(GltfAsset gltfAsset)
         {
-            if (magFilter != ScaleFilter.Linear && magFilter != ScaleFilter.Nearest && magFilter != null)
-                throw new ArgumentOutOfRangeException(nameof(magFilter), magFilter,
-                    "Only Linear and Nearest ScaleFilter are allowed for magFilter!");
             gltfAsset.Samplers ??= new List<Sampler>();
             Index = gltfAsset.Samplers.Count;
             gltfAsset.Samplers.Add(this);
-            MagFilter = magFilter;
-            MinFilter = minFilter;
-            WrapS = wrapS == WrappingMode.Repeat ? wrapS : null;
-            WrapT = wrapT == WrappingMode.Repeat ? wrapT : null;
-            Name = name;
         }
+        
+        [JsonIgnore] public int Index { get; }
 
-        public ScaleFilter? MagFilter { get; }
+        public WrappingMode? WrapS { get; init; }
 
-        public ScaleFilter? MinFilter { get; }
-
-        public WrappingMode? WrapS { get; }
-
-        public WrappingMode? WrapT { get; }
-
-        public string Name { get; }
+        public WrappingMode? WrapT { get; init; }
     }
 }

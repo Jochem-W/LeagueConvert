@@ -1,23 +1,20 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace SimpleGltf.Json
 {
-    public class Mesh
+    public class Mesh : IIndexable
     {
-        internal readonly int Index;
-
-        internal Mesh(GltfAsset gltfAsset, string name)
+        internal Mesh(GltfAsset gltfAsset)
         {
             gltfAsset.Meshes ??= new List<Mesh>();
             Index = gltfAsset.Meshes.Count;
+            Primitives = new List<Primitive>();
             gltfAsset.Meshes.Add(this);
-            Name = name;
         }
+        
+        [JsonIgnore] public int Index { get; }
 
-        public IList<Primitive> Primitives { get; internal set; }
-
-        //public IList<float> Weights { get; internal set; }
-
-        public string Name { get; }
+        public IList<Primitive> Primitives { get; }
     }
 }

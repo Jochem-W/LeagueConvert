@@ -6,10 +6,9 @@ using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
-    public class Node
+    public class Node : IIndexable
     {
         private readonly GltfAsset _gltfAsset;
-        internal readonly int Index;
         private Quaternion _rotation;
         private Vector3 _scale;
         private Vector3 _translation;
@@ -24,25 +23,15 @@ namespace SimpleGltf.Json
             Name = name;
         }
 
-        internal Node(GltfAsset gltfAsset, Quaternion rotation, Vector3 scale, Vector3 translation, string name) : this(
-            gltfAsset, name)
-        {
-            _rotation = rotation;
-            _scale = scale;
-            _translation = translation;
-            CalculateMatrix();
-        }
-
         internal Node(GltfAsset gltfAsset, Matrix4x4 transform, string name) : this(gltfAsset, name)
         {
             _trs = transform;
             DecomposeTRS();
         }
+        
+        [JsonIgnore] public int Index { get; }
 
-        [JsonIgnore] public IList<Node> Children { get; set; }
-
-        [JsonPropertyName("children")]
-        public IEnumerable<int> ChildrenIndices => Children?.Select(child => child.Index);
+        [JsonConverter(typeof(EnumerableIndexableConverter<Node>))] public IList<Node> Children { get; set; }
 
         [JsonConverter(typeof(Matrix4x4Converter))]
         public Matrix4x4? Matrix
@@ -67,13 +56,9 @@ namespace SimpleGltf.Json
             }
         }
 
-        [JsonIgnore] public Mesh Mesh { get; set; }
+        [JsonConverter(typeof(IndexableConverter<Mesh>))] public Mesh Mesh { get; set; }
 
-        [JsonPropertyName("mesh")] public int? MeshIndex => Mesh?.Index;
-
-        [JsonIgnore] public Skin Skin { get; set; }
-
-        [JsonPropertyName("skin")] public int? SkinIndex => Skin?.Index;
+        [JsonConverter(typeof(IndexableConverter<Skin>))] public Skin Skin { get; set; }
 
         [JsonConverter(typeof(NullableQuaternionConverter))]
         public Quaternion? Rotation
@@ -107,8 +92,6 @@ namespace SimpleGltf.Json
                 CalculateMatrix();
             }
         }
-
-        //public IList<float> Weights { get; internal set; }
 
         public string Name { get; }
 

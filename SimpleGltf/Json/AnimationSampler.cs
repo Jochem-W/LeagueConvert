@@ -5,12 +5,8 @@ using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
-    public class AnimationSampler
+    public class AnimationSampler : IIndexable
     {
-        private const InterpolationAlgorithm DefaultInterpolationAlgorithm = InterpolationAlgorithm.Linear;
-        internal readonly int Index;
-        private InterpolationAlgorithm _interpolationAlgorithm;
-
         internal AnimationSampler(Animation animation, FloatAccessor input, IAccessor output)
         {
             if (input.Type != AccessorType.Scalar)
@@ -20,20 +16,11 @@ namespace SimpleGltf.Json
             Input = input;
             Output = output;
         }
+        
+        [JsonIgnore] public int Index { get; }
 
-        [JsonIgnore] public IAccessor Input { get; }
-
-        [JsonPropertyName("input")] public int InputIndex => Input.Index;
-
-        [JsonConverter(typeof(InterpolationAlgorithmConverter))]
-        public InterpolationAlgorithm? Interpolation
-        {
-            get => _interpolationAlgorithm == DefaultInterpolationAlgorithm ? null : _interpolationAlgorithm;
-            set => _interpolationAlgorithm = value ?? DefaultInterpolationAlgorithm;
-        }
-
-        [JsonIgnore] public IAccessor Output { get; }
-
-        [JsonPropertyName("output")] public int OutputIndex => Output.Index;
+        [JsonConverter(typeof(IndexableConverter<IAccessor>))] public IAccessor Input { get; }
+        
+        [JsonConverter(typeof(IndexableConverter<IAccessor>))] public IAccessor Output { get; }
     }
 }

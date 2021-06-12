@@ -6,10 +6,9 @@ namespace SimpleGltf.Json.Extensions
 {
     public static class BufferExtensions
     {
-        public static BufferView CreateBufferView(this Buffer buffer, BufferViewTarget? target = null,
-            string name = null)
+        public static BufferView CreateBufferView(this Buffer buffer, BufferViewTarget? target = null)
         {
-            return new(buffer, target, name);
+            return new(buffer) {Target = target};
         }
 
         internal static IEnumerable<BufferView> GetBufferViews(this Buffer buffer)

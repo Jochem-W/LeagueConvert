@@ -6,17 +6,13 @@ namespace SimpleGltf.Json
 {
     public class AnimationTarget
     {
-        public AnimationTarget(Node node, AnimationPath path)
+        public AnimationTarget(AnimationPath path)
         {
-            Node = node;
             Path = path;
         }
 
-        [JsonIgnore] public Node Node { get; }
+        [JsonConverter(typeof(IndexableConverter<Node>))] public Node Node { get; init; }
 
-        [JsonPropertyName("node")] public int NodeIndex => Node.Index;
-
-        [JsonConverter(typeof(AnimationPathConverter))]
-        public AnimationPath Path { get; }
+        [JsonConverter(typeof(AnimationPathConverter))] public AnimationPath Path { get; }
     }
 }

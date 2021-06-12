@@ -145,7 +145,7 @@ namespace LeagueConvert.IO.Skin.Extensions
 
 
                 //MATERIALS
-                var material = gltfAsset.CreateMaterial(name: subMesh.Name);
+                var material = gltfAsset.CreateMaterial(subMesh.Name);
                 primitive.Material = material;
                 if (!skin.State.HasFlag(SkinState.TexturesLoaded))
                     continue;
@@ -238,7 +238,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                     var translationOutputAccessor = translationBufferView.CreateFloatAccessor(AccessorType.Vec3);
                     var translationSampler =
                         gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
-                    var translationTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Translation);
+                    var translationTarget = new AnimationTarget(AnimationPath.Translation) {Node = mostLikelyJoint};
                     gltfAnimation.CreateChannel(translationSampler, translationTarget);
                     foreach (var (time, translation) in track.Translations)
                     {
@@ -252,7 +252,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                     var rotationInputAccessor = rotationBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
                     var rotationOutputAccessor = rotationBufferView.CreateFloatAccessor(AccessorType.Vec4);
                     var rotationSampler = gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
-                    var rotationTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Rotation);
+                    var rotationTarget = new AnimationTarget(AnimationPath.Rotation) {Node = mostLikelyJoint};
                     gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
                     foreach (var (time, rotation) in track.Rotations)
                     {
@@ -267,7 +267,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                     var scaleInputAccessor = scaleBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
                     var scaleOutputAccessor = scaleBufferView.CreateFloatAccessor(AccessorType.Vec3);
                     var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
-                    var scaleTarget = new AnimationTarget(mostLikelyJoint, AnimationPath.Scale);
+                    var scaleTarget = new AnimationTarget(AnimationPath.Scale) {Node = mostLikelyJoint};
                     gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
                     foreach (var (time, scale) in track.Scales)
                     {

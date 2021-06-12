@@ -8,12 +8,12 @@ namespace SimpleGltf.Json
         {
             gltfAsset.Animations ??= new List<Animation>();
             gltfAsset.Animations.Add(this);
-            Channels = new List<Channel>();
+            Channels = new List<AnimationChannel>();
             Samplers = new List<AnimationSampler>();
             Name = name;
         }
 
-        public IList<Channel> Channels { get; }
+        public IList<AnimationChannel> Channels { get; }
 
         public IList<AnimationSampler> Samplers { get; }
 

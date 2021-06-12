@@ -5,10 +5,8 @@ using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
-    public interface IAccessor
+    public interface IAccessor : IIndexable
     {
-        [JsonIgnore] int Index { get; }
-
         [JsonIgnore] GltfAsset GltfAsset { get; }
 
         [JsonIgnore] BufferView BufferView { get; }
