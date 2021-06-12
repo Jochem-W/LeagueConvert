@@ -142,6 +142,8 @@ namespace LeagueConvert.IO.Skin.Extensions
 
                     jointsAccessor.Write(actualJoints.ToArray());
                 }
+                
+                attributesBufferView.StopStride();
 
 
                 //MATERIALS
@@ -165,7 +167,6 @@ namespace LeagueConvert.IO.Skin.Extensions
                 var texture = gltfAsset.CreateTexture(sampler, image);
                 textures[magickImage] = texture;
                 pbrMetallicRoughness.SetBaseColorTexture(texture);
-                attributesBufferView.StopStride();
             }
 
 
