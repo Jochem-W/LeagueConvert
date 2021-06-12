@@ -12,9 +12,9 @@ namespace SimpleGltf.Json
             Primitives = new List<Primitive>();
             gltfAsset.Meshes.Add(this);
         }
-        
-        [JsonIgnore] public int Index { get; }
 
         public IList<Primitive> Primitives { get; }
+
+        [JsonIgnore] public int Index { get; }
     }
 }

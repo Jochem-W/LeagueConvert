@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
 using SimpleGltf.Json.Converters;
 
@@ -14,8 +13,9 @@ namespace SimpleGltf.Json
             gltfAsset.Scenes.Add(this);
         }
 
+        [JsonConverter(typeof(EnumerableIndexableConverter<Node>))]
+        public IList<Node> Nodes { get; set; }
+
         [JsonIgnore] public int Index { get; }
-        
-        [JsonConverter(typeof(EnumerableIndexableConverter<Node>))] public IList<Node> Nodes { get; set; }
     }
 }

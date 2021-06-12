@@ -13,11 +13,13 @@ namespace SimpleGltf.Json
             gltfAsset.Skins.Add(this);
             Joints = new List<Node>();
         }
-        
+
+        [JsonConverter(typeof(IndexableConverter<IAccessor>))]
+        public IAccessor InverseBindMatrices { get; set; }
+
+        [JsonConverter(typeof(EnumerableIndexableConverter<Node>))]
+        public IList<Node> Joints { get; }
+
         [JsonIgnore] public int Index { get; }
-
-        [JsonConverter(typeof(IndexableConverter<IAccessor>))] public IAccessor InverseBindMatrices { get; set; }
-
-        [JsonConverter(typeof(EnumerableIndexableConverter<Node>))] public IList<Node> Joints { get; }
     }
 }

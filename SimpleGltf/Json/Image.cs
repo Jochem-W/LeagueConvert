@@ -27,15 +27,16 @@ namespace SimpleGltf.Json
             Name = name;
         }
 
-        [JsonIgnore] public int Index { get; }
-        
         public string Uri { get; }
 
         [JsonConverter(typeof(MimeTypeConverter))]
         public MimeType? MimeType { get; }
 
-        [JsonConverter(typeof(IndexableConverter<BufferView>))] public BufferView BufferView { get; }
+        [JsonConverter(typeof(IndexableConverter<BufferView>))]
+        public BufferView BufferView { get; }
 
         public string Name { get; }
+
+        [JsonIgnore] public int Index { get; }
     }
 }

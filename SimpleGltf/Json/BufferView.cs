@@ -25,10 +25,9 @@ namespace SimpleGltf.Json
             ActualByteStride = 0;
             Stride = true;
         }
-        
-        [JsonIgnore] public int Index { get; }
 
-        [JsonConverter(typeof(IndexableConverter<Buffer>))] public Buffer Buffer { get; }
+        [JsonConverter(typeof(IndexableConverter<Buffer>))]
+        public Buffer Buffer { get; }
 
         public int? ByteOffset => ActualByteOffset != 0 ? ActualByteOffset : null;
 
@@ -37,6 +36,8 @@ namespace SimpleGltf.Json
         public int? ByteStride => ActualByteStride != 0 ? ActualByteStride : null;
 
         public BufferViewTarget? Target { get; init; }
+
+        [JsonIgnore] public int Index { get; }
 
         public void StopStride()
         {

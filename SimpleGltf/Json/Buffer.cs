@@ -17,11 +17,11 @@ namespace SimpleGltf.Json
             GltfAsset.Buffers.Add(this);
             Stream = null;
         }
-        
-        [JsonIgnore] public int Index { get; }
 
         public string Uri { get; internal set; }
 
         public int ByteLength => (int) Stream.Length;
+
+        [JsonIgnore] public int Index { get; }
     }
 }

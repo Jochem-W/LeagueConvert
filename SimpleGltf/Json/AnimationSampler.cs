@@ -16,11 +16,13 @@ namespace SimpleGltf.Json
             Input = input;
             Output = output;
         }
-        
-        [JsonIgnore] public int Index { get; }
 
-        [JsonConverter(typeof(IndexableConverter<IAccessor>))] public IAccessor Input { get; }
-        
-        [JsonConverter(typeof(IndexableConverter<IAccessor>))] public IAccessor Output { get; }
+        [JsonConverter(typeof(IndexableConverter<IAccessor>))]
+        public IAccessor Input { get; }
+
+        [JsonConverter(typeof(IndexableConverter<IAccessor>))]
+        public IAccessor Output { get; }
+
+        [JsonIgnore] public int Index { get; }
     }
 }

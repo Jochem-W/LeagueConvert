@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace SimpleGltf.Json.Extensions
 {
     public static class PbrMetallicRoughnessExtensions

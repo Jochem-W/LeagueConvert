@@ -28,10 +28,9 @@ namespace SimpleGltf.Json
             _trs = transform;
             DecomposeTRS();
         }
-        
-        [JsonIgnore] public int Index { get; }
 
-        [JsonConverter(typeof(EnumerableIndexableConverter<Node>))] public IList<Node> Children { get; set; }
+        [JsonConverter(typeof(EnumerableIndexableConverter<Node>))]
+        public IList<Node> Children { get; set; }
 
         [JsonConverter(typeof(Matrix4x4Converter))]
         public Matrix4x4? Matrix
@@ -56,9 +55,11 @@ namespace SimpleGltf.Json
             }
         }
 
-        [JsonConverter(typeof(IndexableConverter<Mesh>))] public Mesh Mesh { get; set; }
+        [JsonConverter(typeof(IndexableConverter<Mesh>))]
+        public Mesh Mesh { get; set; }
 
-        [JsonConverter(typeof(IndexableConverter<Skin>))] public Skin Skin { get; set; }
+        [JsonConverter(typeof(IndexableConverter<Skin>))]
+        public Skin Skin { get; set; }
 
         [JsonConverter(typeof(NullableQuaternionConverter))]
         public Quaternion? Rotation
@@ -94,6 +95,8 @@ namespace SimpleGltf.Json
         }
 
         public string Name { get; }
+
+        [JsonIgnore] public int Index { get; }
 
         private void CalculateMatrix()
         {

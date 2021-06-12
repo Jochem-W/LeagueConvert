@@ -1,8 +1,5 @@
 using System.Collections.Generic;
-using System.Numerics;
 using System.Text.Json.Serialization;
-using SimpleGltf.Enums;
-using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json
 {
@@ -14,11 +11,11 @@ namespace SimpleGltf.Json
             Index = gltfAsset.Materials.Count;
             gltfAsset.Materials.Add(this);
         }
-        
-        [JsonIgnore] public int Index { get; }
 
         public PbrMetallicRoughness PbrMetallicRoughness { get; internal set; }
 
         public string Name { get; init; }
+
+        [JsonIgnore] public int Index { get; }
     }
 }

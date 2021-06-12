@@ -12,11 +12,13 @@ namespace SimpleGltf.Json
             Index = gltfAsset.Textures.Count;
             gltfAsset.Textures.Add(this);
         }
-        
+
+        [JsonConverter(typeof(IndexableConverter<Sampler>))]
+        public Sampler Sampler { get; init; }
+
+        [JsonConverter(typeof(IndexableConverter<Image>))]
+        public Image Source { get; init; }
+
         [JsonIgnore] public int Index { get; }
-
-        [JsonConverter(typeof(IndexableConverter<Sampler>))] public Sampler Sampler { get; init; }
-
-        [JsonConverter(typeof(IndexableConverter<Image>))] public Image Source { get; init; }
     }
 }

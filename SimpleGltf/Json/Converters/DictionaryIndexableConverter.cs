@@ -7,7 +7,8 @@ namespace SimpleGltf.Json.Converters
 {
     internal class DictionaryIndexableConverter<T> : JsonConverter<IDictionary<string, T>> where T : IIndexable
     {
-        public override IDictionary<string, T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override IDictionary<string, T> Read(ref Utf8JsonReader reader, Type typeToConvert,
+            JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }

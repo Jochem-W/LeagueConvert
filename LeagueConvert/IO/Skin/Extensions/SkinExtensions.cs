@@ -69,7 +69,7 @@ namespace LeagueConvert.IO.Skin.Extensions
             var node = gltfAsset.CreateNode();
             node.Scale = new Vector3(-1, 1, 1);
             gltfAsset.Scene.Nodes = new List<Node> {node};
-            var sampler = gltfAsset.CreateSampler(wrapS: WrappingMode.ClampToEdge, wrapT: WrappingMode.ClampToEdge);
+            var sampler = gltfAsset.CreateSampler(WrappingMode.ClampToEdge, WrappingMode.ClampToEdge);
             node.Mesh = gltfAsset.CreateMesh();
             var buffer = gltfAsset.CreateBuffer();
             var textures = new Dictionary<IMagickImage, Texture>();
