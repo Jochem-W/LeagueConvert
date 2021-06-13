@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -90,6 +91,7 @@ namespace SimpleGltf.Json.Extensions
 
         public static async Task Save(this GltfAsset gltfAsset, string path)
         {
+            gltfAsset.Clean();
             await gltfAsset.WriteBuffers();
             await (Path.GetExtension(path) switch
             {
@@ -184,6 +186,47 @@ namespace SimpleGltf.Json.Extensions
                     bufferView.BinaryWriter.Seek(0, SeekOrigin.Begin);
                     await bufferView.BinaryWriter.BaseStream.CopyToAsync(buffer.Stream);
                 }
+            }
+        }
+
+        private static void Clean(this GltfAsset gltfAsset)
+        {
+            if (gltfAsset.BufferViews != null)
+                gltfAsset.CleanBufferViews();
+            if (gltfAsset.Animations != null)
+                gltfAsset.CleanAnimations();
+        }
+
+        private static void CleanAnimations(this GltfAsset gltfAsset)
+        {
+            for (var i = 0; i < gltfAsset.Animations.Count; i++)
+            {
+                var animation = gltfAsset.Animations[i];
+                if (animation.Channels.Count != 0 && animation.Samplers.Count != 0)
+                    continue;
+                gltfAsset.Animations.Remove(animation);
+                i--;
+            }
+
+            if (gltfAsset.Animations.Count == 0)
+                gltfAsset.Animations = null;
+        }
+
+        private static void CleanBufferViews(this GltfAsset gltfAsset)
+        {
+            var removed = 0;
+            for (var i = 0; i < gltfAsset.BufferViews.Count; i++)
+            {
+                var bufferView = gltfAsset.BufferViews[i];
+                if (bufferView.ByteLength == 0)
+                {
+                    gltfAsset.BufferViews.Remove(bufferView);
+                    removed++;
+                    i--;
+                    continue;
+                }
+
+                bufferView.Index -= removed;
             }
         }
     }

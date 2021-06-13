@@ -229,8 +229,9 @@ namespace LeagueConvert.IO.Skin.Extensions
                         .Where(pair => pair.Value == track.JointHash)
                         .Select(pair => pair.Key)
                         .ToList();
-                    if (tracksWithSameId.Count > jointsWithSameId.Count)
+                    if (tracksWithSameId.Count > jointsWithSameId.Count || jointsWithSameId.Count == 0)
                         continue;
+
                     var trackPositionAmongSameId = tracksWithSameId.IndexOf(track);
                     var mostLikelyJoint = jointsWithSameId[trackPositionAmongSameId];
 

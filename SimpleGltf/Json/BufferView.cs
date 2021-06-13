@@ -40,7 +40,7 @@ namespace SimpleGltf.Json
 
         public BufferViewTarget? Target { get; init; }
 
-        [JsonIgnore] public int Index { get; }
+        [JsonIgnore] public int Index { get; internal set; }
 
         public void StopStride()
         {
