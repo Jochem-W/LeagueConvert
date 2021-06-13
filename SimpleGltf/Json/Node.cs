@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Text.Json.Serialization;
 using SimpleGltf.Extensions;
@@ -17,6 +16,7 @@ namespace SimpleGltf.Json
         private Quaternion _rotation;
         private Vector3 _scale;
         private Vector3 _translation;
+        internal bool Animated;
 
         private Node(GltfAsset gltfAsset, string name)
         {
@@ -25,6 +25,7 @@ namespace SimpleGltf.Json
             Index = _gltfAsset.Nodes.Count;
             _gltfAsset.Nodes.Add(this);
             Name = name;
+            Animated = false;
             _translation = _defaultTranslation;
             _rotation = _defaultRotation;
             _scale = _defaultScale;
@@ -45,10 +46,7 @@ namespace SimpleGltf.Json
         {
             get
             {
-                if (_matrix == Matrix4x4.Identity)
-                    return null;
-                if (_gltfAsset.Animations != null && _gltfAsset.Animations.Any(animation =>
-                    animation.Channels.Any(channel => channel.Target.Node == this))) //TODO
+                if (_matrix == Matrix4x4.Identity || Animated)
                     return null;
                 return _matrix;
             }

@@ -18,6 +18,7 @@ namespace SimpleGltf.Json
             Index = GltfAsset.Accessors.Count;
             GltfAsset.Accessors.Add(this);
             Type = type;
+            BufferView.Accessors.Add(this);
             if (normalized)
                 Normalized = true;
         }

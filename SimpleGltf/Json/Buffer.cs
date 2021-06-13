@@ -8,6 +8,7 @@ namespace SimpleGltf.Json
     {
         internal readonly GltfAsset GltfAsset;
         internal Stream Stream;
+        internal IList<BufferView> BufferViews;
 
         internal Buffer(GltfAsset gltfAsset)
         {
@@ -16,6 +17,7 @@ namespace SimpleGltf.Json
             Index = GltfAsset.Buffers.Count;
             GltfAsset.Buffers.Add(this);
             Stream = null;
+            BufferViews = new List<BufferView>();
         }
 
         public string Uri { get; internal set; }

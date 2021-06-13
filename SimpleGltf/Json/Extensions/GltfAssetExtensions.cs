@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -40,7 +39,7 @@ namespace SimpleGltf.Json.Extensions
         public static async Task<Image> CreateImage(this GltfAsset gltfAsset, BufferView bufferView,
             IMagickImage magickImage, string name = null)
         {
-            if (bufferView.GetAccessors().Any())
+            if (bufferView.Accessors.Count > 0)
                 throw new ArgumentException("BufferView can't be referenced by accessors", nameof(bufferView));
             if (bufferView.BinaryWriter.BaseStream.Length != 0)
                 throw new ArgumentException("BufferView has to be empty", nameof(bufferView));
@@ -172,9 +171,9 @@ namespace SimpleGltf.Json.Extensions
             foreach (var buffer in gltfAsset.Buffers)
             {
                 buffer.Stream = new MemoryStream();
-                foreach (var bufferView in buffer.GetBufferViews())
+                foreach (var bufferView in buffer.BufferViews)
                 {
-                    var firstAccessor = bufferView.GetAccessors().FirstOrDefault();
+                    var firstAccessor = bufferView.Accessors.Count > 0 ? bufferView.Accessors[0] : null;
                     if (bufferView.Target == BufferViewTarget.ArrayBuffer ||
                         firstAccessor?.Type is AccessorType.Mat2 or AccessorType.Mat3 or AccessorType.Mat4)
                         buffer.Stream.Seek(buffer.Stream.Position.GetOffset(4), SeekOrigin.Current);

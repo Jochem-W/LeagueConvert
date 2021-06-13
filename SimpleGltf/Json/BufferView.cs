@@ -13,6 +13,7 @@ namespace SimpleGltf.Json
         internal int ActualByteOffset;
         internal int ActualByteStride;
         internal bool Stride;
+        internal IList<Accessor> Accessors;
 
         internal BufferView(Buffer buffer)
         {
@@ -21,9 +22,11 @@ namespace SimpleGltf.Json
             GltfAsset.BufferViews ??= new List<BufferView>();
             Index = GltfAsset.BufferViews.Count;
             GltfAsset.BufferViews.Add(this);
+            Buffer.BufferViews.Add(this);
             BinaryWriter = new BinaryWriter(new MemoryStream());
             ActualByteStride = 0;
             Stride = true;
+            Accessors = new List<Accessor>();
         }
 
         [JsonConverter(typeof(IndexableConverter<Buffer>))]
