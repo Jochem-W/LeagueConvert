@@ -7,8 +7,8 @@ namespace SimpleGltf.Json
     public class Buffer : IIndexable
     {
         internal readonly GltfAsset GltfAsset;
-        internal Stream Stream;
         internal IList<BufferView> BufferViews;
+        internal Stream Stream;
 
         internal Buffer(GltfAsset gltfAsset)
         {

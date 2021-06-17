@@ -231,54 +231,58 @@ namespace LeagueConvert.IO.Skin.Extensions
                         .ToList();
                     if (tracksWithSameId.Count > jointsWithSameId.Count || jointsWithSameId.Count == 0)
                         continue;
-
                     var trackPositionAmongSameId = tracksWithSameId.IndexOf(track);
                     var mostLikelyJoint = jointsWithSameId[trackPositionAmongSameId];
-
-
-                    var translationInputAccessor =
-                        translationBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
-                    var translationOutputAccessor = translationBufferView.CreateFloatAccessor(AccessorType.Vec3);
-                    var translationSampler =
-                        gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
-                    var translationTarget = new AnimationTarget(AnimationPath.Translation) {Node = mostLikelyJoint};
-                    gltfAnimation.CreateChannel(translationSampler, translationTarget);
-                    foreach (var (time, translation) in track.Translations)
+                    if (track.Translations.Count != 0)
                     {
-                        translationOutputAccessor.Write(translation.X, translation.Y, translation.Z);
-                        translationInputAccessor.Write(time);
+                        var translationInputAccessor =
+                            translationBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
+                        var translationOutputAccessor = translationBufferView.CreateFloatAccessor(AccessorType.Vec3);
+                        var translationSampler =
+                            gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
+                        var translationTarget = new AnimationTarget(AnimationPath.Translation) {Node = mostLikelyJoint};
+                        gltfAnimation.CreateChannel(translationSampler, translationTarget);
+                        foreach (var (time, translation) in track.Translations.OrderBy(pair => pair.Key))
+                        {
+                            translationOutputAccessor.Write(translation.X, translation.Y, translation.Z);
+                            translationInputAccessor.Write(time);
+                        }
+
+                        translationBufferView.StopStride();
                     }
 
-                    translationBufferView.StopStride();
-
-
-                    var rotationInputAccessor = rotationBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
-                    var rotationOutputAccessor = rotationBufferView.CreateFloatAccessor(AccessorType.Vec4);
-                    var rotationSampler = gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
-                    var rotationTarget = new AnimationTarget(AnimationPath.Rotation) {Node = mostLikelyJoint};
-                    gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
-                    foreach (var (time, rotation) in track.Rotations)
+                    if (track.Rotations.Count != 0)
                     {
-                        var normalized = rotation.Length() is 1f ? rotation : Quaternion.Normalize(rotation);
-                        rotationOutputAccessor.Write(normalized.X, normalized.Y, normalized.Z, normalized.W);
-                        rotationInputAccessor.Write(time);
+                        var rotationInputAccessor = rotationBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
+                        var rotationOutputAccessor = rotationBufferView.CreateFloatAccessor(AccessorType.Vec4);
+                        var rotationSampler = gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
+                        var rotationTarget = new AnimationTarget(AnimationPath.Rotation) {Node = mostLikelyJoint};
+                        gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
+                        foreach (var (time, rotation) in track.Rotations.OrderBy(pair => pair.Key))
+                        {
+                            var normalized = rotation.Length() is 1f ? rotation : Quaternion.Normalize(rotation);
+                            rotationOutputAccessor.Write(normalized.X, normalized.Y, normalized.Z, normalized.W);
+                            rotationInputAccessor.Write(time);
+                        }
+
+                        rotationBufferView.StopStride();
                     }
 
-                    rotationBufferView.StopStride();
-
-
-                    var scaleInputAccessor = scaleBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
-                    var scaleOutputAccessor = scaleBufferView.CreateFloatAccessor(AccessorType.Vec3);
-                    var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
-                    var scaleTarget = new AnimationTarget(AnimationPath.Scale) {Node = mostLikelyJoint};
-                    gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
-                    foreach (var (time, scale) in track.Scales)
+                    if (track.Scales.Count != 0)
                     {
-                        scaleOutputAccessor.Write(scale.X, scale.Y, scale.Z);
-                        scaleInputAccessor.Write(time);
-                    }
+                        var scaleInputAccessor = scaleBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
+                        var scaleOutputAccessor = scaleBufferView.CreateFloatAccessor(AccessorType.Vec3);
+                        var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
+                        var scaleTarget = new AnimationTarget(AnimationPath.Scale) {Node = mostLikelyJoint};
+                        gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
+                        foreach (var (time, scale) in track.Scales.OrderBy(pair => pair.Key))
+                        {
+                            scaleOutputAccessor.Write(scale.X, scale.Y, scale.Z);
+                            scaleInputAccessor.Write(time);
+                        }
 
-                    scaleBufferView.StopStride();
+                        scaleBufferView.StopStride();
+                    }
                 }
             }
 

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using SimpleGltf.Enums;
 
 namespace SimpleGltf.Json.Extensions

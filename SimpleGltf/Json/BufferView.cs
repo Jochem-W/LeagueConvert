@@ -10,10 +10,10 @@ namespace SimpleGltf.Json
     {
         internal readonly BinaryWriter BinaryWriter;
         internal readonly GltfAsset GltfAsset;
+        internal IList<Accessor> Accessors;
         internal int ActualByteOffset;
         internal int ActualByteStride;
         internal bool Stride;
-        internal IList<Accessor> Accessors;
 
         internal BufferView(Buffer buffer)
         {
