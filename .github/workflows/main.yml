@@ -21,7 +21,7 @@ jobs:
         run: Write-Output "name=$($Env:GITHUB_SHA.SubString(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Append;
         
       - name: Upload build artifact
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: LeagueBulkConvert-${{ env.name }}-win-x64
           path: LeagueBulkConvert.WPF/bin/Release/net5.0-windows/win-x64/publish
