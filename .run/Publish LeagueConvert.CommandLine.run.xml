@@ -1,0 +1,6 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish LeagueConvert.CommandLine" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" delete_existing_files="true" platform="x64" produce_single_file="true" ready_to_run="true" runtime="win-x64" target_folder="$PROJECT_DIR$/LeagueConvert/bin/Release/net5.0/publish" target_framework="net5.0" uuid_high="8142166076660924720" uuid_low="-5092881418829668349" />
+    <method v="2" />
+  </configuration>
+</component>
