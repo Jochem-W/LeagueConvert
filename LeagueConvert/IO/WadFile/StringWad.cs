@@ -12,7 +12,7 @@ namespace LeagueConvert.IO.WadFile
     {
         private readonly Wad _wad;
 
-        public StringWad(string filePath, bool leaveOpen = false)
+        public StringWad(string filePath, bool leaveOpen = true)
         {
             FilePath = filePath;
             _wad = Wad.Mount(FilePath, leaveOpen);
@@ -41,7 +41,8 @@ namespace LeagueConvert.IO.WadFile
         {
             if (name == null)
                 throw new ArgumentException("Name cannot be null", nameof(name));
-            return Entries.FirstOrDefault(pair => pair.Key == name.ToLower()).Value;
+            var lower = name.ToLower();
+            return Entries.FirstOrDefault(pair => pair.Key == lower).Value;
         }
 
         public async IAsyncEnumerable<Skin.Skin> GetSkins(ILogger logger = null)

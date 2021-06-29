@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 using LeagueConvert.Enums;
 using LeagueConvert.IO.HashTables;
 using LeagueConvert.IO.Skin;
+using LeagueConvert.IO.Skin.Extensions;
 using LeagueConvert.IO.WadFile;
 using Serilog;
+using SimpleGltf.Json.Extensions;
 
 namespace LeagueConvert.CommandLine
 {
@@ -199,9 +201,9 @@ namespace LeagueConvert.CommandLine
                 var skinDirectory = Path.Combine(outputDirectory, skin.Character);
                 if (!Directory.Exists(skinDirectory))
                     Directory.CreateDirectory(skinDirectory);
-                //TODO
-                /*skin.Save(Path.Combine(skinDirectory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"),
-                    Logger);*/
+
+                await using var gltfAsset = await skin.GetGltfAsset();
+                await gltfAsset.Save(Path.Combine(skinDirectory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
                 return true;
             }
             catch (Exception e)

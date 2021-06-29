@@ -23,9 +23,11 @@ namespace SimpleGltfTest
             {
                 stopwatch.Reset();
                 stopwatch.Start();
-                //await AllWads(@"C:\Riot Games\League of Legends", @"D:\models\skn", SkinMode.MeshAndTextures);
+                await AllWads(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions",
+                    @"C:\Users\Joche\WebstormProjects\leaguemodelviewer\assets", SkinMode.MeshAndTextures);
+                await AllWads(@"C:\Riot Games\League of Legends\", @"D:\models\skn", SkinMode.MeshAndTextures);
                 //await AllWads(@"C:\Riot Games\League of Legends", @"D:\models\skl", SkinMode.WithSkeleton);
-                await AllWads(@"C:\Riot Games\League of Legends", @"D:\models\anm", SkinMode.WithAnimations);
+                //await AllWads(@"C:\Riot Games\League of Legends", @"D:\models\anm", SkinMode.WithAnimations);
                 stopwatch.Stop();
                 timeSpanList.Add(stopwatch.Elapsed);
             }
