@@ -16,9 +16,21 @@ namespace SimpleGltf.Json.Extensions
             IgnoreNullValues = true
         };
 
+        public static UShortAccessor CreateUShortAccessor(this GltfAsset gltfAsset, BufferView bufferView,
+            AccessorType accessorType, bool minMax = false)
+        {
+            return new(gltfAsset, bufferView, accessorType, minMax);
+        }
+
+        public static FloatAccessor CreateFloatAccessor(this GltfAsset gltfAsset, BufferView bufferView,
+            AccessorType accessorType, bool minMax = false)
+        {
+            return new(gltfAsset, bufferView, accessorType, minMax);
+        }
+
         public static Animation CreateAnimation(this GltfAsset gltfAsset, string name = null)
         {
-            return new(gltfAsset, name);
+            return new(gltfAsset) {Name = name};
         }
 
         public static Asset CreateAsset(this GltfAsset gltfAsset, string copyright = null)
@@ -31,9 +43,10 @@ namespace SimpleGltf.Json.Extensions
             return new(gltfAsset);
         }
 
-        public static Image CreateImage(this GltfAsset gltfAsset, string uri, string name = null)
+        public static BufferView CreateBufferView(this GltfAsset gltfAsset, Buffer buffer,
+            BufferViewTarget? target = null)
         {
-            return new(gltfAsset, uri, name);
+            return new(gltfAsset, buffer) {Target = target};
         }
 
         public static async Task<Image> CreateImage(this GltfAsset gltfAsset, BufferView bufferView,
@@ -198,28 +211,25 @@ namespace SimpleGltf.Json.Extensions
 
         private static void CleanAnimations(this GltfAsset gltfAsset)
         {
-            for (var i = 0; i < gltfAsset.Animations.Count; i++)
+            for (var i = 0; i < gltfAsset.AnimationList.Count; i++)
             {
-                var animation = gltfAsset.Animations[i];
-                if (animation.Channels.Count != 0 && animation.Samplers.Count != 0)
+                var animation = gltfAsset.AnimationList[i];
+                if (animation.ChannelList.Count != 0 && animation.SamplerList.Count != 0)
                     continue;
-                gltfAsset.Animations.Remove(animation);
+                gltfAsset.AnimationList.Remove(animation);
                 i--;
             }
-
-            if (gltfAsset.Animations.Count == 0)
-                gltfAsset.Animations = null;
         }
 
         private static void CleanBufferViews(this GltfAsset gltfAsset)
         {
             var removed = 0;
-            for (var i = 0; i < gltfAsset.BufferViews.Count; i++)
+            for (var i = 0; i < gltfAsset.BufferViewList.Count; i++)
             {
-                var bufferView = gltfAsset.BufferViews[i];
+                var bufferView = gltfAsset.BufferViewList[i];
                 if (bufferView.ByteLength == 0)
                 {
-                    gltfAsset.BufferViews.Remove(bufferView);
+                    gltfAsset.BufferViewList.Remove(bufferView);
                     removed++;
                     i--;
                     continue;

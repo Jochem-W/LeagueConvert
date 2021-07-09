@@ -68,33 +68,33 @@ namespace LeagueConvert.IO.Skin.Extensions
             gltfAsset.Scene = gltfAsset.CreateScene();
             var node = gltfAsset.CreateNode();
             node.Scale = new Vector3(-1, 1, 1);
-            gltfAsset.Scene.Nodes = new List<Node> {node};
+            gltfAsset.Scene.AddNode(node);
             var sampler = gltfAsset.CreateSampler(WrappingMode.ClampToEdge, WrappingMode.ClampToEdge);
             node.Mesh = gltfAsset.CreateMesh();
             var buffer = gltfAsset.CreateBuffer();
             var textures = new Dictionary<IMagickImage, Texture>();
-            var attributesBufferView = buffer.CreateBufferView(BufferViewTarget.ArrayBuffer);
-            var indicesBufferView = buffer.CreateBufferView(BufferViewTarget.ElementArrayBuffer);
+            var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
+            var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
             indicesBufferView.StopStride();
             foreach (var subMesh in skin.SimpleSkin.Submeshes)
             {
-                var positionAccessor = attributesBufferView.CreateFloatAccessor(AccessorType.Vec3, true);
-                var normalAccessor = attributesBufferView.CreateFloatAccessor(AccessorType.Vec3, true);
-                var uvAccessor = attributesBufferView.CreateFloatAccessor(AccessorType.Vec2, true);
+                var positionAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
+                var normalAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
+                var uvAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec2, true);
                 FloatAccessor colourAccessor = null;
                 if (subMesh.Vertices.All(vertex => vertex.Color != null))
-                    colourAccessor = attributesBufferView.CreateFloatAccessor(AccessorType.Vec4, true);
+                    colourAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
 
                 //SKELETON
                 UShortAccessor jointsAccessor = null;
                 FloatAccessor weightsAccessor = null;
                 if (skin.State.HasFlag(SkinState.SkeletonLoaded))
                 {
-                    jointsAccessor = attributesBufferView.CreateUShortAccessor(AccessorType.Vec4, true);
-                    weightsAccessor = attributesBufferView.CreateFloatAccessor(AccessorType.Vec4, true);
+                    jointsAccessor = gltfAsset.CreateUShortAccessor(attributesBufferView, AccessorType.Vec4, true);
+                    weightsAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
                 }
 
-                var indicesAccessor = indicesBufferView.CreateUShortAccessor(AccessorType.Scalar);
+                var indicesAccessor = gltfAsset.CreateUShortAccessor(indicesBufferView, AccessorType.Scalar);
                 var primitive = node.Mesh.CreatePrimitive();
                 primitive.Indices = indicesAccessor;
                 foreach (var index in subMesh.Indices)
@@ -148,7 +148,6 @@ namespace LeagueConvert.IO.Skin.Extensions
 
                 //MATERIALS
                 var material = gltfAsset.CreateMaterial(subMesh.Name);
-                material.SetUnlit();
                 primitive.Material = material;
                 if (!skin.State.HasFlag(SkinState.TexturesLoaded))
                     continue;
@@ -162,7 +161,7 @@ namespace LeagueConvert.IO.Skin.Extensions
                     continue;
                 }
 
-                var imageBufferView = buffer.CreateBufferView();
+                var imageBufferView = gltfAsset.CreateBufferView(buffer);
                 imageBufferView.StopStride();
                 var image = await gltfAsset.CreateImage(imageBufferView, magickImage);
                 var texture = gltfAsset.CreateTexture(sampler, image);
@@ -176,10 +175,11 @@ namespace LeagueConvert.IO.Skin.Extensions
                 return gltfAsset;
             var skeletonRootNode = gltfAsset.CreateNode();
             skeletonRootNode.Scale = new Vector3(-1, 1, 1);
-            gltfAsset.Scene.Nodes.Add(skeletonRootNode);
-            var inverseBindMatricesBufferView = buffer.CreateBufferView();
+            gltfAsset.Scene.AddNode(skeletonRootNode);
+            var inverseBindMatricesBufferView = gltfAsset.CreateBufferView(buffer);
             inverseBindMatricesBufferView.StopStride();
-            var inverseBindMatricesAccessor = inverseBindMatricesBufferView.CreateFloatAccessor(AccessorType.Mat4);
+            var inverseBindMatricesAccessor =
+                gltfAsset.CreateFloatAccessor(inverseBindMatricesBufferView, AccessorType.Mat4);
             var joints = new Dictionary<Joint, Node>();
             foreach (var skeletonJoint in skin.Skeleton.Joints)
             {
@@ -201,16 +201,16 @@ namespace LeagueConvert.IO.Skin.Extensions
                 parentNode?.AddChild(jointNode);
                 if (skeletonJoint.ParentId == -1)
                     skeletonRootNode.AddChild(jointNode);
-                gltfSkin.Joints.Add(jointNode);
+                gltfSkin.AddJoint(jointNode);
             }
 
             if (!skin.State.HasFlag(SkinState.AnimationsLoaded))
                 return gltfAsset;
 
 
-            var translationBufferView = buffer.CreateBufferView();
-            var rotationBufferView = buffer.CreateBufferView();
-            var scaleBufferView = buffer.CreateBufferView();
+            var translationBufferView = gltfAsset.CreateBufferView(buffer);
+            var rotationBufferView = gltfAsset.CreateBufferView(buffer);
+            var scaleBufferView = gltfAsset.CreateBufferView(buffer);
 
             //ANIMATIONS
             foreach (var (name, animation) in skin.Animations)
@@ -236,11 +236,12 @@ namespace LeagueConvert.IO.Skin.Extensions
                     if (track.Translations.Count != 0)
                     {
                         var translationInputAccessor =
-                            translationBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
-                        var translationOutputAccessor = translationBufferView.CreateFloatAccessor(AccessorType.Vec3);
+                            gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Scalar, true);
+                        var translationOutputAccessor =
+                            gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Vec3);
                         var translationSampler =
                             gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
-                        var translationTarget = new AnimationTarget(AnimationPath.Translation) {Node = mostLikelyJoint};
+                        var translationTarget = new Target(AnimationPath.Translation) {Node = mostLikelyJoint};
                         gltfAnimation.CreateChannel(translationSampler, translationTarget);
                         foreach (var (time, translation) in track.Translations.OrderBy(pair => pair.Key))
                         {
@@ -253,10 +254,13 @@ namespace LeagueConvert.IO.Skin.Extensions
 
                     if (track.Rotations.Count != 0)
                     {
-                        var rotationInputAccessor = rotationBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
-                        var rotationOutputAccessor = rotationBufferView.CreateFloatAccessor(AccessorType.Vec4);
-                        var rotationSampler = gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
-                        var rotationTarget = new AnimationTarget(AnimationPath.Rotation) {Node = mostLikelyJoint};
+                        var rotationInputAccessor =
+                            gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Scalar, true);
+                        var rotationOutputAccessor =
+                            gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Vec4);
+                        var rotationSampler =
+                            gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
+                        var rotationTarget = new Target(AnimationPath.Rotation) {Node = mostLikelyJoint};
                         gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
                         foreach (var (time, rotation) in track.Rotations.OrderBy(pair => pair.Key))
                         {
@@ -270,10 +274,11 @@ namespace LeagueConvert.IO.Skin.Extensions
 
                     if (track.Scales.Count != 0)
                     {
-                        var scaleInputAccessor = scaleBufferView.CreateFloatAccessor(AccessorType.Scalar, true);
-                        var scaleOutputAccessor = scaleBufferView.CreateFloatAccessor(AccessorType.Vec3);
+                        var scaleInputAccessor =
+                            gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Scalar, true);
+                        var scaleOutputAccessor = gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Vec3);
                         var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
-                        var scaleTarget = new AnimationTarget(AnimationPath.Scale) {Node = mostLikelyJoint};
+                        var scaleTarget = new Target(AnimationPath.Scale) {Node = mostLikelyJoint};
                         gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
                         foreach (var (time, scale) in track.Scales.OrderBy(pair => pair.Key))
                         {

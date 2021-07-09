@@ -6,14 +6,16 @@ namespace SimpleGltf.Json
 {
     public class Primitive
     {
+        internal readonly IDictionary<string, Accessor> AttributesDictionary;
+
         internal Primitive(Mesh mesh)
         {
-            mesh.Primitives.Add(this);
-            Attributes = new Dictionary<string, Accessor>();
+            mesh.PrimitiveList.Add(this);
+            AttributesDictionary = new Dictionary<string, Accessor>();
         }
 
         [JsonConverter(typeof(DictionaryIndexableConverter<Accessor>))]
-        public IDictionary<string, Accessor> Attributes { get; }
+        public IEnumerable<KeyValuePair<string, Accessor>> Attributes => AttributesDictionary;
 
         [JsonConverter(typeof(IndexableConverter<Accessor>))]
         public Accessor Indices { get; set; }

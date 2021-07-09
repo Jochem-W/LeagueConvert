@@ -26,7 +26,7 @@ namespace LeagueConvert.IO.Skin
         private string _simpleSkinFile;
         private string _skeletonFile;
         private string _texture;
-        internal IDictionary<string, Animation> Animations;
+        public IDictionary<string, Animation> Animations;
 
         internal SimpleSkin SimpleSkin;
         internal Skeleton Skeleton;

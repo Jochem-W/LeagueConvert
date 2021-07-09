@@ -6,19 +6,19 @@ namespace SimpleGltf.Json
 {
     public class Skin : IIndexable
     {
+        internal readonly IList<Node> JointList = new List<Node>();
+
         internal Skin(GltfAsset gltfAsset)
         {
-            gltfAsset.Skins ??= new List<Skin>();
-            Index = gltfAsset.Skins.Count;
-            gltfAsset.Skins.Add(this);
-            Joints = new List<Node>();
+            Index = gltfAsset.SkinList.Count;
+            gltfAsset.SkinList.Add(this);
         }
 
         [JsonConverter(typeof(IndexableConverter<Accessor>))]
         public Accessor InverseBindMatrices { get; set; }
 
         [JsonConverter(typeof(EnumerableIndexableConverter<Node>))]
-        public IList<Node> Joints { get; }
+        public IEnumerable<Node> Joints => JointList;
 
         [JsonIgnore] public int Index { get; }
     }

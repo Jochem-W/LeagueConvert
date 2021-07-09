@@ -5,15 +5,15 @@ namespace SimpleGltf.Json
 {
     public class Mesh : IIndexable
     {
+        internal readonly IList<Primitive> PrimitiveList = new List<Primitive>();
+
         internal Mesh(GltfAsset gltfAsset)
         {
-            gltfAsset.Meshes ??= new List<Mesh>();
-            Index = gltfAsset.Meshes.Count;
-            Primitives = new List<Primitive>();
-            gltfAsset.Meshes.Add(this);
+            Index = gltfAsset.MeshList.Count;
+            gltfAsset.MeshList.Add(this);
         }
 
-        public IList<Primitive> Primitives { get; }
+        public IEnumerable<Primitive> Primitives => PrimitiveList;
 
         [JsonIgnore] public int Index { get; }
     }

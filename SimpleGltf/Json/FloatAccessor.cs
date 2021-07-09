@@ -14,17 +14,16 @@ namespace SimpleGltf.Json
         private readonly float[] _min;
         private readonly bool _minMax;
         private readonly int _rows;
-        private bool _firstElement;
+        private bool _firstElement = true;
 
-        internal FloatAccessor(BufferView bufferView, AccessorType type, bool minMax, bool normalized) :
-            base(bufferView, type, normalized)
+        internal FloatAccessor(GltfAsset gltfAsset, BufferView bufferView, AccessorType type, bool minMax) :
+            base(gltfAsset, bufferView, type)
         {
-            ComponentType = ComponentType.Float;
-            _componentCount = Type.GetColumns() * Type.GetRows();
             _minMax = minMax;
-            _rows = Type.GetRows();
+            ComponentType = ComponentType.Float;
             _columns = Type.GetColumns();
-            _firstElement = true;
+            _rows = Type.GetRows();
+            _componentCount = _columns * _rows;
             if (!_minMax)
                 return;
             _min = new float[_componentCount];

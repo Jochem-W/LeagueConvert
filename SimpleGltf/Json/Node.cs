@@ -11,21 +11,18 @@ namespace SimpleGltf.Json
         private readonly Quaternion _defaultRotation = Quaternion.Identity;
         private readonly Vector3 _defaultScale = Vector3.Zero;
         private readonly Vector3 _defaultTranslation = Vector3.Zero;
-        private readonly GltfAsset _gltfAsset;
+        internal readonly IList<Node> ChildrenList = new List<Node>();
         private Matrix4x4 _matrix;
         private Quaternion _rotation;
         private Vector3 _scale;
         private Vector3 _translation;
-        internal bool Animated;
+        internal bool Animated = false;
 
         private Node(GltfAsset gltfAsset, string name)
         {
-            _gltfAsset = gltfAsset;
-            _gltfAsset.Nodes ??= new List<Node>();
-            Index = _gltfAsset.Nodes.Count;
-            _gltfAsset.Nodes.Add(this);
+            Index = gltfAsset.NodeList.Count;
+            gltfAsset.NodeList.Add(this);
             Name = name;
-            Animated = false;
             _translation = _defaultTranslation;
             _rotation = _defaultRotation;
             _scale = _defaultScale;
@@ -39,7 +36,7 @@ namespace SimpleGltf.Json
         }
 
         [JsonConverter(typeof(EnumerableIndexableConverter<Node>))]
-        public IList<Node> Children { get; set; }
+        public IEnumerable<Node> Children => ChildrenList.Count > 0 ? ChildrenList : null;
 
         [JsonConverter(typeof(Matrix4x4Converter))]
         public Matrix4x4? Matrix

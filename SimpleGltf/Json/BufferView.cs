@@ -8,25 +8,18 @@ namespace SimpleGltf.Json
 {
     public class BufferView : IIndexable
     {
-        internal readonly BinaryWriter BinaryWriter;
-        internal readonly GltfAsset GltfAsset;
-        internal IList<Accessor> Accessors;
+        internal readonly IList<Accessor> Accessors = new List<Accessor>();
+        internal readonly BinaryWriter BinaryWriter = new(new MemoryStream());
         internal int ActualByteOffset;
-        internal int ActualByteStride;
-        internal bool Stride;
+        internal int ActualByteStride = 0;
+        internal bool Stride = true;
 
-        internal BufferView(Buffer buffer)
+        internal BufferView(GltfAsset gltfAsset, Buffer buffer)
         {
+            Index = gltfAsset.BufferViewList.Count;
+            gltfAsset.BufferViewList.Add(this);
             Buffer = buffer;
-            GltfAsset = buffer.GltfAsset;
-            GltfAsset.BufferViews ??= new List<BufferView>();
-            Index = GltfAsset.BufferViews.Count;
-            GltfAsset.BufferViews.Add(this);
             Buffer.BufferViews.Add(this);
-            BinaryWriter = new BinaryWriter(new MemoryStream());
-            ActualByteStride = 0;
-            Stride = true;
-            Accessors = new List<Accessor>();
         }
 
         [JsonConverter(typeof(IndexableConverter<Buffer>))]

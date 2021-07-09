@@ -4,19 +4,18 @@ namespace SimpleGltf.Json
 {
     public class Animation
     {
-        internal Animation(GltfAsset gltfAsset, string name)
+        internal readonly IList<Channel> ChannelList = new List<Channel>();
+        internal readonly IList<AnimationSampler> SamplerList = new List<AnimationSampler>();
+
+        internal Animation(GltfAsset gltfAsset)
         {
-            gltfAsset.Animations ??= new List<Animation>();
-            gltfAsset.Animations.Add(this);
-            Channels = new List<AnimationChannel>();
-            Samplers = new List<AnimationSampler>();
-            Name = name;
+            gltfAsset.AnimationList.Add(this);
         }
 
-        public IList<AnimationChannel> Channels { get; }
+        public IEnumerable<Channel> Channels => ChannelList;
 
-        public IList<AnimationSampler> Samplers { get; }
+        public IEnumerable<AnimationSampler> Samplers => SamplerList;
 
-        public string Name { get; }
+        public string Name { get; init; }
     }
 }

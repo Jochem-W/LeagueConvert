@@ -6,15 +6,16 @@ namespace SimpleGltf.Json
 {
     public class Scene : IIndexable
     {
+        internal readonly IList<Node> NodeList = new List<Node>();
+
         internal Scene(GltfAsset gltfAsset)
         {
-            gltfAsset.Scenes ??= new List<Scene>();
-            Index = gltfAsset.Scenes.Count;
-            gltfAsset.Scenes.Add(this);
+            Index = gltfAsset.SceneList.Count;
+            gltfAsset.SceneList.Add(this);
         }
 
         [JsonConverter(typeof(EnumerableIndexableConverter<Node>))]
-        public IList<Node> Nodes { get; set; }
+        public IEnumerable<Node> Nodes => NodeList.Count > 0 ? NodeList : null;
 
         [JsonIgnore] public int Index { get; }
     }

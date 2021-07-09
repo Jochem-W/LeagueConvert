@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using SimpleGltf.Enums;
 using SimpleGltf.Json.Converters;
@@ -9,9 +8,8 @@ namespace SimpleGltf.Json
     {
         private Image(GltfAsset gltfAsset)
         {
-            gltfAsset.Images ??= new List<Image>();
-            Index = gltfAsset.Images.Count;
-            gltfAsset.Images.Add(this);
+            Index = gltfAsset.ImageList.Count;
+            gltfAsset.ImageList.Add(this);
         }
 
         internal Image(GltfAsset gltfAsset, BufferView bufferView, MimeType mimeType, string name) : this(gltfAsset)
@@ -21,13 +19,7 @@ namespace SimpleGltf.Json
             Name = name;
         }
 
-        internal Image(GltfAsset gltfAsset, string uri, string name) : this(gltfAsset)
-        {
-            Uri = uri;
-            Name = name;
-        }
-
-        public string Uri { get; }
+        public string Uri { get; internal set; }
 
         [JsonConverter(typeof(MimeTypeConverter))]
         public MimeType? MimeType { get; }

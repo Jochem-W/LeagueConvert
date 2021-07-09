@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using SimpleGltf.Json.Converters;
 
@@ -8,9 +7,8 @@ namespace SimpleGltf.Json
     {
         internal Texture(GltfAsset gltfAsset)
         {
-            gltfAsset.Textures ??= new List<Texture>();
-            Index = gltfAsset.Textures.Count;
-            gltfAsset.Textures.Add(this);
+            Index = gltfAsset.TextureList.Count;
+            gltfAsset.TextureList.Add(this);
         }
 
         [JsonConverter(typeof(IndexableConverter<Sampler>))]

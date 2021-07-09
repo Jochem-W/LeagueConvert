@@ -6,18 +6,13 @@ namespace SimpleGltf.Json
 {
     public class Buffer : IIndexable
     {
-        internal readonly GltfAsset GltfAsset;
-        internal IList<BufferView> BufferViews;
-        internal Stream Stream;
+        internal readonly IList<BufferView> BufferViews = new List<BufferView>();
+        internal Stream Stream = null;
 
         internal Buffer(GltfAsset gltfAsset)
         {
-            GltfAsset = gltfAsset;
-            GltfAsset.Buffers ??= new List<Buffer>();
-            Index = GltfAsset.Buffers.Count;
-            GltfAsset.Buffers.Add(this);
-            Stream = null;
-            BufferViews = new List<BufferView>();
+            Index = gltfAsset.BufferList.Count;
+            gltfAsset.BufferList.Add(this);
         }
 
         public string Uri { get; internal set; }
