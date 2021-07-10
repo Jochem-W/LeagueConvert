@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace SimpleGltf.Json.Converters
 {
-    public class NullableVector3Converter : JsonConverter<Vector3?>
+    internal class NullableVector3Converter : JsonConverter<Vector3?>
     {
         public override Vector3? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

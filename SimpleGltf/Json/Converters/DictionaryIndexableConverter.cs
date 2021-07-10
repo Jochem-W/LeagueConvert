@@ -14,12 +14,14 @@ namespace SimpleGltf.Json.Converters
             throw new NotImplementedException();
         }
 
-        public override void Write(Utf8JsonWriter writer, IEnumerable<KeyValuePair<string, T>> value,
+        public override void Write(Utf8JsonWriter writer, IEnumerable<KeyValuePair<string, T>> pairs,
             JsonSerializerOptions options)
         {
+            if (pairs == null)
+                return;
             writer.WriteStartObject();
-            foreach (var (name, v) in value)
-                writer.WriteNumber(name, v.Index);
+            foreach (var (name, value) in pairs)
+                writer.WriteNumber(name, value.Index);
             writer.WriteEndObject();
         }
     }

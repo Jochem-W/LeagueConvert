@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace SimpleGltf.Json.Converters
 {
-    public class NullableQuaternionConverter : JsonConverter<Quaternion?>
+    internal class NullableQuaternionConverter : JsonConverter<Quaternion?>
     {
         public override Quaternion? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

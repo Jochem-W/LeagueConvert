@@ -5,7 +5,7 @@ using SimpleGltf.Enums;
 
 namespace SimpleGltf.Json.Converters
 {
-    public class AnimationPathConverter : JsonConverter<AnimationPath>
+    internal class AnimationPathConverter : JsonConverter<AnimationPath>
     {
         public override AnimationPath Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

@@ -13,6 +13,8 @@ namespace SimpleGltf.Json.Converters
 
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
         {
+            if (value == null)
+                return;
             writer.WriteNumberValue(value.Index);
         }
     }
