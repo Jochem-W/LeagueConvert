@@ -12,11 +12,10 @@ namespace SimpleGltf.Json
             gltfAsset.ImageList.Add(this);
         }
 
-        internal Image(GltfAsset gltfAsset, BufferView bufferView, MimeType mimeType, string name) : this(gltfAsset)
+        internal Image(GltfAsset gltfAsset, BufferView bufferView, MimeType mimeType) : this(gltfAsset)
         {
             BufferView = bufferView;
             MimeType = mimeType;
-            Name = name;
         }
 
         public string Uri { get; internal set; }
@@ -27,7 +26,7 @@ namespace SimpleGltf.Json
         [JsonConverter(typeof(IndexableConverter<BufferView>))]
         public BufferView BufferView { get; }
 
-        public string Name { get; }
+        public string Name { get; init; }
 
         [JsonIgnore] public int Index { get; }
     }

@@ -57,7 +57,7 @@ namespace SimpleGltf.Json.Extensions
             if (bufferView.BinaryWriter.BaseStream.Length != 0)
                 throw new ArgumentException("BufferView has to be empty", nameof(bufferView));
             await magickImage.WriteAsync(bufferView.BinaryWriter.BaseStream, MagickFormat.Png);
-            return new Image(gltfAsset, bufferView, MimeType.Png, name);
+            return new Image(gltfAsset, bufferView, MimeType.Png) {Name = name};
         }
 
         public static Material CreateMaterial(this GltfAsset gltfAsset, string name = null)
@@ -108,12 +108,11 @@ namespace SimpleGltf.Json.Extensions
             await (Path.GetExtension(path) switch
             {
                 ".glb" => gltfAsset.SaveGltfBinary(path),
-                ".gltf" => gltfAsset.SaveGltfEmbedded(path),
-                _ => gltfAsset.SaveGltf(path)
+                _ => gltfAsset.SaveGltfBinary(path, true)
             });
         }
 
-        public static async Task SaveGltfBinary(this GltfAsset gltfAsset, string filePath)
+        private static async Task SaveGltfBinary(this GltfAsset gltfAsset, string filePath, bool external = false)
         {
             var directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
@@ -124,7 +123,7 @@ namespace SimpleGltf.Json.Extensions
             binaryWriter.Write((uint) 2);
             binaryWriter.Seek(4, SeekOrigin.Current);
 
-            await WriteChunk(binaryWriter, gltfAsset);
+            await WriteJson(binaryWriter, gltfAsset);
 
             foreach (var buffer in gltfAsset.Buffers)
                 await WriteChunk(binaryWriter, "BIN", buffer.Stream);
@@ -136,8 +135,14 @@ namespace SimpleGltf.Json.Extensions
             await binaryWriter.BaseStream.CopyToAsync(fileStream);
         }
 
-        //TODO: merge the following two functions
-        private static async Task WriteChunk(BinaryWriter binaryWriter, string magic, Stream data)
+        private static async Task WriteJson(BinaryWriter binaryWriter, GltfAsset gltfAsset)
+        {
+            await using var jsonStream = new MemoryStream();
+            await JsonSerializer.SerializeAsync(jsonStream, gltfAsset, JsonSerializerOptions);
+            await WriteChunk(binaryWriter, "JSON", jsonStream, ' ');
+        }
+
+        private static async Task WriteChunk(BinaryWriter binaryWriter, string magic, Stream data, char? padding = null)
         {
             var headerStart = binaryWriter.BaseStream.Position;
             binaryWriter.Seek(4, SeekOrigin.Current);
@@ -145,24 +150,12 @@ namespace SimpleGltf.Json.Extensions
             var start = binaryWriter.BaseStream.Position;
             data.Seek(0, SeekOrigin.Begin);
             await data.CopyToAsync(binaryWriter.BaseStream);
-            binaryWriter.Write(new byte[binaryWriter.BaseStream.Position.GetOffset(4)]);
-            var end = binaryWriter.BaseStream.Position;
-            var length = end - start;
-            binaryWriter.Seek((int) headerStart, SeekOrigin.Begin);
-            binaryWriter.Write((uint) length);
-            binaryWriter.Seek((int) end, SeekOrigin.Begin);
-        }
-
-        private static async Task WriteChunk(BinaryWriter binaryWriter, GltfAsset gltfAsset)
-        {
-            var headerStart = binaryWriter.BaseStream.Position;
-            binaryWriter.Seek(4, SeekOrigin.Current);
-            binaryWriter.Write("JSON".ToMagic());
-            var start = binaryWriter.BaseStream.Position;
-            await JsonSerializer.SerializeAsync(binaryWriter.BaseStream, gltfAsset, JsonSerializerOptions);
             var offset = binaryWriter.BaseStream.Position.GetOffset(4);
-            for (var i = 0; i < offset; i++)
-                binaryWriter.Write(' ');
+            if (padding.HasValue)
+                for (var i = 0; i < offset; i++)
+                    binaryWriter.Write(padding.Value);
+            else
+                binaryWriter.Write(new byte[offset]);
             var end = binaryWriter.BaseStream.Position;
             var length = end - start;
             binaryWriter.Seek((int) headerStart, SeekOrigin.Begin);
@@ -180,10 +173,12 @@ namespace SimpleGltf.Json.Extensions
             throw new NotImplementedException();
         }
 
-        private static async Task WriteBuffers(this GltfAsset gltfAsset, bool external = false)
+        private static async Task WriteBuffers(this GltfAsset gltfAsset)
         {
             foreach (var buffer in gltfAsset.Buffers)
             {
+                if (buffer.Stream != null)
+                    await buffer.Stream.DisposeAsync();
                 buffer.Stream = new MemoryStream();
                 foreach (var bufferView in buffer.BufferViews)
                 {

@@ -16,6 +16,7 @@ namespace SimpleGltf.Extensions
             };
         }
 
+        //TODO: move to custom version of LeagueToolkit
         public static Matrix4x4 FixInverseBindMatrix(this Matrix4x4 matrix)
         {
             matrix *= 1 / matrix.M44;
