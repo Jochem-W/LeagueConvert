@@ -1,0 +1,3 @@
+[submodule "SimpleGltf"]
+	path = SimpleGltf
+	url = https://github.com/Jochem-W/SimpleGltf
