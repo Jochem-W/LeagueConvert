@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SimpleGltf\SimpleGltf.csproj" />
+      <ProjectReference Include="..\SimpleGltf\SimpleGltf\SimpleGltf.csproj" />
     </ItemGroup>
 
 </Project>
