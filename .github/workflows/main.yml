@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2.3.5
 
       - name: Publish
-        run: dotnet.exe publish LeagueBulkConvert.WPF -c Release -r win-x64 --no-self-contained -p:PublishReadyToRun=true -p:PublishSingleFile=true
+        run: dotnet.exe publish LeagueBulkConvert.WPF -c Release
         
       - name: Get short SHA
         run: Write-Output "name=$($Env:GITHUB_SHA.SubString(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Append;
@@ -23,5 +23,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: LeagueBulkConvert-${{ env.name }}-win-x64
-          path: LeagueBulkConvert.WPF/bin/Release/net5.0-windows/win-x64/publish
+          name: LeagueBulkConvert-${{ env.name }}
+          path: LeagueBulkConvert.WPF/bin/Release/net5.0-windows/publish
