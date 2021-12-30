@@ -5,10 +5,7 @@ and animations.
 
 ## Status
 
-Other than bugfixes, I won't be updating the current version of LeagueBulkConvert
-anymore. I am, however, currently working on a new version of LeagueBulkConvert
-called LeagueConvert (might still change). This new version will be much better,
-but it's not done yet. Check the 'vnext' branch for more information.
+All development is on hold, but I might still add features that are requested and fix issues.
 
 ## How to use | [video tutorial by Luviana (slightly outdated)](https://youtu.be/CAtiX1po4Bk)
 
@@ -33,6 +30,9 @@ but it's not done yet. Check the 'vnext' branch for more information.
 
 * **Output directory**: the path to the directory you'd like the model files to
   end up, e.g. "D:\LeagueBulkConvert"
+
+* **Add hash tables**: import hash tables on top of the latest available 
+  version (you can select multiple)
 
 * **Include skeleton**: include the skeleton for each skin
 
