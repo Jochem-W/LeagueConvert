@@ -6,7 +6,7 @@
         <Version>2.4.2</Version>
         <PackageReleaseNotes></PackageReleaseNotes>
         <PackageIcon>fantome.png</PackageIcon>
-        <PackageIconUrl/>
+        <PackageIconUrl />
         <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
         <Authors>Crauzer</Authors>
@@ -20,17 +20,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="SharpGLTF.Core.dll"/>
-        <None Remove="SharpGLTF.Toolkit.dll"/>
+        <None Remove="SharpGLTF.Core.dll" />
+        <None Remove="SharpGLTF.Toolkit.dll" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FlatSharp" Version="6.0.4"/>
-        <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="8.5.0"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020"/>
-        <PackageReference Include="XXHash3.NET" Version="1.2.2"/>
-        <PackageReference Include="ZstdSharp" Version="0.7.2"/>
+        <PackageReference Include="FlatSharp" Version="6.0.4" />
+        <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="8.5.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0025" />
+        <PackageReference Include="XXHash3.NET" Version="1.2.2" />
+        <PackageReference Include="ZstdSharp" Version="0.7.2" />
     </ItemGroup>
 
     <ItemGroup>
@@ -41,7 +41,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Resource Include="SharpGLTF.Core.dll"/>
+        <Resource Include="SharpGLTF.Core.dll" />
         <Resource Include="SharpGLTF.Toolkit.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Resource>
