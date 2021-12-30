@@ -83,6 +83,8 @@ public class Config
 
     public IList<IncludableWad> Wads { get; } = new List<IncludableWad>();
 
+    public List<string> HashTableFiles { get; set; }
+
     private void CalculateScale()
     {
         var scale = ScaleList.Sum() / ScaleList.Count;

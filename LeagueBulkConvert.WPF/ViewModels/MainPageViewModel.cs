@@ -13,6 +13,9 @@ namespace LeagueBulkConvert.WPF.ViewModels;
 
 internal class MainPageViewModel : INotifyPropertyChanged
 {
+    private readonly Command _addHashTables;
+    private readonly List<string> _hashTableFiles = new();
+
     private readonly Command _nextCommand;
 
     private string _exportPath;
@@ -35,12 +38,29 @@ internal class MainPageViewModel : INotifyPropertyChanged
             Directory.SetCurrentDirectory(ExportPath);
             var config = new Config();
             var t = Directory.EnumerateFiles(_wadsPath, "*.wad.client");
+            config.HashTableFiles = _hashTableFiles;
             foreach (var filePath in Directory
                          .EnumerateFiles(_wadsPath, "*.wad.client", SearchOption.AllDirectories)
                          .Where(f => Path.GetFileName(f).Count(c => c == '.') == 2))
                 config.Wads.Add(new IncludableWad(filePath));
             owner.NavigationService.Navigate(new ConfigPage(config));
         }, _ => LeaguePath != null && ExportPath != null);
+
+        _addHashTables = new Command(_ =>
+        {
+            using var dialog = new CommonOpenFileDialog
+            {
+                Multiselect = true,
+                InitialDirectory = ExportPath
+            };
+
+            var result = dialog.ShowDialog();
+
+            _hashTableFiles.Clear();
+
+            if (result == CommonFileDialogResult.Ok)
+                _hashTableFiles.AddRange(dialog.FileNames);
+        });
     }
 
     public ICommand BrowseExport { get; }
@@ -102,6 +122,8 @@ internal class MainPageViewModel : INotifyPropertyChanged
     }
 
     public ICommand NextCommand => _nextCommand;
+
+    public ICommand AddHashTables => _addHashTables;
 
     public event PropertyChangedEventHandler PropertyChanged;
 

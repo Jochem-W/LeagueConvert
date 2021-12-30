@@ -63,7 +63,6 @@ internal class LoggingPageViewModel : INotifyPropertyChanged
         if (!Directory.Exists("hashes"))
             Directory.CreateDirectory("hashes");
 
-
         if (await HashTables.TryLoad(_logger))
             await Task.Run(async () => await Utils.Convert(_config, _logger, _cancellationTokenSource.Token));
         _completed = true;

@@ -17,7 +17,7 @@ public static class Utils
     public static async Task Convert(Config config, ILogger logger = null,
         CancellationToken? cancellationToken = null)
     {
-        var hashTables = await ReadHashTables(logger);
+        var hashTables = await ReadHashTables(config, logger);
         foreach (var wad in config.Wads.Where(w => w.Included))
         {
             if (cancellationToken is {IsCancellationRequested: true})
@@ -125,23 +125,29 @@ public static class Utils
         return false;
     }
 
-    public static async Task<IDictionary<string, IDictionary<ulong, string>>> ReadHashTables(ILogger logger = null)
+    public static async Task<IDictionary<string, IDictionary<ulong, string>>> ReadHashTables(Config config,
+        ILogger logger = null)
     {
         logger?.Information("Reading hash tables");
         IDictionary<string, IDictionary<ulong, string>> hashTables =
             new Dictionary<string, IDictionary<ulong, string>>();
-        foreach (var file in Directory.EnumerateFiles("hashes", "*.txt"))
-        {
-            IDictionary<ulong, string> hashTable = new Dictionary<ulong, string>();
-            foreach (var line in (await File.ReadAllLinesAsync(file)).SkipLast(1))
-            {
-                var splitLine = line.Split(' ');
-                var ulongHash = ulong.Parse(splitLine[0], NumberStyles.HexNumber);
-                if (!hashTable.ContainsKey(ulongHash))
-                    hashTable[ulongHash] = splitLine[1];
-            }
 
-            hashTables[Path.GetFileNameWithoutExtension(file).Split('.')[1]] = hashTable;
+        var files = Directory.EnumerateFiles("hashes", "*.txt").ToList();
+        files.AddRange(config.HashTableFiles);
+
+        foreach (var file in files)
+        {
+            var name = Path.GetFileNameWithoutExtension(file).Split('.')[1];
+            if (!hashTables.ContainsKey(name))
+                hashTables[name] = new Dictionary<ulong, string>();
+            foreach (var line in await File.ReadAllLinesAsync(file))
+            {
+                if (line == string.Empty) continue;
+                var splitLine = line.Split(' ');
+                if (splitLine.Length != 2) continue;
+                var ulongHash = ulong.Parse(splitLine[0], NumberStyles.HexNumber);
+                hashTables[name][ulongHash] = splitLine[1];
+            }
         }
 
         return hashTables;
