@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueBulkConvert.WPF", "Le
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueBulkConvert", "LeagueBulkConvert\LeagueBulkConvert.csproj", "{1908C4CE-FCCB-40EA-A45F-902B0A92702E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeagueToolkit", "LeagueToolkit\LeagueToolkit.csproj", "{0EC74D45-FAE9-49DD-8C9A-141783520BAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,10 @@ Global
 		{1908C4CE-FCCB-40EA-A45F-902B0A92702E}.Debug|x64.Build.0 = Debug|x64
 		{1908C4CE-FCCB-40EA-A45F-902B0A92702E}.Release|x64.ActiveCfg = Release|x64
 		{1908C4CE-FCCB-40EA-A45F-902B0A92702E}.Release|x64.Build.0 = Release|x64
+		{0EC74D45-FAE9-49DD-8C9A-141783520BAF}.Debug|x64.ActiveCfg = Debug|x64
+		{0EC74D45-FAE9-49DD-8C9A-141783520BAF}.Debug|x64.Build.0 = Debug|x64
+		{0EC74D45-FAE9-49DD-8C9A-141783520BAF}.Release|x64.ActiveCfg = Release|x64
+		{0EC74D45-FAE9-49DD-8C9A-141783520BAF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
