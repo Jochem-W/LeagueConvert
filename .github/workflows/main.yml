@@ -11,6 +11,11 @@ jobs:
   Build:
     runs-on: windows-latest
     steps:
+      - name: Install .NET
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+        
       - name: Checkout
         uses: actions/checkout@v2.3.5
 
