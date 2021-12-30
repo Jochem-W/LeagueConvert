@@ -98,9 +98,11 @@ public class Animation
         {
             var jointHash = jointHashes[i];
 
-            translations.Add(new(jointHash, new Dictionary<float, Vector3>()));
-            scales.Add(new(jointHash, new Dictionary<float, Vector3>()));
-            rotations.Add(new(jointHash, new Dictionary<float, Quaternion>()));
+            translations.Add(
+                new KeyValuePair<uint, Dictionary<float, Vector3>>(jointHash, new Dictionary<float, Vector3>()));
+            scales.Add(new KeyValuePair<uint, Dictionary<float, Vector3>>(jointHash, new Dictionary<float, Vector3>()));
+            rotations.Add(
+                new KeyValuePair<uint, Dictionary<float, Quaternion>>(jointHash, new Dictionary<float, Quaternion>()));
 
             Tracks.Add(new AnimationTrack(jointHash));
         }
@@ -121,21 +123,21 @@ public class Animation
             if (transformType == CompressedTransformType.Rotation)
             {
                 var rotation = new QuantizedQuaternion(compressedTransform).Decompress();
-                
+
                 if (!rotations[jointHashIndex].Value.ContainsKey(uncompressedTime))
                     rotations[jointHashIndex].Value.Add(uncompressedTime, rotation);
             }
             else if (transformType == CompressedTransformType.Translation)
             {
                 var translation = UncompressVector3(translationMin, translationMax, compressedTransform);
-                
+
                 if (!translations[jointHashIndex].Value.ContainsKey(uncompressedTime))
                     translations[jointHashIndex].Value.Add(uncompressedTime, translation);
             }
             else if (transformType == CompressedTransformType.Scale)
             {
                 var scale = UncompressVector3(scaleMin, scaleMax, compressedTransform);
-                
+
                 if (!scales[jointHashIndex].Value.ContainsKey(uncompressedTime))
                     scales[jointHashIndex].Value.Add(uncompressedTime, scale);
             }
@@ -227,7 +229,7 @@ public class Animation
             var translation = vectors[translationIndex];
             var scale = vectors[scaleIndex];
             var rotation = rotations[rotationIndex];
-            
+
             track.Translations.Add(FrameDuration * trackFrameTranslationIndex, translation);
             track.Scales.Add(FrameDuration * trackFrameScaleIndex, scale);
             track.Rotations.Add(FrameDuration * trackFrameRotationIndex, rotation);
