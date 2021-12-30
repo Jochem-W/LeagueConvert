@@ -1,239 +1,209 @@
-﻿using LeagueToolkit.Helpers.Exceptions;
-using LeagueToolkit.Helpers.Structures.BucketGrid;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using LeagueToolkit.Helpers.Exceptions;
+using LeagueToolkit.Helpers.Structures.BucketGrid;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometry;
+
+public class MapGeometry
 {
-    public class MapGeometry
+    public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation))
     {
-        public string UnknownString1 { get; set; } = string.Empty;
-        public string UnknownString2 { get; set; } = string.Empty;
-        public List<MapGeometryModel> Models { get; set; } = new();
-        public BucketGrid BucketGrid { get; set; }
+    }
 
-        public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
-        public MapGeometry(Stream stream)
+    public MapGeometry(Stream stream)
+    {
+        using (var br = new BinaryReader(stream))
         {
-            using (BinaryReader br = new BinaryReader(stream))
-            {
-                string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-                if (magic != "OEGM")
-                {
-                    throw new InvalidFileSignatureException();
-                }
+            var magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+            if (magic != "OEGM") throw new InvalidFileSignatureException();
 
-                uint version = br.ReadUInt32();
-                if (version != 5 && version != 6 && version != 7 && version != 9 && version != 11)
-                {
-                    throw new UnsupportedFileVersionException();
-                }
-
-                bool useSeparatePointLights = false;
-                if (version < 7)
-                {
-                    useSeparatePointLights = br.ReadBoolean();
-                }
-
-                if (version >= 9)
-                {
-                    this.UnknownString1 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-
-                    if (version >= 11)
-                    {
-                        this.UnknownString2 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                    }
-                }
-
-                List<MapGeometryVertexElementGroup> vertexElementGroups = new();
-                uint vertexElementGroupCount = br.ReadUInt32();
-                for (int i = 0; i < vertexElementGroupCount; i++)
-                {
-                    vertexElementGroups.Add(new MapGeometryVertexElementGroup(br));
-                }
-
-                uint vertexBufferCount = br.ReadUInt32();
-                List<long> vertexBufferOffsets = new();
-                for (int i = 0; i < vertexBufferCount; i++)
-                {
-                    uint bufferSize = br.ReadUInt32();
-
-                    vertexBufferOffsets.Add(br.BaseStream.Position);
-                    br.BaseStream.Seek(bufferSize, SeekOrigin.Current);
-                }
-
-                uint indexBufferCount = br.ReadUInt32();
-                List<ushort[]> indexBuffers = new();
-                for (int i = 0; i < indexBufferCount; i++)
-                {
-                    uint bufferSize = br.ReadUInt32();
-                    ushort[] indexBuffer = new ushort[bufferSize / 2];
-
-                    for (int j = 0; j < bufferSize / 2; j++)
-                    {
-                        indexBuffer[j] = br.ReadUInt16();
-                    }
-
-                    indexBuffers.Add(indexBuffer);
-                }
-
-                uint modelCount = br.ReadUInt32();
-                for (int i = 0; i < modelCount; i++)
-                {
-                    this.Models.Add(new MapGeometryModel(br, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version));
-                }
-
-                this.BucketGrid = new BucketGrid(br);
-            }
-        }
-
-        public void Write(string fileLocation, uint version)
-        {
-            Write(File.Create(fileLocation), version);
-        }
-        public void Write(Stream stream, uint version, bool leaveOpen = false)
-        {
+            var version = br.ReadUInt32();
             if (version != 5 && version != 6 && version != 7 && version != 9 && version != 11)
+                throw new UnsupportedFileVersionException();
+
+            var useSeparatePointLights = false;
+            if (version < 7) useSeparatePointLights = br.ReadBoolean();
+
+            if (version >= 9)
             {
-                throw new Exception("Unsupported version");
+                UnknownString1 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+
+                if (version >= 11) UnknownString2 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             }
 
-            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
+            List<MapGeometryVertexElementGroup> vertexElementGroups = new();
+            var vertexElementGroupCount = br.ReadUInt32();
+            for (var i = 0; i < vertexElementGroupCount; i++)
+                vertexElementGroups.Add(new MapGeometryVertexElementGroup(br));
+
+            var vertexBufferCount = br.ReadUInt32();
+            List<long> vertexBufferOffsets = new();
+            for (var i = 0; i < vertexBufferCount; i++)
             {
-                bw.Write(Encoding.ASCII.GetBytes("OEGM"));
-                bw.Write(version);
+                var bufferSize = br.ReadUInt32();
 
-                bool usesSeparatePointLights = false;
-                if (version < 7)
-                {
-                    usesSeparatePointLights = UsesSeparatePointLights();
-                    bw.Write(usesSeparatePointLights);
-                }
-
-                if (version >= 9)
-                {
-                    bw.Write(this.UnknownString1.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(this.UnknownString1));
-
-                    if (version >= 11)
-                    {
-                        bw.Write(this.UnknownString2.Length);
-                        bw.Write(Encoding.ASCII.GetBytes(this.UnknownString2));
-                    }
-                }
-
-                List<MapGeometryVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();
-                bw.Write(vertexElementGroups.Count);
-                foreach (MapGeometryVertexElementGroup vertexElementGroup in vertexElementGroups)
-                {
-                    vertexElementGroup.Write(bw);
-                }
-
-                List<byte[]> vertexBuffers = GenerateVertexBuffers(vertexElementGroups);
-                bw.Write(vertexBuffers.Count);
-                foreach (byte[] vertexBuffer in vertexBuffers)
-                {
-                    bw.Write(vertexBuffer.Length);
-                    bw.Write(vertexBuffer);
-                }
-
-                List<ushort[]> indexBuffers = GenerateIndexBuffers();
-                bw.Write(indexBuffers.Count);
-                foreach (ushort[] indexBuffer in indexBuffers)
-                {
-                    bw.Write(indexBuffer.Length * 2);
-
-                    for (int i = 0; i < indexBuffer.Length; i++)
-                    {
-                        bw.Write(indexBuffer[i]);
-                    }
-                }
-
-                bw.Write(this.Models.Count);
-                foreach (MapGeometryModel model in this.Models)
-                {
-                    model.Write(bw, usesSeparatePointLights, version);
-                }
-
-                this.BucketGrid.Write(bw);
+                vertexBufferOffsets.Add(br.BaseStream.Position);
+                br.BaseStream.Seek(bufferSize, SeekOrigin.Current);
             }
+
+            var indexBufferCount = br.ReadUInt32();
+            List<ushort[]> indexBuffers = new();
+            for (var i = 0; i < indexBufferCount; i++)
+            {
+                var bufferSize = br.ReadUInt32();
+                var indexBuffer = new ushort[bufferSize / 2];
+
+                for (var j = 0; j < bufferSize / 2; j++) indexBuffer[j] = br.ReadUInt16();
+
+                indexBuffers.Add(indexBuffer);
+            }
+
+            var modelCount = br.ReadUInt32();
+            for (var i = 0; i < modelCount; i++)
+                Models.Add(new MapGeometryModel(br, vertexElementGroups, vertexBufferOffsets, indexBuffers,
+                    useSeparatePointLights, version));
+
+            BucketGrid = new BucketGrid(br);
         }
+    }
 
-        public void AddModel(MapGeometryModel model)
+    public string UnknownString1 { get; set; } = string.Empty;
+    public string UnknownString2 { get; set; } = string.Empty;
+    public List<MapGeometryModel> Models { get; set; } = new();
+    public BucketGrid BucketGrid { get; set; }
+
+    public void Write(string fileLocation, uint version)
+    {
+        Write(File.Create(fileLocation), version);
+    }
+
+    public void Write(Stream stream, uint version, bool leaveOpen = false)
+    {
+        if (version != 5 && version != 6 && version != 7 && version != 9 && version != 11)
+            throw new Exception("Unsupported version");
+
+        using (var bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
         {
-            this.Models.Add(model);
-        }
+            bw.Write(Encoding.ASCII.GetBytes("OEGM"));
+            bw.Write(version);
 
-        private bool UsesSeparatePointLights()
-        {
-            foreach (MapGeometryModel model in this.Models)
+            var usesSeparatePointLights = false;
+            if (version < 7)
             {
-                if (model.SeparatePointLight != null)
+                usesSeparatePointLights = UsesSeparatePointLights();
+                bw.Write(usesSeparatePointLights);
+            }
+
+            if (version >= 9)
+            {
+                bw.Write(UnknownString1.Length);
+                bw.Write(Encoding.ASCII.GetBytes(UnknownString1));
+
+                if (version >= 11)
                 {
-                    return true;
+                    bw.Write(UnknownString2.Length);
+                    bw.Write(Encoding.ASCII.GetBytes(UnknownString2));
                 }
             }
 
-            return false;
-        }
+            var vertexElementGroups = GenerateVertexElementGroups();
+            bw.Write(vertexElementGroups.Count);
+            foreach (var vertexElementGroup in vertexElementGroups) vertexElementGroup.Write(bw);
 
-        private List<MapGeometryVertexElementGroup> GenerateVertexElementGroups()
-        {
-            List<MapGeometryVertexElementGroup> vertexElementGroups = new List<MapGeometryVertexElementGroup>();
-
-            foreach (MapGeometryModel model in this.Models)
+            var vertexBuffers = GenerateVertexBuffers(vertexElementGroups);
+            bw.Write(vertexBuffers.Count);
+            foreach (var vertexBuffer in vertexBuffers)
             {
-                MapGeometryVertexElementGroup vertexElementGroup = new MapGeometryVertexElementGroup(model.Vertices[0]);
-
-                if (!vertexElementGroups.Contains(vertexElementGroup))
-                {
-                    vertexElementGroups.Add(vertexElementGroup);
-                }
-
-                model._vertexElementGroupID = vertexElementGroups.IndexOf(vertexElementGroup);
+                bw.Write(vertexBuffer.Length);
+                bw.Write(vertexBuffer);
             }
 
-            return vertexElementGroups;
-        }
-        private List<byte[]> GenerateVertexBuffers(List<MapGeometryVertexElementGroup> vertexElementGroups)
-        {
-            List<byte[]> vertexBuffers = new List<byte[]>();
-            int vertexBufferID = 0;
-
-            foreach (MapGeometryModel model in this.Models)
+            var indexBuffers = GenerateIndexBuffers();
+            bw.Write(indexBuffers.Count);
+            foreach (var indexBuffer in indexBuffers)
             {
-                int vertexSize = vertexElementGroups[model._vertexElementGroupID].GetVertexSize();
-                byte[] vertexBuffer = new byte[vertexSize * model.Vertices.Count];
+                bw.Write(indexBuffer.Length * 2);
 
-                for (int i = 0; i < model.Vertices.Count; i++)
-                {
-                    byte[] vertexElementsBuffer = model.Vertices[i].ToArray(vertexSize);
-                    Buffer.BlockCopy(vertexElementsBuffer, 0, vertexBuffer, i * vertexSize, vertexElementsBuffer.Length);
-                }
-
-                vertexBuffers.Add(vertexBuffer);
-                model._vertexBufferID = vertexBufferID;
-                vertexBufferID++;
+                for (var i = 0; i < indexBuffer.Length; i++) bw.Write(indexBuffer[i]);
             }
 
-            return vertexBuffers;
+            bw.Write(Models.Count);
+            foreach (var model in Models) model.Write(bw, usesSeparatePointLights, version);
+
+            BucketGrid.Write(bw);
         }
-        private List<ushort[]> GenerateIndexBuffers()
+    }
+
+    public void AddModel(MapGeometryModel model)
+    {
+        Models.Add(model);
+    }
+
+    private bool UsesSeparatePointLights()
+    {
+        foreach (var model in Models)
+            if (model.SeparatePointLight != null)
+                return true;
+
+        return false;
+    }
+
+    private List<MapGeometryVertexElementGroup> GenerateVertexElementGroups()
+    {
+        var vertexElementGroups = new List<MapGeometryVertexElementGroup>();
+
+        foreach (var model in Models)
         {
-            List<ushort[]> indexBuffers = new List<ushort[]>();
-            int indexBufferID = 0;
+            var vertexElementGroup = new MapGeometryVertexElementGroup(model.Vertices[0]);
 
-            foreach (MapGeometryModel model in this.Models)
+            if (!vertexElementGroups.Contains(vertexElementGroup)) vertexElementGroups.Add(vertexElementGroup);
+
+            model._vertexElementGroupID = vertexElementGroups.IndexOf(vertexElementGroup);
+        }
+
+        return vertexElementGroups;
+    }
+
+    private List<byte[]> GenerateVertexBuffers(List<MapGeometryVertexElementGroup> vertexElementGroups)
+    {
+        var vertexBuffers = new List<byte[]>();
+        var vertexBufferID = 0;
+
+        foreach (var model in Models)
+        {
+            var vertexSize = vertexElementGroups[model._vertexElementGroupID].GetVertexSize();
+            var vertexBuffer = new byte[vertexSize * model.Vertices.Count];
+
+            for (var i = 0; i < model.Vertices.Count; i++)
             {
-                indexBuffers.Add(model.Indices.ToArray());
-
-                model._indexBufferID = indexBufferID;
-                indexBufferID++;
+                var vertexElementsBuffer = model.Vertices[i].ToArray(vertexSize);
+                Buffer.BlockCopy(vertexElementsBuffer, 0, vertexBuffer, i * vertexSize, vertexElementsBuffer.Length);
             }
 
-            return indexBuffers;
+            vertexBuffers.Add(vertexBuffer);
+            model._vertexBufferID = vertexBufferID;
+            vertexBufferID++;
         }
+
+        return vertexBuffers;
+    }
+
+    private List<ushort[]> GenerateIndexBuffers()
+    {
+        var indexBuffers = new List<ushort[]>();
+        var indexBufferID = 0;
+
+        foreach (var model in Models)
+        {
+            indexBuffers.Add(model.Indices.ToArray());
+
+            model._indexBufferID = indexBufferID;
+            indexBufferID++;
+        }
+
+        return indexBuffers;
     }
 }

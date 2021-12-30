@@ -2,46 +2,40 @@
 using System.IO;
 using System.Text;
 
-namespace LeagueToolkit.IO.LightDat
+namespace LeagueToolkit.IO.LightDat;
+
+public class LightDatFile
 {
-    public class LightDatFile
+    public LightDatFile(List<LightDatLight> lights)
     {
-        public List<LightDatLight> Lights { get; private set; } = new List<LightDatLight>();
+        Lights = lights;
+    }
 
-        public LightDatFile(List<LightDatLight> lights)
-        {
-            this.Lights = lights;
-        }
-        public LightDatFile(string fileLocation)
-            : this(File.OpenRead(fileLocation))
-        {
+    public LightDatFile(string fileLocation)
+        : this(File.OpenRead(fileLocation))
+    {
+    }
 
-        }
-        public LightDatFile(Stream stream)
+    public LightDatFile(Stream stream)
+    {
+        using (var sr = new StreamReader(stream))
         {
-            using (StreamReader sr = new StreamReader(stream))
-            {
-                while (!sr.EndOfStream)
-                {
-                    this.Lights.Add(new LightDatLight(sr));
-                }
-            }
+            while (!sr.EndOfStream) Lights.Add(new LightDatLight(sr));
         }
+    }
 
-        public void Write(string fileLocation)
-        {
-            Write(File.Create(fileLocation));
-        }
+    public List<LightDatLight> Lights { get; } = new();
 
-        private void Write(Stream stream, bool leaveOpen = false)
+    public void Write(string fileLocation)
+    {
+        Write(File.Create(fileLocation));
+    }
+
+    private void Write(Stream stream, bool leaveOpen = false)
+    {
+        using (var sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
         {
-            using (StreamWriter sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
-            {
-                foreach (LightDatLight light in this.Lights)
-                {
-                    light.Write(sw);
-                }
-            }
+            foreach (var light in Lights) light.Write(sw);
         }
     }
 }

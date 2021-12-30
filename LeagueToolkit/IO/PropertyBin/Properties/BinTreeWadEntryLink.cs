@@ -1,38 +1,38 @@
 ﻿using System.IO;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeWadEntryLink : BinTreeProperty
 {
-    public sealed class BinTreeWadEntryLink : BinTreeProperty
+    public BinTreeWadEntryLink(IBinTreeParent parent, uint nameHash, ulong value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.WadEntryLink;
+        Value = value;
+    }
 
-        public ulong Value { get; set; }
+    internal BinTreeWadEntryLink(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = br.ReadUInt64();
+    }
 
-        public BinTreeWadEntryLink(IBinTreeParent parent, uint nameHash, ulong value) : base(parent, nameHash) 
-        {
-            this.Value = value;
-        }
-        internal BinTreeWadEntryLink(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = br.ReadUInt64();
-        }
+    public override BinPropertyType Type => BinPropertyType.WadEntryLink;
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.Write(this.Value);
-        }
+    public ulong Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? 5 : 0;
-            return size + 8;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write(Value);
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeWadEntryLink property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? 5 : 0;
+        return size + 8;
+    }
+
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeWadEntryLink property
+               && NameHash == property.NameHash
+               && Value == property.Value;
     }
 }

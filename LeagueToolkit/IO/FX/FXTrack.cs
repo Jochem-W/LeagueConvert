@@ -1,57 +1,55 @@
-﻿using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Structures;
-using System.IO;
+﻿using System.IO;
 using System.Numerics;
 using System.Text;
+using LeagueToolkit.Helpers.Extensions;
 
-namespace LeagueToolkit.IO.FX
+namespace LeagueToolkit.IO.FX;
+
+public class FXTrack
 {
-    public class FXTrack
+    public FXTrack(BinaryReader br)
     {
-        public uint Flag { get; private set; }
-        public TrackType Type { get; private set; }
-        public float StartFrame { get; private set; }
-        public float EndFrame { get; private set; }
-        public string Particle { get; private set; }
-        public string Bone { get; private set; }
-        public Vector3 SpawnOffset { get; private set; }
-        public FXWeaponStreakInfo StreakInfo { get; private set; }
+        Flag = br.ReadUInt32();
+        Type = (TrackType) br.ReadUInt32();
+        StartFrame = br.ReadSingle();
+        EndFrame = br.ReadSingle();
 
-        public FXTrack(BinaryReader br)
-        {
-            this.Flag = br.ReadUInt32();
-            this.Type = (TrackType)br.ReadUInt32();
-            this.StartFrame = br.ReadSingle();
-            this.EndFrame = br.ReadSingle();
+        Particle = Encoding.ASCII.GetString(br.ReadBytes(64));
+        Bone = Encoding.ASCII.GetString(br.ReadBytes(64));
 
-            this.Particle = Encoding.ASCII.GetString(br.ReadBytes(64));
-            this.Bone = Encoding.ASCII.GetString(br.ReadBytes(64));
+        Particle = Particle.Remove(Particle.IndexOf(Particle.Contains("\0") ? '\u0000' : '?'));
+        Bone = Bone.Remove(Bone.IndexOf(Bone.Contains("\0") ? '\u0000' : '?'));
 
-            this.Particle = this.Particle.Remove(this.Particle.IndexOf(this.Particle.Contains("\0") ? '\u0000' : '?'));
-            this.Bone = this.Bone.Remove(this.Bone.IndexOf(this.Bone.Contains("\0") ? '\u0000' : '?'));
-
-            this.SpawnOffset = br.ReadVector3();
-            this.StreakInfo = new FXWeaponStreakInfo(br);
-        }
-
-        public void Write(BinaryWriter bw)
-        {
-            bw.Write(this.Flag);
-            bw.Write((uint)this.Type);
-            bw.Write(this.StartFrame);
-            bw.Write(this.EndFrame);
-            bw.Write(this.Particle.PadRight(64, '\u0000').ToCharArray());
-            bw.Write(this.Bone.PadRight(64, '\u0000').ToCharArray());
-            bw.WriteVector3(this.SpawnOffset);
-            this.StreakInfo.Write(bw);
-        }
+        SpawnOffset = br.ReadVector3();
+        StreakInfo = new FXWeaponStreakInfo(br);
     }
 
-    public enum TrackType : uint
+    public uint Flag { get; }
+    public TrackType Type { get; }
+    public float StartFrame { get; }
+    public float EndFrame { get; }
+    public string Particle { get; }
+    public string Bone { get; }
+    public Vector3 SpawnOffset { get; }
+    public FXWeaponStreakInfo StreakInfo { get; }
+
+    public void Write(BinaryWriter bw)
     {
-        None,
-        EffPosition,
-        EffBone,
-        WStreak
+        bw.Write(Flag);
+        bw.Write((uint) Type);
+        bw.Write(StartFrame);
+        bw.Write(EndFrame);
+        bw.Write(Particle.PadRight(64, '\u0000').ToCharArray());
+        bw.Write(Bone.PadRight(64, '\u0000').ToCharArray());
+        bw.WriteVector3(SpawnOffset);
+        StreakInfo.Write(bw);
     }
+}
+
+public enum TrackType : uint
+{
+    None,
+    EffPosition,
+    EffBone,
+    WStreak
 }

@@ -1,54 +1,53 @@
-﻿using LeagueToolkit.Helpers.Structures;
-using System.IO;
+﻿using System.IO;
 using System.Text;
+using LeagueToolkit.Helpers.Structures;
 
-namespace LeagueToolkit.IO.FX
+namespace LeagueToolkit.IO.FX;
+
+public class FXWeaponStreakInfo
 {
-    public class FXWeaponStreakInfo
+    public FXWeaponStreakInfo(BinaryReader br)
     {
-        public int LinkType { get; private set; }
-        public int BlendType { get; private set; }
-        public float TrailsPerSecond { get; private set; }
-        public float TrailCount { get; private set; }
-        public float StartAlpha { get; private set; }
-        public float EndAlpha { get; private set; }
-        public float AlphaDecay { get; private set; }
-        public int TextureMapMode { get; private set; }
-        public string Texture { get; private set; }
-        public TimeGradient ColorOverTime { get; private set; }
-        public TimeGradient WidthOverTime { get; private set; }
+        LinkType = br.ReadInt32();
+        BlendType = br.ReadInt32();
+        TrailsPerSecond = br.ReadSingle();
+        TrailCount = br.ReadSingle();
+        StartAlpha = br.ReadSingle();
+        EndAlpha = br.ReadSingle();
+        AlphaDecay = br.ReadSingle();
+        TextureMapMode = br.ReadInt32();
 
-        public FXWeaponStreakInfo(BinaryReader br)
-        {
-            this.LinkType = br.ReadInt32();
-            this.BlendType = br.ReadInt32();
-            this.TrailsPerSecond = br.ReadSingle();
-            this.TrailCount = br.ReadSingle();
-            this.StartAlpha = br.ReadSingle();
-            this.EndAlpha = br.ReadSingle();
-            this.AlphaDecay = br.ReadSingle();
-            this.TextureMapMode = br.ReadInt32();
+        Texture = Encoding.ASCII.GetString(br.ReadBytes(64));
+        Texture = Texture.Remove(Texture.IndexOf(Texture.Contains("\0") ? '\u0000' : '?'));
 
-            this.Texture = Encoding.ASCII.GetString(br.ReadBytes(64));
-            this.Texture = this.Texture.Remove(this.Texture.IndexOf(this.Texture.Contains("\0") ? '\u0000' : '?'));
+        ColorOverTime = new TimeGradient(br);
+        WidthOverTime = new TimeGradient(br);
+    }
 
-            this.ColorOverTime = new TimeGradient(br);
-            this.WidthOverTime = new TimeGradient(br);
-        }
+    public int LinkType { get; }
+    public int BlendType { get; }
+    public float TrailsPerSecond { get; }
+    public float TrailCount { get; }
+    public float StartAlpha { get; }
+    public float EndAlpha { get; }
+    public float AlphaDecay { get; }
+    public int TextureMapMode { get; }
+    public string Texture { get; }
+    public TimeGradient ColorOverTime { get; }
+    public TimeGradient WidthOverTime { get; }
 
-        public void Write(BinaryWriter bw)
-        {
-            bw.Write(this.LinkType);
-            bw.Write(this.BlendType);
-            bw.Write(this.TrailsPerSecond);
-            bw.Write(this.TrailCount);
-            bw.Write(this.StartAlpha);
-            bw.Write(this.EndAlpha);
-            bw.Write(this.AlphaDecay);
-            bw.Write(this.TextureMapMode);
-            bw.Write(this.Texture.PadRight(64, '\u0000').ToCharArray());
-            this.ColorOverTime.Write(bw);
-            this.WidthOverTime.Write(bw);
-        }
+    public void Write(BinaryWriter bw)
+    {
+        bw.Write(LinkType);
+        bw.Write(BlendType);
+        bw.Write(TrailsPerSecond);
+        bw.Write(TrailCount);
+        bw.Write(StartAlpha);
+        bw.Write(EndAlpha);
+        bw.Write(AlphaDecay);
+        bw.Write(TextureMapMode);
+        bw.Write(Texture.PadRight(64, '\u0000').ToCharArray());
+        ColorOverTime.Write(bw);
+        WidthOverTime.Write(bw);
     }
 }

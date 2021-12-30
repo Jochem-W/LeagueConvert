@@ -1,40 +1,39 @@
 ﻿using System;
 
-namespace LeagueToolkit.Meta
+namespace LeagueToolkit.Meta;
+
+public class MetaEmbedded<T> : IMetaEmbedded where T : IMetaClass
 {
-    public class MetaEmbedded<T> : IMetaEmbedded where T : IMetaClass
+    private T _value;
+
+    public MetaEmbedded(T value)
     {
-        public T Value
-        {
-            get => this._value;
-            set
-            {
-                if (value is null) throw new ArgumentNullException(nameof(value));
-                else this._value = value;
-            }
-        }
+        if (value is null) throw new ArgumentNullException(nameof(value));
+        _value = value;
+    }
 
-        private T _value;
-
-        public MetaEmbedded(T value)
+    public T Value
+    {
+        get => _value;
+        set
         {
             if (value is null) throw new ArgumentNullException(nameof(value));
-            else this._value = value;
-        }
-
-        object IMetaEmbedded.GetValue()
-        {
-            return this.Value;
-        }
-
-        public static implicit operator T(MetaEmbedded<T> embedded)
-        {
-            return embedded.Value;
+            _value = value;
         }
     }
 
-    internal interface IMetaEmbedded
+    object IMetaEmbedded.GetValue()
     {
-        internal object GetValue();
+        return Value;
     }
+
+    public static implicit operator T(MetaEmbedded<T> embedded)
+    {
+        return embedded.Value;
+    }
+}
+
+internal interface IMetaEmbedded
+{
+    internal object GetValue();
 }

@@ -1,39 +1,42 @@
 ﻿using System.IO;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeFloat : BinTreeProperty
 {
-    public sealed class BinTreeFloat : BinTreeProperty
+    public BinTreeFloat(IBinTreeParent parent, uint nameHash, float value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.Float;
-        public float Value { get; set; }
+        Value = value;
+    }
 
-        public BinTreeFloat(IBinTreeParent parent, uint nameHash, float value) : base(parent, nameHash)
-        {
-            this.Value = value;
-        }
-        internal BinTreeFloat(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = br.ReadSingle();
-        }
+    internal BinTreeFloat(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = br.ReadSingle();
+    }
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.Write(this.Value);
-        }
+    public override BinPropertyType Type => BinPropertyType.Float;
+    public float Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? 5 : 0;
-            return size + 4;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write(Value);
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeFloat property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? 5 : 0;
+        return size + 4;
+    }
 
-        public static implicit operator float(BinTreeFloat property) => property.Value;
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeFloat property
+               && NameHash == property.NameHash
+               && Value == property.Value;
+    }
+
+    public static implicit operator float(BinTreeFloat property)
+    {
+        return property.Value;
     }
 }

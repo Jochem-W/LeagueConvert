@@ -1,34 +1,33 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace LeagueBulkConvert.WPF
+namespace LeagueBulkConvert.WPF;
+
+internal class ObservableWad : INotifyPropertyChanged
 {
-    internal class ObservableWad : INotifyPropertyChanged
+    private readonly IncludableWad _wad;
+
+    public ObservableWad(IncludableWad wad)
     {
-        private readonly IncludableWad _wad;
+        _wad = wad;
+    }
 
-        public ObservableWad(IncludableWad wad)
+    public bool Included
+    {
+        get => _wad.Included;
+        set
         {
-            _wad = wad;
+            _wad.Included = value;
+            OnPropertyChanged();
         }
+    }
 
-        public bool Included
-        {
-            get => _wad.Included;
-            set
-            {
-                _wad.Included = value;
-                OnPropertyChanged();
-            }
-        }
+    public string Name => _wad.Name;
 
-        public string Name => _wad.Name;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+    private void OnPropertyChanged([CallerMemberName] string name = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

@@ -3,88 +3,87 @@ using System.IO;
 using System.IO.Compression;
 using ZstdSharp;
 
-namespace LeagueToolkit.IO.WadFile
+namespace LeagueToolkit.IO.WadFile;
+
+public struct WadEntryDataHandle
 {
-    public struct WadEntryDataHandle
+    private readonly WadEntry _entry;
+
+    internal WadEntryDataHandle(WadEntry entry)
     {
-        private WadEntry _entry;
+        _entry = entry;
+    }
 
-        internal WadEntryDataHandle(WadEntry entry)
+    public Stream GetCompressedStream()
+    {
+        var wadStream = _entry._wad._stream;
+
+        // Seek to entry data
+        wadStream.Seek(_entry._dataOffset, SeekOrigin.Begin);
+
+        // Read compressed data to a buffer
+        var compressedData = new byte[_entry.CompressedSize];
+        wadStream.Read(compressedData, 0, _entry.CompressedSize);
+
+        switch (_entry.Type)
         {
-            this._entry = entry;
-        }
-
-        public Stream GetCompressedStream()
-        {
-            Stream wadStream = this._entry._wad._stream;
-
-            // Seek to entry data
-            wadStream.Seek(this._entry._dataOffset, SeekOrigin.Begin);
-
-            // Read compressed data to a buffer
-            byte[] compressedData = new byte[this._entry.CompressedSize];
-            wadStream.Read(compressedData, 0, this._entry.CompressedSize);
-
-            switch (this._entry.Type)
+            case WadEntryType.GZipCompressed:
+            case WadEntryType.ZStandardCompressed:
+            case WadEntryType.Uncompressed:
             {
-                case WadEntryType.GZipCompressed:
-                case WadEntryType.ZStandardCompressed:
-                case WadEntryType.Uncompressed:
-                {
-                    return new MemoryStream(compressedData);
-                }
-                case WadEntryType.FileRedirection:
-                {
-                    throw new InvalidOperationException("Cannot open a handle to a File Redirection");
-                }
-                default:
-                {
-                    throw new InvalidOperationException("Invalid Wad Entry type: " + this._entry.Type);
-                }
+                return new MemoryStream(compressedData);
+            }
+            case WadEntryType.FileRedirection:
+            {
+                throw new InvalidOperationException("Cannot open a handle to a File Redirection");
+            }
+            default:
+            {
+                throw new InvalidOperationException("Invalid Wad Entry type: " + _entry.Type);
             }
         }
+    }
 
-        public Stream GetDecompressedStream()
+    public Stream GetDecompressedStream()
+    {
+        var wadStream = _entry._wad._stream;
+
+        // Seek to entry data
+        wadStream.Seek(_entry._dataOffset, SeekOrigin.Begin);
+
+        // Read compressed data to a buffer
+        var compressedData = new byte[_entry.CompressedSize];
+        wadStream.Read(compressedData, 0, _entry.CompressedSize);
+
+        switch (_entry.Type)
         {
-            Stream wadStream = this._entry._wad._stream;
-
-            // Seek to entry data
-            wadStream.Seek(this._entry._dataOffset, SeekOrigin.Begin);
-
-            // Read compressed data to a buffer
-            byte[] compressedData = new byte[this._entry.CompressedSize];
-            wadStream.Read(compressedData, 0, this._entry.CompressedSize);
-
-            switch (this._entry.Type)
+            case WadEntryType.GZipCompressed:
             {
-                case WadEntryType.GZipCompressed:
-                {
-                    MemoryStream uncompressedStream = new MemoryStream(this._entry.UncompressedSize);
-                    using MemoryStream compressedStream = new MemoryStream(compressedData);
-                    using GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Decompress);
+                var uncompressedStream = new MemoryStream(_entry.UncompressedSize);
+                using var compressedStream = new MemoryStream(compressedData);
+                using var gzipStream = new GZipStream(compressedStream, CompressionMode.Decompress);
 
-                    gzipStream.CopyTo(uncompressedStream);
+                gzipStream.CopyTo(uncompressedStream);
 
-                    return uncompressedStream;
-                }
-                case WadEntryType.ZStandardCompressed:
-                {
-                    byte[] decompressedData = Zstd.Decompress(compressedData, this._entry.UncompressedSize);
+                return uncompressedStream;
+            }
+            case WadEntryType.ZStandardCompressed:
+            {
+                var decompressedData = Zstd.Decompress(compressedData, _entry.UncompressedSize);
 
-                    return new MemoryStream(decompressedData);
-                }
-                case WadEntryType.Uncompressed:
-                {
-                    return new MemoryStream(compressedData);
-                }
-                case WadEntryType.FileRedirection:
-                {
-                    throw new InvalidOperationException("Cannot open a handle to a File Redirection");
-                }
-                default:
-                {
-                    throw new InvalidOperationException("Invalid Wad Entry type: " + this._entry.Type);
-                }
+                return new MemoryStream(decompressedData);
+            }
+            case WadEntryType.Uncompressed:
+            {
+                return new MemoryStream(compressedData);
+            }
+            case WadEntryType.FileRedirection:
+            {
+                throw new InvalidOperationException("Cannot open a handle to a File Redirection");
+            }
+            default:
+            {
+                throw new InvalidOperationException("Invalid Wad Entry type: " + _entry.Type);
             }
         }
     }

@@ -1,42 +1,45 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeString : BinTreeProperty
 {
-    public sealed class BinTreeString : BinTreeProperty
+    public BinTreeString(IBinTreeParent parent, uint nameHash, string value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.String;
+        Value = value;
+    }
 
-        public string Value { get; set; }
+    internal BinTreeString(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = Encoding.ASCII.GetString(br.ReadBytes(br.ReadUInt16()));
+    }
 
-        public BinTreeString(IBinTreeParent parent, uint nameHash, string value) : base(parent, nameHash)
-        {
-            this.Value = value;
-        }
-        internal BinTreeString(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = Encoding.ASCII.GetString(br.ReadBytes(br.ReadUInt16()));
-        }
+    public override BinPropertyType Type => BinPropertyType.String;
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.Write((ushort)this.Value.Length);
-            bw.Write(Encoding.UTF8.GetBytes(this.Value));
-        }
+    public string Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? 5 : 0;
-            return size + 2 + this.Value.Length;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write((ushort) Value.Length);
+        bw.Write(Encoding.UTF8.GetBytes(Value));
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeString property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? 5 : 0;
+        return size + 2 + Value.Length;
+    }
 
-        public static implicit operator string(BinTreeString property) => property.Value;
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeString property
+               && NameHash == property.NameHash
+               && Value == property.Value;
+    }
+
+    public static implicit operator string(BinTreeString property)
+    {
+        return property.Value;
     }
 }

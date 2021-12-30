@@ -1,39 +1,42 @@
 ﻿using System.IO;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeUInt32 : BinTreeProperty
 {
-    public sealed class BinTreeUInt32 : BinTreeProperty
+    public BinTreeUInt32(IBinTreeParent parent, uint nameHash, uint value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.UInt32;
-        public uint Value { get; set; }
+        Value = value;
+    }
 
-        public BinTreeUInt32(IBinTreeParent parent, uint nameHash, uint value) : base(parent, nameHash)
-        {
-            this.Value = value;
-        }
-        internal BinTreeUInt32(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = br.ReadUInt32();
-        }
+    internal BinTreeUInt32(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = br.ReadUInt32();
+    }
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.Write(this.Value);
-        }
+    public override BinPropertyType Type => BinPropertyType.UInt32;
+    public uint Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? 5 : 0;
-            return size + 4;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write(Value);
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeUInt32 property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? 5 : 0;
+        return size + 4;
+    }
 
-        public static implicit operator uint(BinTreeUInt32 property) => property.Value;
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeUInt32 property
+               && NameHash == property.NameHash
+               && Value == property.Value;
+    }
+
+    public static implicit operator uint(BinTreeUInt32 property)
+    {
+        return property.Value;
     }
 }

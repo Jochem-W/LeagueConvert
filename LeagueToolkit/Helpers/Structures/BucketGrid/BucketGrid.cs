@@ -1,95 +1,74 @@
-﻿using LeagueToolkit.Helpers.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using LeagueToolkit.Helpers.Extensions;
 
-namespace LeagueToolkit.Helpers.Structures.BucketGrid
+namespace LeagueToolkit.Helpers.Structures.BucketGrid;
+
+public class BucketGrid
 {
-    public class BucketGrid
+    public BucketGrid(BinaryReader br)
     {
-        public float MinX { get; set; }
-        public float MinZ { get; set; }
-        public float MaxX { get; set; }
-        public float MaxZ { get; set; }
-        public float MaxOutStickX { get; set; }
-        public float MaxOutStickZ { get; set; }
-        public float BucketSizeX { get; set; }
-        public float BucketSizeZ { get; set; }
-        public List<Vector3> Vertices { get; set; } = new List<Vector3>();
-        public List<ushort> Indices { get; set; } = new List<ushort>();
-        public BucketGridBucket[,] Buckets { get; set; }
+        MinX = br.ReadSingle();
+        MinZ = br.ReadSingle();
+        MaxX = br.ReadSingle();
+        MaxZ = br.ReadSingle();
+        MaxOutStickX = br.ReadSingle();
+        MaxOutStickZ = br.ReadSingle();
+        BucketSizeX = br.ReadSingle();
+        BucketSizeZ = br.ReadSingle();
 
-        public BucketGrid(BinaryReader br)
-        {
-            this.MinX = br.ReadSingle();
-            this.MinZ = br.ReadSingle();
-            this.MaxX = br.ReadSingle();
-            this.MaxZ = br.ReadSingle();
-            this.MaxOutStickX = br.ReadSingle();
-            this.MaxOutStickZ = br.ReadSingle();
-            this.BucketSizeX = br.ReadSingle();
-            this.BucketSizeZ = br.ReadSingle();
+        var bucketsPerSide = br.ReadUInt16();
+        var unknown = br.ReadUInt16();
+        var vertexCount = br.ReadUInt32();
+        var indexCount = br.ReadUInt32();
 
-            ushort bucketsPerSide = br.ReadUInt16();
-            ushort unknown = br.ReadUInt16();
-            uint vertexCount = br.ReadUInt32();
-            uint indexCount = br.ReadUInt32();
+        for (var i = 0; i < vertexCount; i++) Vertices.Add(br.ReadVector3());
 
-            for (int i = 0; i < vertexCount; i++)
-            {
-                this.Vertices.Add(br.ReadVector3());
-            }
+        for (var i = 0; i < indexCount; i++) Indices.Add(br.ReadUInt16());
 
-            for (int i = 0; i < indexCount; i++)
-            {
-                this.Indices.Add(br.ReadUInt16());
-            }
+        Buckets = new BucketGridBucket[bucketsPerSide, bucketsPerSide];
+        for (var i = 0; i < bucketsPerSide; i++)
+        for (var j = 0; j < bucketsPerSide; j++)
+            Buckets[i, j] = new BucketGridBucket(br);
+    }
 
-            this.Buckets = new BucketGridBucket[bucketsPerSide, bucketsPerSide];
-            for (int i = 0; i < bucketsPerSide; i++)
-            {
-                for (int j = 0; j < bucketsPerSide; j++)
-                {
-                    this.Buckets[i, j] = new BucketGridBucket(br);
-                }
-            }
-        }
+    public float MinX { get; set; }
+    public float MinZ { get; set; }
+    public float MaxX { get; set; }
+    public float MaxZ { get; set; }
+    public float MaxOutStickX { get; set; }
+    public float MaxOutStickZ { get; set; }
+    public float BucketSizeX { get; set; }
+    public float BucketSizeZ { get; set; }
+    public List<Vector3> Vertices { get; set; } = new();
+    public List<ushort> Indices { get; set; } = new();
+    public BucketGridBucket[,] Buckets { get; set; }
 
-        public void Write(BinaryWriter bw)
-        {
-            bw.Write(this.MinX);
-            bw.Write(this.MinZ);
+    public void Write(BinaryWriter bw)
+    {
+        bw.Write(MinX);
+        bw.Write(MinZ);
 
-            bw.Write(this.MaxX);
-            bw.Write(this.MaxZ);
+        bw.Write(MaxX);
+        bw.Write(MaxZ);
 
-            bw.Write(this.MaxOutStickX);
-            bw.Write(this.MaxOutStickZ);
+        bw.Write(MaxOutStickX);
+        bw.Write(MaxOutStickZ);
 
-            bw.Write(this.BucketSizeX);
-            bw.Write(this.BucketSizeZ);
+        bw.Write(BucketSizeX);
+        bw.Write(BucketSizeZ);
 
-            uint bucketsPerSide = (uint)Math.Sqrt(this.Buckets.Length);
-            bw.Write(bucketsPerSide);
-            bw.Write(this.Vertices.Count);
-            bw.Write(this.Indices.Count);
+        var bucketsPerSide = (uint) Math.Sqrt(Buckets.Length);
+        bw.Write(bucketsPerSide);
+        bw.Write(Vertices.Count);
+        bw.Write(Indices.Count);
 
-            foreach (Vector3 vertex in this.Vertices)
-            {
-                bw.WriteVector3(vertex);
-            }
-            foreach (ushort index in this.Indices)
-            {
-                bw.Write(index);
-            }
-            for (int i = 0; i < bucketsPerSide; i++)
-            {
-                for (int j = 0; j < bucketsPerSide; j++)
-                {
-                    this.Buckets[i, j].Write(bw);
-                }
-            }
-        }
+        foreach (var vertex in Vertices) bw.WriteVector3(vertex);
+        foreach (var index in Indices) bw.Write(index);
+        for (var i = 0; i < bucketsPerSide; i++)
+        for (var j = 0; j < bucketsPerSide; j++)
+            Buckets[i, j].Write(bw);
     }
 }

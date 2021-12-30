@@ -1,39 +1,42 @@
 ﻿using System.IO;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeBitBool : BinTreeProperty
 {
-    public sealed class BinTreeBitBool : BinTreeProperty
+    public BinTreeBitBool(IBinTreeParent parent, uint nameHash, byte value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.BitBool;
-        public byte Value { get; set; }
+        Value = value;
+    }
 
-        public BinTreeBitBool(IBinTreeParent parent, uint nameHash, byte value) : base(parent, nameHash)
-        {
-            this.Value = value;
-        }
-        internal BinTreeBitBool(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = br.ReadByte();
-        }
+    internal BinTreeBitBool(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = br.ReadByte();
+    }
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.Write(this.Value);
-        }
+    public override BinPropertyType Type => BinPropertyType.BitBool;
+    public byte Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? HEADER_SIZE : 0;
-            return size + 1;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write(Value);
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeBitBool property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? HEADER_SIZE : 0;
+        return size + 1;
+    }
 
-        public static implicit operator byte(BinTreeBitBool property) => property.Value;
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeBitBool property
+               && NameHash == property.NameHash
+               && Value == property.Value;
+    }
+
+    public static implicit operator byte(BinTreeBitBool property)
+    {
+        return property.Value;
     }
 }

@@ -1,130 +1,116 @@
-﻿using LeagueToolkit.Helpers.Structures;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
+using LeagueToolkit.Helpers.Structures;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometry;
+
+using VERTEX = VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexEmpty>;
+
+public static class MapGeometryGltfExtensions
 {
-    using VERTEX = VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexEmpty>;
-
-    public static class MapGeometryGltfExtensions
+    public static ModelRoot ToGLTF(this MapGeometry mgeo)
     {
-        public static ModelRoot ToGLTF(this MapGeometry mgeo)
+        var root = ModelRoot.CreateModel();
+        var scene = root.UseScene("Map");
+        var rootNode = scene.CreateNode("Map");
+
+        // Find all layer combinations used in the Map
+        // so we can group the meshes
+        var layerModelMap = new Dictionary<MapGeometryLayer, List<MapGeometryModel>>();
+        foreach (var model in mgeo.Models)
         {
-            ModelRoot root = ModelRoot.CreateModel();
-            Scene scene = root.UseScene("Map");
-            Node rootNode = scene.CreateNode("Map");
+            if (!layerModelMap.ContainsKey(model.Layer)) layerModelMap.Add(model.Layer, new List<MapGeometryModel>());
 
-            // Find all layer combinations used in the Map
-            // so we can group the meshes
-            var layerModelMap = new Dictionary<MapGeometryLayer, List<MapGeometryModel>>();
-            foreach(MapGeometryModel model in mgeo.Models)
-            {
-                if(!layerModelMap.ContainsKey(model.Layer))
-                {
-                    layerModelMap.Add(model.Layer, new List<MapGeometryModel>());
-                }
-
-                layerModelMap[model.Layer].Add(model);
-            }
-
-            // Create node for each layer combination
-            var layerNodeMap = new Dictionary<MapGeometryLayer, Node>();
-            foreach (var layerModelPair in layerModelMap)
-            {
-                layerNodeMap.Add(layerModelPair.Key, rootNode.CreateNode(DeriveLayerCombinationName(layerModelPair.Key)));
-            }
-
-            foreach (MapGeometryModel model in mgeo.Models)
-            {
-                IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(model);
-
-                layerNodeMap[model.Layer]
-                    .CreateNode()
-                    .WithMesh(root.CreateMesh(meshBuilder))
-                    .WithLocalTransform(new AffineTransform(model.Transformation));
-            }
-
-            return root;
+            layerModelMap[model.Layer].Add(model);
         }
 
-        private static string DeriveLayerCombinationName(MapGeometryLayer layerCombination)
+        // Create node for each layer combination
+        var layerNodeMap = new Dictionary<MapGeometryLayer, Node>();
+        foreach (var layerModelPair in layerModelMap)
+            layerNodeMap.Add(layerModelPair.Key, rootNode.CreateNode(DeriveLayerCombinationName(layerModelPair.Key)));
+
+        foreach (var model in mgeo.Models)
         {
-            if(layerCombination == MapGeometryLayer.NoLayer)
-            {
-                return "NoLayer";
-            }
-            else if(layerCombination == MapGeometryLayer.AllLayers)
-            {
-                return "AllLayers";
-            }
-            else
-            {
-                string name = "Layer-";
+            var meshBuilder = BuildMapGeometryMeshStatic(model);
 
-                foreach (MapGeometryLayer layerFlag in Enum.GetValues(typeof(MapGeometryLayer)))
-                {
-                    if (layerCombination.HasFlag(layerFlag) && 
-                        layerFlag != MapGeometryLayer.AllLayers && 
-                        layerFlag != MapGeometryLayer.NoLayer)
-                    {
-                        byte layerIndex = byte.Parse(layerFlag.ToString().Replace("Layer", ""));
-                        name += layerIndex + "-";
-                    }
-                }
+            layerNodeMap[model.Layer]
+                .CreateNode()
+                .WithMesh(root.CreateMesh(meshBuilder))
+                .WithLocalTransform(new AffineTransform(model.Transformation));
+        }
 
-                return name.Remove(name.Length - 1);
+        return root;
+    }
+
+    private static string DeriveLayerCombinationName(MapGeometryLayer layerCombination)
+    {
+        if (layerCombination == MapGeometryLayer.NoLayer) return "NoLayer";
+
+        if (layerCombination == MapGeometryLayer.AllLayers)
+        {
+            return "AllLayers";
+        }
+
+        var name = "Layer-";
+
+        foreach (MapGeometryLayer layerFlag in Enum.GetValues(typeof(MapGeometryLayer)))
+            if (layerCombination.HasFlag(layerFlag) &&
+                layerFlag != MapGeometryLayer.AllLayers &&
+                layerFlag != MapGeometryLayer.NoLayer)
+            {
+                var layerIndex = byte.Parse(layerFlag.ToString().Replace("Layer", ""));
+                name += layerIndex + "-";
+            }
+
+        return name.Remove(name.Length - 1);
+    }
+
+    private static IMeshBuilder<MaterialBuilder> BuildMapGeometryMeshStatic(MapGeometryModel model)
+    {
+        var meshBuilder = VERTEX.CreateCompatibleMesh();
+
+        foreach (var submesh in model.Submeshes)
+        {
+            var vertices = submesh.GetVertices();
+            var indices = submesh.GetIndices();
+
+            var material = new MaterialBuilder(submesh.Material).WithUnlitShader();
+            var primitive = meshBuilder.UsePrimitive(material);
+
+            var gltfVertices = new List<VERTEX>();
+            foreach (var vertex in vertices) gltfVertices.Add(CreateVertex(vertex));
+
+            for (var i = 0; i < indices.Count; i += 3)
+            {
+                var v1 = gltfVertices[indices[i + 0]];
+                var v2 = gltfVertices[indices[i + 1]];
+                var v3 = gltfVertices[indices[i + 2]];
+
+                primitive.AddTriangle(v1, v2, v3);
             }
         }
 
-        private static IMeshBuilder<MaterialBuilder> BuildMapGeometryMeshStatic(MapGeometryModel model)
-        {
-            var meshBuilder = VERTEX.CreateCompatibleMesh();
+        return meshBuilder;
+    }
 
-            foreach (MapGeometrySubmesh submesh in model.Submeshes)
-            {
-                List<MapGeometryVertex> vertices = submesh.GetVertices();
-                List<ushort> indices = submesh.GetIndices();
+    private static VERTEX CreateVertex(MapGeometryVertex vertex)
+    {
+        var gltfVertex = new VERTEX();
 
-                MaterialBuilder material = new MaterialBuilder(submesh.Material).WithUnlitShader();
-                var primitive = meshBuilder.UsePrimitive(material);
+        var position = vertex.Position.Value;
+        var normal = vertex.Normal.HasValue ? vertex.Normal.Value : Vector3.Zero;
+        var color1 = vertex.SecondaryColor.HasValue ? vertex.SecondaryColor.Value : new Color(0, 0, 0, 1);
+        var uv1 = vertex.DiffuseUV.HasValue ? vertex.DiffuseUV.Value : Vector2.Zero;
+        var uv2 = vertex.LightmapUV.HasValue ? vertex.LightmapUV.Value : Vector2.Zero;
 
-                List<VERTEX> gltfVertices = new List<VERTEX>();
-                foreach (MapGeometryVertex vertex in vertices)
-                {
-                    gltfVertices.Add(CreateVertex(vertex));
-                }
-
-                for (int i = 0; i < indices.Count; i += 3)
-                {
-                    VERTEX v1 = gltfVertices[indices[i + 0]];
-                    VERTEX v2 = gltfVertices[indices[i + 1]];
-                    VERTEX v3 = gltfVertices[indices[i + 2]];
-
-                    primitive.AddTriangle(v1, v2, v3);
-                }
-            }
-
-            return meshBuilder;
-        }
-        private static VERTEX CreateVertex(MapGeometryVertex vertex)
-        {
-            VERTEX gltfVertex = new VERTEX();
-
-            Vector3 position = vertex.Position.Value;
-            Vector3 normal = vertex.Normal.HasValue ? vertex.Normal.Value : Vector3.Zero;
-            Color color1 = vertex.SecondaryColor.HasValue ? vertex.SecondaryColor.Value : new Color(0, 0, 0, 1);
-            Vector2 uv1 = vertex.DiffuseUV.HasValue ? vertex.DiffuseUV.Value : Vector2.Zero;
-            Vector2 uv2 = vertex.LightmapUV.HasValue ? vertex.LightmapUV.Value : Vector2.Zero;
-
-            return gltfVertex
-                .WithGeometry(position, normal)
-                .WithMaterial(color1, uv1, uv2);
-        }
+        return gltfVertex
+            .WithGeometry(position, normal)
+            .WithMaterial(color1, uv1, uv2);
     }
 }

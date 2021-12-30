@@ -1,19 +1,18 @@
-﻿namespace LeagueToolkit.Helpers.Hashing
+﻿namespace LeagueToolkit.Helpers.Hashing;
+
+public static class Fnv1a
 {
-    public static class Fnv1a
+    public static uint HashLower(string input)
     {
-        public static uint HashLower(string input)
+        input = input.ToLower();
+
+        var hash = 2166136261;
+        for (var i = 0; i < input.Length; i++)
         {
-            input = input.ToLower();
-
-            uint hash = 2166136261;
-            for (int i = 0; i < input.Length; i++)
-            {
-                hash ^= input[i];
-                hash *= 16777619;
-            }
-
-            return hash;
+            hash ^= input[i];
+            hash *= 16777619;
         }
+
+        return hash;
     }
 }

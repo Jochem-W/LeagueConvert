@@ -1,41 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.IO;
 
-namespace LeagueToolkit.IO.NVR
+namespace LeagueToolkit.IO.NVR;
+
+public class NVRVertexBuffer
 {
-    public class NVRVertexBuffer
+    public NVRVertexBuffer(BinaryReader br)
     {
-        public int Length { get; private set; }
-        public long Offset { get; private set; }
+        Length = br.ReadInt32();
+        Offset = br.BaseStream.Position;
+        br.BaseStream.Seek(Length, SeekOrigin.Current);
+    }
 
-        //Used for write stuff
-        public NVRVertexType Type { get; private set; }
-        public List<NVRVertex> Vertices { get; private set; } = new List<NVRVertex>();
+    public NVRVertexBuffer(NVRVertexType type)
+    {
+        Type = type;
+    }
 
-        public NVRVertexBuffer(BinaryReader br)
-        {
-            this.Length = br.ReadInt32();
-            this.Offset = br.BaseStream.Position;
-            br.BaseStream.Seek(this.Length, SeekOrigin.Current);
-        }
+    public int Length { get; }
+    public long Offset { get; }
 
-        public void Write(BinaryWriter bw)
-        {
-            int bufferLength = this.Vertices[0].GetSize() * this.Vertices.Count;
-            bw.Write(bufferLength);
-            foreach (NVRVertex vertex in this.Vertices)
-            {
-                vertex.Write(bw);
-            }
-        }
+    //Used for write stuff
+    public NVRVertexType Type { get; }
+    public List<NVRVertex> Vertices { get; } = new();
 
-        public NVRVertexBuffer(NVRVertexType type)
-        {
-            this.Type = type;
-        }
+    public void Write(BinaryWriter bw)
+    {
+        var bufferLength = Vertices[0].GetSize() * Vertices.Count;
+        bw.Write(bufferLength);
+        foreach (var vertex in Vertices) vertex.Write(bw);
     }
 }

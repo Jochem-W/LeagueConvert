@@ -1,41 +1,44 @@
-﻿using LeagueToolkit.Helpers.Extensions;
-using System.IO;
+﻿using System.IO;
 using System.Numerics;
+using LeagueToolkit.Helpers.Extensions;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeVector4 : BinTreeProperty
 {
-    public sealed class BinTreeVector4 : BinTreeProperty
+    public BinTreeVector4(IBinTreeParent parent, uint nameHash, Vector4 value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.Vector4;
-        public Vector4 Value { get; set; }
+        Value = value;
+    }
 
-        public BinTreeVector4(IBinTreeParent parent, uint nameHash, Vector4 value) : base(parent, nameHash)
-        {
-            this.Value = value;
-        }
-        internal BinTreeVector4(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = br.ReadVector4();
-        }
+    internal BinTreeVector4(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = br.ReadVector4();
+    }
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.WriteVector4(this.Value);
-        }
+    public override BinPropertyType Type => BinPropertyType.Vector4;
+    public Vector4 Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? 5 : 0;
-            return size + 16;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.WriteVector4(Value);
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeVector4 property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? 5 : 0;
+        return size + 16;
+    }
 
-        public static implicit operator Vector4(BinTreeVector4 property) => property.Value;
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeVector4 property
+               && NameHash == property.NameHash
+               && Value == property.Value;
+    }
+
+    public static implicit operator Vector4(BinTreeVector4 property)
+    {
+        return property.Value;
     }
 }

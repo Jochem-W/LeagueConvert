@@ -1,39 +1,42 @@
 ﻿using System.IO;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeUInt64 : BinTreeProperty
 {
-    public sealed class BinTreeUInt64 : BinTreeProperty
+    public BinTreeUInt64(IBinTreeParent parent, uint nameHash, ulong value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.UInt64;
-        public ulong Value { get; set; }
+        Value = value;
+    }
 
-        public BinTreeUInt64(IBinTreeParent parent, uint nameHash, ulong value) : base(parent, nameHash)
-        {
-            this.Value = value;
-        }
-        internal BinTreeUInt64(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = br.ReadUInt64();
-        }
+    internal BinTreeUInt64(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = br.ReadUInt64();
+    }
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.Write(this.Value);
-        }
+    public override BinPropertyType Type => BinPropertyType.UInt64;
+    public ulong Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? 5 : 0;
-            return size + 8;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write(Value);
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeUInt64 property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? 5 : 0;
+        return size + 8;
+    }
 
-        public static implicit operator ulong(BinTreeUInt64 property) => property.Value;
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeUInt64 property
+               && NameHash == property.NameHash
+               && Value == property.Value;
+    }
+
+    public static implicit operator ulong(BinTreeUInt64 property)
+    {
+        return property.Value;
     }
 }

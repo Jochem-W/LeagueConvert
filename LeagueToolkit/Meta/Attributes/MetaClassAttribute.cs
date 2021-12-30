@@ -1,66 +1,68 @@
-﻿using LeagueToolkit.Helpers.Hashing;
-using System;
+﻿using System;
+using LeagueToolkit.Helpers.Hashing;
 
-namespace LeagueToolkit.Meta.Attributes
+namespace LeagueToolkit.Meta.Attributes;
+
+public sealed class MetaClassAttribute : Attribute
 {
-    public sealed class MetaClassAttribute : Attribute
+    public string _name;
+    private uint _nameHash;
+    public string _path;
+    private uint _pathHash;
+
+    public MetaClassAttribute(string name)
     {
-        public string Name
-        {
-            get => this._name;
-            set
-            {
-                if (value is null) throw new ArgumentNullException(nameof(value));
+        Name = name;
+        _nameHash = Fnv1a.HashLower(name);
+    }
 
-                this._name = value;
-                this._nameHash = Fnv1a.HashLower(value);
-            }
-        }
-        public uint NameHash
-        {
-            get => this._nameHash;
-            set
-            {
-                this._name = null;
-                this._nameHash = value;
-            }
-        }
+    public MetaClassAttribute(uint nameHash)
+    {
+        Name = string.Empty;
+        _nameHash = nameHash;
+    }
 
-        public string Path
+    public string Name
+    {
+        get => _name;
+        set
         {
-            get => this._path;
-            set
-            {
-                if (value is null) throw new ArgumentNullException(nameof(value));
+            if (value is null) throw new ArgumentNullException(nameof(value));
 
-                this._path = value;
-                this._pathHash = Fnv1a.HashLower(value);
-            }
+            _name = value;
+            _nameHash = Fnv1a.HashLower(value);
         }
-        public uint PathHash
-        {
-            get => this._pathHash;
-            set
-            {
-                this._path = null;
-                this._pathHash = value;
-            }
-        }
+    }
 
-        public string _name;
-        public string _path;
-        private uint _nameHash;
-        private uint _pathHash;
-
-        public MetaClassAttribute(string name)
+    public uint NameHash
+    {
+        get => _nameHash;
+        set
         {
-            this.Name = name;
-            this._nameHash = Fnv1a.HashLower(name);
+            _name = null;
+            _nameHash = value;
         }
-        public MetaClassAttribute(uint nameHash)
+    }
+
+    public string Path
+    {
+        get => _path;
+        set
         {
-            this.Name = string.Empty;
-            this._nameHash = nameHash;
+            if (value is null) throw new ArgumentNullException(nameof(value));
+
+            _path = value;
+            _pathHash = Fnv1a.HashLower(value);
+        }
+    }
+
+    public uint PathHash
+    {
+        get => _pathHash;
+        set
+        {
+            _path = null;
+            _pathHash = value;
         }
     }
 }

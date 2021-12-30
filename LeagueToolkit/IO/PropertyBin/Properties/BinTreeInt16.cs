@@ -1,39 +1,42 @@
 ﻿using System.IO;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeInt16 : BinTreeProperty
 {
-    public sealed class BinTreeInt16 : BinTreeProperty
+    public BinTreeInt16(IBinTreeParent parent, uint nameHash, short value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.Int16;
-        public short Value { get; set; }
+        Value = value;
+    }
 
-        public BinTreeInt16(IBinTreeParent parent, uint nameHash, short value) : base(parent, nameHash)
-        {
-            this.Value = value;
-        }
-        internal BinTreeInt16(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = br.ReadInt16();
-        }
+    internal BinTreeInt16(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = br.ReadInt16();
+    }
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.Write(this.Value);
-        }
+    public override BinPropertyType Type => BinPropertyType.Int16;
+    public short Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? 5 : 0;
-            return size + 2;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write(Value);
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeInt16 property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? 5 : 0;
+        return size + 2;
+    }
 
-        public static implicit operator short(BinTreeInt16 property) => property.Value;
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeInt16 property
+               && NameHash == property.NameHash
+               && Value == property.Value;
+    }
+
+    public static implicit operator short(BinTreeInt16 property)
+    {
+        return property.Value;
     }
 }

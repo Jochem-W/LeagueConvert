@@ -1,39 +1,42 @@
 ﻿using System.IO;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeObjectLink : BinTreeProperty
 {
-    public sealed class BinTreeObjectLink : BinTreeProperty
+    public BinTreeObjectLink(IBinTreeParent parent, uint nameHash, uint value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.ObjectLink;
-        public uint Value { get; set; }
+        Value = value;
+    }
 
-        public BinTreeObjectLink(IBinTreeParent parent, uint nameHash, uint value) : base(parent, nameHash)
-        {
-            this.Value = value;
-        }
-        internal BinTreeObjectLink(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = br.ReadUInt32();
-        }
+    internal BinTreeObjectLink(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = br.ReadUInt32();
+    }
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.Write(this.Value);
-        }
+    public override BinPropertyType Type => BinPropertyType.ObjectLink;
+    public uint Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? 5 : 0;
-            return size + 4;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write(Value);
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeObjectLink property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? 5 : 0;
+        return size + 4;
+    }
 
-        public static implicit operator uint(BinTreeObjectLink property) => property.Value;
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeObjectLink property
+               && NameHash == property.NameHash
+               && Value == property.Value;
+    }
+
+    public static implicit operator uint(BinTreeObjectLink property)
+    {
+        return property.Value;
     }
 }

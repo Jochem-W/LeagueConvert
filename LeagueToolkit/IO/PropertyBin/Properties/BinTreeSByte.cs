@@ -1,39 +1,42 @@
 ﻿using System.IO;
 
-namespace LeagueToolkit.IO.PropertyBin.Properties
+namespace LeagueToolkit.IO.PropertyBin.Properties;
+
+public sealed class BinTreeSByte : BinTreeProperty
 {
-    public sealed class BinTreeSByte : BinTreeProperty
+    public BinTreeSByte(IBinTreeParent parent, uint nameHash, sbyte value) : base(parent, nameHash)
     {
-        public override BinPropertyType Type => BinPropertyType.SByte;
-        public sbyte Value { get; set; }
+        Value = value;
+    }
 
-        public BinTreeSByte(IBinTreeParent parent, uint nameHash, sbyte value) : base(parent, nameHash)
-        {
-            this.Value = value;
-        }
-        internal BinTreeSByte(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-            this.Value = br.ReadSByte();
-        }
+    internal BinTreeSByte(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+    {
+        Value = br.ReadSByte();
+    }
 
-        protected override void WriteContent(BinaryWriter bw)
-        {
-            bw.Write(this.Value);
-        }
+    public override BinPropertyType Type => BinPropertyType.SByte;
+    public sbyte Value { get; set; }
 
-        internal override int GetSize(bool includeHeader)
-        {
-            int size = includeHeader ? 5 : 0;
-            return size + 1;
-        }
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write(Value);
+    }
 
-        public override bool Equals(BinTreeProperty other)
-        {
-            return other is BinTreeSByte property
-                && this.NameHash == property.NameHash
-                && this.Value == property.Value;
-        }
+    internal override int GetSize(bool includeHeader)
+    {
+        var size = includeHeader ? 5 : 0;
+        return size + 1;
+    }
 
-        public static implicit operator sbyte(BinTreeSByte property) => property.Value;
+    public override bool Equals(BinTreeProperty other)
+    {
+        return other is BinTreeSByte property
+               && NameHash == property.NameHash
+               && Value == property.Value;
+    }
+
+    public static implicit operator sbyte(BinTreeSByte property)
+    {
+        return property.Value;
     }
 }

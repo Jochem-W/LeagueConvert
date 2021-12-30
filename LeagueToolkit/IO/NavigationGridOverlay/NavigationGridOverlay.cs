@@ -1,32 +1,26 @@
-﻿using LeagueToolkit.Helpers.Exceptions;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using LeagueToolkit.Helpers.Exceptions;
 
-namespace LeagueToolkit.IO.NavigationGridOverlay
+namespace LeagueToolkit.IO.NavigationGridOverlay;
+
+public class NavigationGridOverlay
 {
-    public class NavigationGridOverlay
+    public NavigationGridOverlay(string fileLocation) : this(File.OpenRead(fileLocation))
     {
-        public List<NavigationGridOverlayRegion> Regions { get; set; } = new List<NavigationGridOverlayRegion>();
+    }
 
-        public NavigationGridOverlay(string fileLocation) : this(File.OpenRead(fileLocation)) { }
-        public NavigationGridOverlay(Stream stream)
+    public NavigationGridOverlay(Stream stream)
+    {
+        using (var br = new BinaryReader(stream))
         {
-            using (BinaryReader br = new BinaryReader(stream))
-            {
-                byte version = br.ReadByte();
-                if(version != 1)
-                {
-                    throw new UnsupportedFileVersionException();
-                }
+            var version = br.ReadByte();
+            if (version != 1) throw new UnsupportedFileVersionException();
 
-                byte regionCount = br.ReadByte();
-                for(int i = 0; i < regionCount; i++)
-                {
-                    this.Regions.Add(new NavigationGridOverlayRegion(br));
-                }
-            }
+            var regionCount = br.ReadByte();
+            for (var i = 0; i < regionCount; i++) Regions.Add(new NavigationGridOverlayRegion(br));
         }
     }
+
+    public List<NavigationGridOverlayRegion> Regions { get; set; } = new();
 }

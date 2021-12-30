@@ -1,39 +1,38 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 
-namespace LeagueToolkit.IO.StaticObjectFile
+namespace LeagueToolkit.IO.StaticObjectFile;
+
+public class StaticObjectSubmesh
 {
-    public class StaticObjectSubmesh
+    public StaticObjectSubmesh(string name, List<StaticObjectVertex> vertices, List<uint> indices)
     {
-        public string Name { get; set; }
-        public List<StaticObjectVertex> Vertices { get; private set; }
-        public List<uint> Indices { get; private set; }
+        Name = name;
+        Vertices = vertices;
+        Indices = indices;
+    }
 
-        public StaticObjectSubmesh(string name, List<StaticObjectVertex> vertices, List<uint> indices)
+    public string Name { get; set; }
+    public List<StaticObjectVertex> Vertices { get; }
+    public List<uint> Indices { get; }
+
+    internal List<StaticObjectFace> GetFaces()
+    {
+        var faces = new List<StaticObjectFace>();
+
+        for (var i = 0; i < Indices.Count; i += 3)
         {
-            this.Name = name;
-            this.Vertices = vertices;
-            this.Indices = indices;
-        }
-
-        internal List<StaticObjectFace> GetFaces()
-        {
-            List<StaticObjectFace> faces = new List<StaticObjectFace>();
-
-            for(int i = 0; i < this.Indices.Count; i += 3)
+            uint[] indices = {Indices[i], Indices[i + 1], Indices[i + 2]};
+            Vector2[] uvs =
             {
-                uint[] indices = { this.Indices[i], this.Indices[i + 1], this.Indices[i + 2] };
-                Vector2[] uvs = 
-                {
-                    this.Vertices[(int)indices[0]].UV,
-                    this.Vertices[(int)indices[1]].UV,
-                    this.Vertices[(int)indices[2]].UV
-                };
+                Vertices[(int) indices[0]].UV,
+                Vertices[(int) indices[1]].UV,
+                Vertices[(int) indices[2]].UV
+            };
 
-                faces.Add(new StaticObjectFace(indices, this.Name, uvs));
-            }
-
-            return faces;
+            faces.Add(new StaticObjectFace(indices, Name, uvs));
         }
+
+        return faces;
     }
 }

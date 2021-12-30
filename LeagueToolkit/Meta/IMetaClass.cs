@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace LeagueToolkit.Meta;
 
-namespace LeagueToolkit.Meta
+public interface IMetaClass
 {
-    public interface IMetaClass
-    {
-    }
 }

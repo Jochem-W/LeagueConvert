@@ -1,22 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <Platforms>x64</Platforms>
-    <Company>Jochem-W</Company>
-    <AssemblyVersion>2.2.0</AssemblyVersion>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <Platforms>x64</Platforms>
+        <Company>Jochem-W</Company>
+        <AssemblyVersion>2.2.0</AssemblyVersion>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MaterialDesignThemes" Version="4.2.1" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
-    <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="2.10.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="MaterialDesignThemes" Version="4.2.1"/>
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0"/>
+        <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="2.10.1"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\LeagueBulkConvert\LeagueBulkConvert.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\LeagueBulkConvert\LeagueBulkConvert.csproj"/>
+    </ItemGroup>
 
 </Project>
