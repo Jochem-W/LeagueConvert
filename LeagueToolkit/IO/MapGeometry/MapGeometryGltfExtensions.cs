@@ -52,10 +52,7 @@ public static class MapGeometryGltfExtensions
     {
         if (layerCombination == MapGeometryLayer.NoLayer) return "NoLayer";
 
-        if (layerCombination == MapGeometryLayer.AllLayers)
-        {
-            return "AllLayers";
-        }
+        if (layerCombination == MapGeometryLayer.AllLayers) return "AllLayers";
 
         var name = "Layer-";
 

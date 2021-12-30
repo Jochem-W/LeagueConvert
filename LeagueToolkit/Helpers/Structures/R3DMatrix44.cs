@@ -26,11 +26,11 @@ public struct R3DMatrix44 : IEquatable<R3DMatrix44>
     public float M43 { get; private set; }
     public float M44 { get; private set; }
 
-    public Vector3 Translation => new Vector3(M14, M24, M34);
+    public Vector3 Translation => new(M14, M24, M34);
     public Quaternion Rotation => Quaternion.CreateFromRotationMatrix(this);
 
     public Vector3 Scale =>
-        new Vector3
+        new()
         {
             X = new Vector3(M11, M12, M13).Length(),
             Y = new Vector3(M21, M22, M23).Length(),

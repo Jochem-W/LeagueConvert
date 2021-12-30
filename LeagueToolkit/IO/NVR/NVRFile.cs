@@ -171,10 +171,7 @@ public class NVRBuffers
     // Find index buffer with its position (for a given model, it has to be the same as its vertex buffer position)
     public NVRIndexBuffer GetIndexBuffer(int position)
     {
-        if (IndexBuffers.Count > position)
-        {
-            return IndexBuffers[position];
-        }
+        if (IndexBuffers.Count > position) return IndexBuffers[position];
 
         var newBuffer = new NVRIndexBuffer(D3DFORMAT.D3DFMT_INDEX16);
         IndexBuffers.Add(newBuffer);

@@ -127,10 +127,7 @@ public class WorldGeometryModel
     /// </summary>
     public R3DBox CalculateBoundingBox()
     {
-        if (Vertices == null || Vertices.Count == 0)
-        {
-            return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
-        }
+        if (Vertices == null || Vertices.Count == 0) return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
 
         var min = Vertices[0].Position;
         var max = Vertices[0].Position;

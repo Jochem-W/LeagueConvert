@@ -209,10 +209,7 @@ public class MapGeometryModel
 
     public R3DBox GetBoundingBox()
     {
-        if (Vertices == null || Vertices.Count == 0)
-        {
-            return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
-        }
+        if (Vertices == null || Vertices.Count == 0) return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
 
         var min = Vertices[0].Position.Value;
         var max = Vertices[0].Position.Value;

@@ -12,9 +12,9 @@ public class Wad : IDisposable
 {
     internal const int HEADER_SIZE_V3 = 272;
     private readonly Dictionary<ulong, WadEntry> _entries = new();
-    private bool _isDisposed;
 
     private readonly bool _leaveOpen;
+    private bool _isDisposed;
 
     internal Stream _stream;
 

@@ -83,9 +83,7 @@ public class BinTreeObject : IBinTreeParent, IEquatable<BinTreeObject>
     public void AddProperty(BinTreeProperty property)
     {
         if (_properties.Any(x => x.NameHash == property.NameHash))
-        {
             throw new InvalidOperationException("A property with the same name already exists");
-        }
 
         property.Parent = this;
         _properties.Add(property);
