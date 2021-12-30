@@ -3,8 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Platforms>x64</Platforms>
-        <Company>Jochem-W</Company>
-        <AssemblyVersion>2.1.0</AssemblyVersion>
+        <Version>2.3.0</Version>
+        <Authors>Jochem-W</Authors>
     </PropertyGroup>
 
     <ItemGroup>

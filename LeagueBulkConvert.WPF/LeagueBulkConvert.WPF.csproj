@@ -5,19 +5,19 @@
         <TargetFramework>net6.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <Platforms>x64</Platforms>
-        <Company>Jochem-W</Company>
-        <AssemblyVersion>2.2.0</AssemblyVersion>
         <PublishSingleFile>true</PublishSingleFile>
+        <Version>2.3.0</Version>
+        <Authors>Jochem-W</Authors>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MaterialDesignThemes" Version="4.3.0"/>
-        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1"/>
-        <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="2.10.2"/>
+        <PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+        <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="2.10.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\LeagueBulkConvert\LeagueBulkConvert.csproj"/>
+        <ProjectReference Include="..\LeagueBulkConvert\LeagueBulkConvert.csproj" />
     </ItemGroup>
 
 </Project>
