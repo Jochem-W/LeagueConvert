@@ -1,7 +1,8 @@
 # LeagueBulkConvert
 
 Convert champion models from League of Legends to glTF, with automatic textures
-and animations.
+and animations. Contains code from
+[LoL-Fantome/LeagueToolkit](https://github.com/LoL-Fantome/LeagueToolkit).
 
 ## Status
 
