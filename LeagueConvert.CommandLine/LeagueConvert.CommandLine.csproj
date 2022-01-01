@@ -8,13 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\LeagueConvert\LeagueConvert.csproj" />
+        <ProjectReference Include="..\LeagueConvert\LeagueConvert.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Serilog" Version="2.10.0" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
-        <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21216.1" />
+        <PackageReference Include="Serilog" Version="2.10.0"/>
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1"/>
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21216.1"/>
     </ItemGroup>
 
 </Project>
