@@ -1,6 +1,5 @@
 ﻿using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -53,7 +52,7 @@ internal static class Program
 
     private static Command GetConvertWadCommand()
     {
-        var command = new Command("convert-wad", "Convert all models found in the specified WAD file")
+        var command = new Command("convert-wad", "Convert all models in a specified WAD file")
         {
             new Argument<string>("path", "Path to a WAD file"),
             new Option<string>(new[] {"-o", "--output-directory"}, () => "output", "Path to the output directory"),
@@ -62,21 +61,23 @@ internal static class Program
             new Option<string>(new[] {"--game-hash-file"}, "Path to 'hashes.game.txt'"),
             new Option<string>(new[] {"--binhashes-hash-file"}, "Path to 'hashes.binhashes.txt'")
         };
-        command.Handler = CommandHandler.Create<string, string, bool, bool, string, string>(
-            async (path, outputDirectory, skeletons, animations,
-                gameHashFile, binHashesHashFile) =>
-            {
-                if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
-                    return;
-                if (!TryCreateOutputDirectory(outputDirectory))
-                    return;
-                if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
-                    return;
-                if (!TryLoadWad(path, out var wad))
-                    return;
-                await TryConvertWad(wad, mode.Value, outputDirectory);
-                wad.Dispose();
-            });
+
+        command.SetHandler(async (string path, string outputDirectory, bool skeletons, bool animations,
+            string gameHashFile,
+            string binHashesHashFile) =>
+        {
+            if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
+                return;
+            if (!TryCreateOutputDirectory(outputDirectory))
+                return;
+            if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
+                return;
+            if (!TryLoadWad(path, out var wad))
+                return;
+            await TryConvertWad(wad, mode.Value, outputDirectory);
+            wad.Dispose();
+        });
+
         return command;
     }
 
@@ -92,25 +93,26 @@ internal static class Program
             new Option<string>(new[] {"--game-hash-file"}, "Path to 'hashes.game.txt'"),
             new Option<string>(new[] {"--binhashes-hash-file"}, "Path to 'hashes.binhashes.txt'")
         };
-        command.Handler = CommandHandler.Create<string, string, bool, bool, bool, string, string>(
-            async (path, outputDirectory, skeletons, animations, recursive, gameHashFile, binHashesHashFile) =>
+
+        command.SetHandler(async (string path, string outputDirectory, bool skeletons, bool animations, bool recursive,
+            string gameHashFile, string binHashesHashFile) =>
+        {
+            if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
+                return;
+            if (!TryCreateOutputDirectory(outputDirectory))
+                return;
+            if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
+                return;
+            var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            foreach (var filePath in Directory.EnumerateFiles(path, "*.wad.client", searchOption)
+                         .Where(filePath => Path.GetFileName(filePath).Count(character => character == '.') == 2))
             {
-                if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
-                    return;
-                if (!TryCreateOutputDirectory(outputDirectory))
-                    return;
-                if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
-                    return;
-                var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-                foreach (var filePath in Directory.EnumerateFiles(path, "*.wad.client", searchOption)
-                             .Where(filePath => Path.GetFileName(filePath).Count(character => character == '.') == 2))
-                {
-                    if (!TryLoadWad(filePath, out var wad))
-                        continue;
-                    await TryConvertWad(wad, mode.Value, outputDirectory);
-                    wad.Dispose();
-                }
-            });
+                if (!TryLoadWad(filePath, out var wad))
+                    continue;
+                await TryConvertWad(wad, mode.Value, outputDirectory);
+                wad.Dispose();
+            }
+        });
         return command;
     }
 
