@@ -52,19 +52,25 @@ internal static class Program
 
     private static Command GetConvertWadCommand()
     {
+        var pathArgument = new Argument<string>("path", "Path to a WAD file");
+        var outputOption = new Option<string>("-o", () => "output", "Path to an output directory");
+        var skeletonsOption = new Option<bool>("-s", () => false, "Include skeletons");
+        var animationsOption = new Option<bool>("-a", () => false, "Include animations");
+        var gameHashOption = new Option<string>("-g", "Path to 'hashes.game.txt'");
+        var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
+
         var command = new Command("convert-wad", "Convert all models in a specified WAD file")
         {
-            new Argument<string>("path", "Path to a WAD file"),
-            new Option<string>(new[] {"-o", "--output-directory"}, () => "output", "Path to the output directory"),
-            new Option<bool>(new[] {"-s", "--skeletons"}, () => false, "Include skeletons"),
-            new Option<bool>(new[] {"-a", "--animations"}, () => false, "Include animations; requires -s"),
-            new Option<string>(new[] {"--game-hash-file"}, "Path to 'hashes.game.txt'"),
-            new Option<string>(new[] {"--binhashes-hash-file"}, "Path to 'hashes.binhashes.txt'")
+            pathArgument,
+            outputOption,
+            skeletonsOption,
+            animationsOption,
+            gameHashOption,
+            binHashesHashOption
         };
 
         command.SetHandler(async (string path, string outputDirectory, bool skeletons, bool animations,
-            string gameHashFile,
-            string binHashesHashFile) =>
+            string gameHashFile, string binHashesHashFile) =>
         {
             if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
                 return;
@@ -76,43 +82,53 @@ internal static class Program
                 return;
             await TryConvertWad(wad, mode.Value, outputDirectory);
             wad.Dispose();
-        });
+        }, pathArgument, outputOption, skeletonsOption, animationsOption, gameHashOption, binHashesHashOption);
 
         return command;
     }
 
     private static Command GetConvertAllCommand()
     {
-        var command = new Command("convert-all", "Convert all models in all WAD files in a specified directory")
+        var pathArgument = new Argument<string>("path", "Path to a folder containing WAD files");
+        var outputOption = new Option<string>("-o", () => "output", "Path to an output directory");
+        var skeletonsOption = new Option<bool>("-s", () => false, "Include skeletons");
+        var animationsOption = new Option<bool>("-a", () => false, "Include animations");
+        var recurseOption = new Option<bool>("-r", () => false, "Search for WAD files recursively");
+        var gameHashOption = new Option<string>("-g", "Path to 'hashes.game.txt'");
+        var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
+
+        var command = new Command("convert-all", "Convert all models in a specified WAD file")
         {
-            new Argument<string>("path", "Path to a folder containing WAD files"),
-            new Option<string>(new[] {"-o", "--output-directory"}, () => "output", "Path to the output directory"),
-            new Option<bool>(new[] {"-s", "--skeletons"}, () => false, "Include skeletons"),
-            new Option<bool>(new[] {"-a", "--animations"}, () => false, "Include animations; requires -s"),
-            new Option<bool>(new[] {"-r", "--recursive"}, () => false, "Search for WAD files recursively"),
-            new Option<string>(new[] {"--game-hash-file"}, "Path to 'hashes.game.txt'"),
-            new Option<string>(new[] {"--binhashes-hash-file"}, "Path to 'hashes.binhashes.txt'")
+            pathArgument,
+            outputOption,
+            skeletonsOption,
+            animationsOption,
+            recurseOption,
+            gameHashOption,
+            binHashesHashOption
         };
 
-        command.SetHandler(async (string path, string outputDirectory, bool skeletons, bool animations, bool recursive,
-            string gameHashFile, string binHashesHashFile) =>
-        {
-            if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
-                return;
-            if (!TryCreateOutputDirectory(outputDirectory))
-                return;
-            if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
-                return;
-            var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            foreach (var filePath in Directory.EnumerateFiles(path, "*.wad.client", searchOption)
-                         .Where(filePath => Path.GetFileName(filePath).Count(character => character == '.') == 2))
+        command.SetHandler(async (string path, string outputDirectory, bool skeletons, bool animations, bool recurse,
+                string gameHashFile, string binHashesHashFile) =>
             {
-                if (!TryLoadWad(filePath, out var wad))
-                    continue;
-                await TryConvertWad(wad, mode.Value, outputDirectory);
-                wad.Dispose();
-            }
-        });
+                if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
+                    return;
+                if (!TryCreateOutputDirectory(outputDirectory))
+                    return;
+                if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
+                    return;
+                var searchOption = recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+                foreach (var filePath in Directory.EnumerateFiles(path, "*.wad.client", searchOption)
+                             .Where(filePath => Path.GetFileName(filePath).Count(character => character == '.') == 2))
+                {
+                    if (!TryLoadWad(filePath, out var wad))
+                        continue;
+                    await TryConvertWad(wad, mode.Value, outputDirectory);
+                    wad.Dispose();
+                }
+            }, pathArgument, outputOption, skeletonsOption, animationsOption, recurseOption, gameHashOption,
+            binHashesHashOption);
+
         return command;
     }
 
