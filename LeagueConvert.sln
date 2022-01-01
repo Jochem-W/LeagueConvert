@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeagueConvert", "LeagueConv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeagueConvert.CommandLine", "LeagueConvert.CommandLine\LeagueConvert.CommandLine.csproj", "{40F6FF1C-CD7E-4F89-9E43-686C584CD42E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleGltf", "SimpleGltf\SimpleGltf\SimpleGltf.csproj", "{D547F711-D50A-453E-B285-DB9BF61AA187}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleGltf", "SimpleGltf\SimpleGltf.csproj", "{D547F711-D50A-453E-B285-DB9BF61AA187}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
