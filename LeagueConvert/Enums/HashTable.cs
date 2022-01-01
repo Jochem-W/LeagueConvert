@@ -1,8 +1,7 @@
-namespace LeagueConvert.Enums
+namespace LeagueConvert.Enums;
+
+public enum HashTable
 {
-    public enum HashTable
-    {
-        Game,
-        BinHashes
-    }
+    Game,
+    BinHashes
 }

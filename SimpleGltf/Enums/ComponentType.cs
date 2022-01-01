@@ -1,12 +1,11 @@
-namespace SimpleGltf.Enums
+namespace SimpleGltf.Enums;
+
+public enum ComponentType
 {
-    public enum ComponentType
-    {
-        SByte = 5120,
-        Byte,
-        Short,
-        UShort,
-        UInt = 5125,
-        Float
-    }
+    SByte = 5120,
+    Byte,
+    Short,
+    UShort,
+    UInt = 5125,
+    Float
 }

@@ -1,8 +1,7 @@
-namespace SimpleGltf.Enums
+namespace SimpleGltf.Enums;
+
+public enum MimeType
 {
-    public enum MimeType
-    {
-        Png,
-        Jpg
-    }
+    Png,
+    Jpg
 }

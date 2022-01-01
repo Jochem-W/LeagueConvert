@@ -1,7 +1,6 @@
-namespace SimpleGltf.Json
+namespace SimpleGltf.Json;
+
+public class PbrMetallicRoughness
 {
-    public class PbrMetallicRoughness
-    {
-        public TextureInfo BaseColorTexture { get; internal set; }
-    }
+    public TextureInfo BaseColorTexture { get; internal set; }
 }

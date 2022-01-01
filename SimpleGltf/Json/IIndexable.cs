@@ -1,9 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace SimpleGltf.Json
+namespace SimpleGltf.Json;
+
+public interface IIndexable
 {
-    public interface IIndexable
-    {
-        [JsonIgnore] int Index { get; }
-    }
+    [JsonIgnore] int Index { get; }
 }

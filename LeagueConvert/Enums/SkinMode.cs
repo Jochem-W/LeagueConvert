@@ -1,9 +1,8 @@
-namespace LeagueConvert.Enums
+namespace LeagueConvert.Enums;
+
+public enum SkinMode
 {
-    public enum SkinMode
-    {
-        MeshAndTextures,
-        WithSkeleton,
-        WithAnimations
-    }
+    MeshAndTextures,
+    WithSkeleton,
+    WithAnimations
 }

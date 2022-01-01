@@ -4,29 +4,28 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SimpleGltf.Json.Extensions
+namespace SimpleGltf.Json.Extensions;
+
+public class ExtensionsConverter : JsonConverter<IEnumerable<KeyValuePair<string, IDictionary>>>
 {
-    public class ExtensionsConverter : JsonConverter<IEnumerable<KeyValuePair<string, IDictionary>>>
+    public override IEnumerable<KeyValuePair<string, IDictionary>> Read(ref Utf8JsonReader reader,
+        Type typeToConvert, JsonSerializerOptions options)
     {
-        public override IEnumerable<KeyValuePair<string, IDictionary>> Read(ref Utf8JsonReader reader,
-            Type typeToConvert, JsonSerializerOptions options)
-        {
-            throw new NotImplementedException();
-        }
+        throw new NotImplementedException();
+    }
 
-        public override void Write(Utf8JsonWriter writer, IEnumerable<KeyValuePair<string, IDictionary>> pairs,
-            JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, IEnumerable<KeyValuePair<string, IDictionary>> pairs,
+        JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        foreach (var (name, _) in pairs)
         {
+            writer.WritePropertyName(name);
             writer.WriteStartObject();
-            foreach (var (name, _) in pairs)
-            {
-                writer.WritePropertyName(name);
-                writer.WriteStartObject();
-                //TODO
-                writer.WriteEndObject();
-            }
-
+            //TODO
             writer.WriteEndObject();
         }
+
+        writer.WriteEndObject();
     }
 }

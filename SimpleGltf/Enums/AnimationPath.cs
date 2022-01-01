@@ -1,9 +1,8 @@
-namespace SimpleGltf.Enums
+namespace SimpleGltf.Enums;
+
+public enum AnimationPath
 {
-    public enum AnimationPath
-    {
-        Translation,
-        Rotation,
-        Scale
-    }
+    Translation,
+    Rotation,
+    Scale
 }

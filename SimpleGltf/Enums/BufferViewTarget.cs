@@ -1,8 +1,7 @@
-namespace SimpleGltf.Enums
+namespace SimpleGltf.Enums;
+
+public enum BufferViewTarget
 {
-    public enum BufferViewTarget
-    {
-        ArrayBuffer = 34962,
-        ElementArrayBuffer
-    }
+    ArrayBuffer = 34962,
+    ElementArrayBuffer
 }

@@ -1,10 +1,9 @@
-namespace SimpleGltf.Json.Extensions
+namespace SimpleGltf.Json.Extensions;
+
+public static class NodeExtensions
 {
-    public static class NodeExtensions
+    public static void AddChild(this Node node, Node child)
     {
-        public static void AddChild(this Node node, Node child)
-        {
-            node.ChildrenList.Add(child);
-        }
+        node.ChildrenList.Add(child);
     }
 }

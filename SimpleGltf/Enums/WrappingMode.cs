@@ -1,9 +1,8 @@
-namespace SimpleGltf.Enums
+namespace SimpleGltf.Enums;
+
+public enum WrappingMode
 {
-    public enum WrappingMode
-    {
-        Repeat = 10497,
-        ClampToEdge = 33071,
-        MirroredRepeat = 33648
-    }
+    Repeat = 10497,
+    ClampToEdge = 33071,
+    MirroredRepeat = 33648
 }
