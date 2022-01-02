@@ -93,7 +93,7 @@ public static class SkinExtensions
         var gltfAsset = new GltfAsset();
         gltfAsset.Scene = gltfAsset.CreateScene();
         var node = gltfAsset.CreateNode();
-        node.Scale = new Vector3(-1, 1, 1);
+        node.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
         gltfAsset.Scene.AddNode(node);
         var sampler = gltfAsset.CreateSampler(WrappingMode.ClampToEdge, WrappingMode.ClampToEdge);
         node.Mesh = gltfAsset.CreateMesh();
