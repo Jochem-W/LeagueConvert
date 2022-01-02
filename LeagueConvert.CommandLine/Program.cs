@@ -47,7 +47,10 @@ internal static class Program
 
     private static Command GetConvertWadCommand()
     {
-        var pathArgument = new Argument<string>("path", "Path to a WAD file");
+        var wadsArgument = new Argument<string[]>("wads", "Paths to WAD files")
+        {
+            Arity = ArgumentArity.OneOrMore
+        };
         var outputOption = new Option<string>("-o", () => "output", "Path to an output directory");
         var skeletonsOption = new Option<bool>("-s", () => false, "Include skeletons");
         var animationsOption = new Option<bool>("-a", () => false, "Include animations");
@@ -56,7 +59,7 @@ internal static class Program
 
         var command = new Command("convert-wad", "Convert all models in a specified WAD file")
         {
-            pathArgument,
+            wadsArgument,
             outputOption,
             skeletonsOption,
             animationsOption,
@@ -64,7 +67,7 @@ internal static class Program
             binHashesHashOption
         };
 
-        command.SetHandler(async (string path, string outputDirectory, bool skeletons, bool animations,
+        command.SetHandler(async (string[] wads, string outputDirectory, bool skeletons, bool animations,
             string gameHashFile, string binHashesHashFile) =>
         {
             if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
@@ -73,12 +76,17 @@ internal static class Program
                 return;
             if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
                 return;
-            if (!TryLoadWad(path, out var wad))
-                return;
-            await TryConvertWad(wad, mode.Value, outputDirectory);
-            wad.Dispose();
-        }, pathArgument, outputOption, skeletonsOption, animationsOption, gameHashOption, binHashesHashOption);
+            foreach (var path in wads)
+            {
+                Logger.Information("Converting {File}", Path.GetFileName(path));
+                if (!TryLoadWad(path, out var wad))
+                    return;
+                await TryConvertWad(wad, mode.Value, outputDirectory);
+                wad.Dispose();
+            }
+        }, wadsArgument, outputOption, skeletonsOption, animationsOption, gameHashOption, binHashesHashOption);
 
+        Logger.Information("Finished!");
         return command;
     }
 
@@ -124,6 +132,7 @@ internal static class Program
             }, pathArgument, outputOption, skeletonsOption, animationsOption, recurseOption, gameHashOption,
             binHashesHashOption);
 
+        Logger.Information("Finished!");
         return command;
     }
 
