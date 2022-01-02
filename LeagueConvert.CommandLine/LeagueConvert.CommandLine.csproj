@@ -5,7 +5,6 @@
         <TargetFramework>net6.0</TargetFramework>
         <Version>3.0.0</Version>
         <Authors>Jochem-W</Authors>
-        <PublishSingleFile>true</PublishSingleFile>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 

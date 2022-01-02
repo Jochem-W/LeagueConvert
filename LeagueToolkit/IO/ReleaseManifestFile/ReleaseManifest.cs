@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using FlatSharp;
+using ImpromptuNinjas.ZStd;
 using LeagueToolkit.Helpers.Exceptions;
-using ZstdNet;
 
 namespace LeagueToolkit.IO.ReleaseManifestFile;
 
@@ -44,9 +44,13 @@ public class ReleaseManifest
                 // NOTE: verify signature here
             }
 
-            using var decompressor = new Decompressor();
-            var uncompressedFile = decompressor.Unwrap(compressedFile, (int) uncompressedContentSize);
-            _body = FlatBufferSerializer.Default.Parse<ReleaseManifestBody>(uncompressedFile);
+            using var compressedStream = new MemoryStream(compressedFile);
+            using var decompressStream = new ZStdDecompressStream(compressedStream);
+            var decompressed = new byte[uncompressedContentSize];
+
+            decompressStream.Read(decompressed, 0, decompressed.Length);
+
+            _body = FlatBufferSerializer.Default.Parse<ReleaseManifestBody>(decompressed);
         }
     }
 
@@ -76,9 +80,13 @@ public class ReleaseManifest
         var uncompressedContentSize = FlatBufferSerializer.Default.Serialize(_body, uncompressedFile);
         Array.Resize(ref uncompressedFile, uncompressedContentSize);
 
-        using var compressor = new Compressor();
-        var compressedFile = compressor.Wrap(uncompressedFile);
-        var compressedContentSize = compressedFile.Length;
+
+        using var compressed = new MemoryStream();
+        using (var compressStream = new ZStdCompressStream(compressed))
+        {
+            compressStream.Write(uncompressedFile);
+            compressStream.Flush();
+        }
 
         using (var bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
         {
@@ -88,10 +96,11 @@ public class ReleaseManifest
             bw.Write(unknown);
             bw.Write(signatureType);
             bw.Write(contentOffset);
-            bw.Write(compressedContentSize);
+            bw.Write((int) compressed.Length);
             bw.Write(ID);
             bw.Write(uncompressedContentSize);
-            bw.Write(compressedFile);
+            compressed.Seek(0, SeekOrigin.Begin);
+            compressed.CopyTo(stream);
         }
     }
 }
