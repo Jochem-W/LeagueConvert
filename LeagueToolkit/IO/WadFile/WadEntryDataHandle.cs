@@ -1,5 +1,5 @@
 ﻿using System.IO.Compression;
-using ZstdSharp;
+using ZstdNet;
 
 namespace LeagueToolkit.IO.WadFile;
 
@@ -67,7 +67,9 @@ public struct WadEntryDataHandle
             }
             case WadEntryType.ZStandardCompressed:
             {
-                var decompressedData = Zstd.Decompress(compressedData, _entry.UncompressedSize);
+                using var decompressor = new Decompressor();
+
+                var decompressedData = decompressor.Unwrap(compressedData, _entry.UncompressedSize);
 
                 return new MemoryStream(decompressedData);
             }
