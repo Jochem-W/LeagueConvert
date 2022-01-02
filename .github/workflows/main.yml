@@ -1,0 +1,32 @@
+﻿name: CI
+
+on:
+  push:
+    branches: [ vnext ]
+  pull_request:
+    branches: [ vnext ]
+  workflow_dispatch:
+
+jobs:
+  Build:
+    runs-on: windows-latest
+    steps:
+      - name: Install .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Checkout
+        uses: actions/checkout@v2.4.0
+
+      - name: Publish
+        run: dotnet.exe publish LeagueConvert.CommandLine -c Release -r win-x64 --sc
+
+      - name: Get short SHA
+        run: Write-Output "name=$($Env:GITHUB_SHA.SubString(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Append;
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2.3.1
+        with:
+          name: LeagueConvert-${{ env.name }}-win-x64
+          path: LeagueConvert.CommandLine/bin/Release/net6.0-windows/win-x64/publish
