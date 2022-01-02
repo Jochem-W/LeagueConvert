@@ -6,6 +6,8 @@
         <Version>3.0.0</Version>
         <Authors>Jochem-W</Authors>
         <ImplicitUsings>enable</ImplicitUsings>
+        <PublishSingleFile>true</PublishSingleFile>
+        <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     </PropertyGroup>
 
     <ItemGroup>
