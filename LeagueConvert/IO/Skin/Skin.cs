@@ -264,30 +264,6 @@ public class Skin : IDisposable
                     }
 
                 break;
-            case 2340045716: //SkinMeshDataProperties_MaterialOverride
-                BinTreeProperty materialProperty = null;
-                BinTreeProperty submeshProperty = null;
-                BinTreeProperty textureProperty = null;
-                foreach (var property in skinMeshProperties.Properties)
-                    switch (property.NameHash)
-                    {
-                        case 3538210912: // material
-                            materialProperty = property;
-                            break;
-                        case 2866241836: // submesh
-                            submeshProperty = property;
-                            break;
-                        case 1013213428: // texture
-                            textureProperty = property;
-                            break;
-                    }
-
-                if (materialProperty == null || submeshProperty == null || textureProperty == null)
-                    break;
-
-                _materials.Add(new Material(((BinTreeObjectLink) materialProperty).Value,
-                    ((BinTreeString) textureProperty).Value, ((BinTreeString) submeshProperty).Value.ToLower()));
-                break;
         }
     }
 
