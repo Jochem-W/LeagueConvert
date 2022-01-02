@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -6,6 +7,7 @@ using ImageMagick;
 using LeagueConvert.Enums;
 using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.IO.SimpleSkinFile;
+using Serilog;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 using SimpleGltf.Json;
@@ -15,32 +17,56 @@ namespace LeagueConvert.IO.Skin.Extensions;
 
 public static class SkinExtensions
 {
-    private static void Fix(Skin skin)
+    private static void Fix(Skin skin, ILogger logger = null)
     {
         if (skin.State.HasFlag(SkinState.MeshLoaded))
-            FixMesh(skin);
+            FixMesh(skin, logger);
     }
 
-    private static void FixMesh(Skin skin)
+    private static void FixMesh(Skin skin, ILogger logger = null)
     {
         foreach (var vertex in skin.SimpleSkin.Submeshes.SelectMany(subMesh => subMesh.Vertices))
         {
-            FixNormal(vertex);
+            FixNormal(vertex, logger);
             FixUv(vertex);
         }
     }
 
-    private static void FixNormal(SimpleSkinVertex vertex)
+    private static void FixNormal(SimpleSkinVertex vertex, ILogger logger = null)
     {
-        var length = vertex.Normal.Length();
-        if (length is 0 or float.NaN)
+        var originalNormal = vertex.Normal;
+        vertex.Normal = Vector3.Normalize(vertex.Normal);
+        if (!float.IsNaN(vertex.Normal.Length()))
         {
-            vertex.Normal = vertex.Position;
-            length = vertex.Normal.Length();
+            return;
+        }
+        
+        vertex.Normal = Vector3.Normalize(new Vector3(-vertex.Position.X, -vertex.Position.Y, vertex.Position.Z));
+        if (!float.IsNaN(vertex.Normal.Length()))
+        {
+            return;
+        }
+        
+        // Both the position and normal vector are either 0 0 0 or NaN
+        if (!float.IsNaN(originalNormal.Length()))
+        {
+            var x = BitConverter.SingleToInt32Bits(originalNormal.X) < 0 ? -1 : 1;
+            var y = BitConverter.SingleToInt32Bits(originalNormal.Y) < 0 ? -1 : 1;
+            var z = BitConverter.SingleToInt32Bits(originalNormal.Z) < 0 ? -1 : 1;
+            vertex.Normal = Vector3.Normalize(new Vector3(x, y, z));
+            return;
+        }
+        
+        if (!float.IsNaN(vertex.Position.Length()))
+        {
+            var x = BitConverter.SingleToInt32Bits(vertex.Position.X) < 0 ? 1 : -1;
+            var y = BitConverter.SingleToInt32Bits(vertex.Position.Y) < 0 ? 1 : -1;
+            var z = BitConverter.SingleToInt32Bits(vertex.Position.Z) < 0 ? -1 : 1;
+            vertex.Normal = Vector3.Normalize(new Vector3(x, y, z));
+            return;
         }
 
-        if (length is not 1f)
-            vertex.Normal = Vector3.Normalize(vertex.Normal);
+        logger?.Warning("Could not fix normals");
     }
 
     private static void FixUv(SimpleSkinVertex vertex)
@@ -58,11 +84,11 @@ public static class SkinExtensions
         vertex.UV = new Vector2(x, y);
     }
 
-    public static async Task<GltfAsset> GetGltfAsset(this Skin skin)
+    public static async Task<GltfAsset> GetGltfAsset(this Skin skin, ILogger logger = null)
     {
         if (!skin.State.HasFlag(SkinState.MeshLoaded))
             return null;
-        Fix(skin);
+        Fix(skin, logger);
 
         var gltfAsset = new GltfAsset();
         gltfAsset.Scene = gltfAsset.CreateScene();

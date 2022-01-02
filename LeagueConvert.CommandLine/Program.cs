@@ -220,7 +220,7 @@ internal static class Program
             if (!Directory.Exists(skinDirectory))
                 Directory.CreateDirectory(skinDirectory);
 
-            await using var gltfAsset = await skin.GetGltfAsset();
+            await using var gltfAsset = await skin.GetGltfAsset(Logger);
             await gltfAsset.Save(Path.Combine(skinDirectory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
             return true;
         }
