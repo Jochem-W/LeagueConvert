@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Numerics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using ImageMagick;
 using SimpleGltf.Enums;
@@ -13,7 +14,7 @@ public static class GltfAssetExtensions
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web)
     {
-        IgnoreNullValues = true
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     public static UShortAccessor CreateUShortAccessor(this GltfAsset gltfAsset, BufferView bufferView,
