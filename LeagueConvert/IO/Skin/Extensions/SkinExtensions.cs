@@ -97,9 +97,9 @@ public static class SkinExtensions
             var positionAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
             var normalAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
             var uvAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec2, true);
-            FloatAccessor colourAccessor = null;
-            if (subMesh.Vertices.All(vertex => vertex.Color != null))
-                colourAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
+            // FloatAccessor colourAccessor = null;
+            // if (subMesh.Vertices.All(vertex => vertex.Color != null))
+            //     colourAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
 
             //SKELETON
             UShortAccessor jointsAccessor = null;
@@ -127,16 +127,16 @@ public static class SkinExtensions
                 primitive.SetAttribute("JOINTS_0", jointsAccessor);
             }
 
-            if (colourAccessor != null)
-                primitive.SetAttribute("COLOR_0", colourAccessor);
+            // if (colourAccessor != null)
+            //     primitive.SetAttribute("COLOR_0", colourAccessor);
             foreach (var vertex in subMesh.Vertices)
             {
                 positionAccessor.Write(vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
                 normalAccessor.Write(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
                 uvAccessor.Write(vertex.UV.X, vertex.UV.Y);
-                colourAccessor?.Write(vertex.Color!.Value.R, vertex.Color.Value.G,
-                    vertex.Color.Value.B,
-                    vertex.Color.Value.A);
+                // colourAccessor?.Write(vertex.Color!.Value.R, vertex.Color.Value.G,
+                //     vertex.Color.Value.B,
+                //     vertex.Color.Value.A);
                 weightsAccessor?.Write(vertex.Weights[0], vertex.Weights[1], vertex.Weights[2],
                     vertex.Weights[3]);
                 if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
@@ -167,6 +167,8 @@ public static class SkinExtensions
             primitive.Material = material;
             if (!skin.State.HasFlag(SkinState.TexturesLoaded))
                 continue;
+
+            // TODO: ignore case?
             if (!skin.Textures.ContainsKey(subMesh.Name))
                 continue;
             var pbrMetallicRoughness = material.CreatePbrMetallicRoughness();
