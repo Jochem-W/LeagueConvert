@@ -19,14 +19,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.4.0
 
-      - name: Publish
-        run: dotnet.exe publish LeagueConvert.CommandLine -c Release -r win-x64 --sc
+      - name: Publish portable
+        run: dotnet.exe publish LeagueConvert.CommandLine -c Release
+
+      - name: Publish win-x64
+        run: dotnet.exe publish LeagueConvert.CommandLine -c Release -r win-x64 --no-self-contained -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true
+
+      - name: Publish win-x86
+        run: dotnet.exe publish LeagueConvert.CommandLine -c Release -r win-x86 --no-self-contained -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true
 
       - name: Get short SHA
         run: Write-Output "name=$($Env:GITHUB_SHA.SubString(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Append;
 
-      - name: Upload build artifact
+      - name: Upload portable build artifact
+        uses: actions/upload-artifact@v2.3.1
+        with:
+          name: LeagueConvert-${{ env.name }}-win-x64
+          path: LeagueConvert.CommandLine/bin/Release/net6.0/publish
+
+      - name: Upload win-x64 build artifact
         uses: actions/upload-artifact@v2.3.1
         with:
           name: LeagueConvert-${{ env.name }}-win-x64
           path: LeagueConvert.CommandLine/bin/Release/net6.0/win-x64/publish
+
+      - name: Upload win-x86 build artifact
+        uses: actions/upload-artifact@v2.3.1
+        with:
+          name: LeagueConvert-${{ env.name }}-win-x86
+          path: LeagueConvert.CommandLine/bin/Release/net6.0/win-x86/publish
