@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace LeagueToolkit.IO.MapGeometry;
+﻿namespace LeagueToolkit.IO.MapGeometry;
 
 public class MapGeometryVertexElementGroup : IEquatable<MapGeometryVertexElementGroup>
 {

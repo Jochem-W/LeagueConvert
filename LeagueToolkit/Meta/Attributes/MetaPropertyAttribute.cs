@@ -1,5 +1,4 @@
-﻿using System;
-using LeagueToolkit.Helpers.Hashing;
+﻿using LeagueToolkit.Helpers.Hashing;
 using LeagueToolkit.IO.PropertyBin;
 
 namespace LeagueToolkit.Meta.Attributes;

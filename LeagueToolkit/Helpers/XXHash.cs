@@ -53,8 +53,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define EnableSimpleVersion
 #undef EnableSimpleVersion // EnableSimpleVersion off
 
-using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 

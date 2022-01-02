@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace LeagueToolkit.IO.OBJ;
+﻿namespace LeagueToolkit.IO.OBJ;
 
 public class OBJFace
 {

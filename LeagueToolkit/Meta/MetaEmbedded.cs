@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LeagueToolkit.Meta;
+﻿namespace LeagueToolkit.Meta;
 
 public class MetaEmbedded<T> : IMetaEmbedded where T : IMetaClass
 {

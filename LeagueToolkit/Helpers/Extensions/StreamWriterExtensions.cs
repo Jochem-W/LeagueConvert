@@ -1,5 +1,4 @@
-﻿using System.IO;
-using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Helpers.Structures;
 
 namespace LeagueToolkit.Helpers.Extensions;
 

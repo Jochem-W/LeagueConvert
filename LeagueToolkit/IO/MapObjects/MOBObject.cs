@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;

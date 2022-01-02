@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
-using System.Linq;
+﻿using System.Globalization;
 using LeagueToolkit.Helpers.Structures;
 
 namespace LeagueToolkit.IO.MaterialLibrary;

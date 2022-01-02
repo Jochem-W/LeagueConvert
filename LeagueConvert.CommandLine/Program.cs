@@ -1,10 +1,5 @@
-﻿using System;
-using System.CommandLine;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
+﻿using System.CommandLine;
 using System.Reflection;
-using System.Threading.Tasks;
 using LeagueConvert.Enums;
 using LeagueConvert.IO.HashTables;
 using LeagueConvert.IO.Skin;

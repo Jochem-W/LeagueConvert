@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using FlatSharp.Attributes;
+﻿using FlatSharp.Attributes;
 
 namespace LeagueToolkit.IO.ReleaseManifestFile;
 

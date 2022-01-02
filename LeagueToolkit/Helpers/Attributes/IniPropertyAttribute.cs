@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LeagueToolkit.Helpers.Attributes;
+﻿namespace LeagueToolkit.Helpers.Attributes;
 
 /// <summary>
 ///     Used as an attribute on properties which are used to parse content from INI files

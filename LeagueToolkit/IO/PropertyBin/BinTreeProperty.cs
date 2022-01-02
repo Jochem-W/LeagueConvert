@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using LeagueToolkit.IO.PropertyBin.Properties;
+﻿using LeagueToolkit.IO.PropertyBin.Properties;
 
 namespace LeagueToolkit.IO.PropertyBin;
 

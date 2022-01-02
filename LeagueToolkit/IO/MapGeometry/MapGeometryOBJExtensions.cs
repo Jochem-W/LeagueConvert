@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using LeagueToolkit.IO.OBJ;
+﻿using LeagueToolkit.IO.OBJ;
 
 namespace LeagueToolkit.IO.MapGeometry;
 

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using LeagueToolkit.Helpers.Extensions;
+﻿using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 
 namespace LeagueToolkit.IO.PropertyBin.Properties;

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using LeagueConvert.IO.PropertyBin;
 using LeagueToolkit.IO.WadFile;
 using Serilog;

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace LeagueToolkit.IO.WorldDescription;
+﻿namespace LeagueToolkit.IO.WorldDescription;
 
 /// <summary>
 ///     Represents an object inside a <see cref="WorldDescriptionFile" />

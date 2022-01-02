@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace LeagueToolkit.IO.PropertyBin.Properties;
+﻿namespace LeagueToolkit.IO.PropertyBin.Properties;
 
 public sealed class BinTreeHash : BinTreeProperty
 {

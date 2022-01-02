@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LeagueToolkit.Helpers;
+﻿namespace LeagueToolkit.Helpers;
 
 public static class FileVersionProvider
 {

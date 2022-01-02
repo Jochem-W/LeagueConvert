@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 using LeagueToolkit.Helpers.Structures;
 
 namespace LeagueToolkit.IO.FX;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using LeagueToolkit.Helpers.Structures;
 
 namespace LeagueToolkit.IO.NVR;

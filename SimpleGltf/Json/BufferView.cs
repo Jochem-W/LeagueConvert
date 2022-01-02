@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
 using System.Text.Json.Serialization;
 using SimpleGltf.Enums;
 using SimpleGltf.Json.Converters;

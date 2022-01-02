@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using LeagueToolkit.IO.OBJ;
 
 namespace LeagueToolkit.IO.StaticObjectFile;

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace SimpleGltf.Json;
 
 public class Animation

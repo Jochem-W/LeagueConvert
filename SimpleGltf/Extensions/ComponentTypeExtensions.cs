@@ -1,4 +1,3 @@
-using System;
 using SimpleGltf.Enums;
 
 namespace SimpleGltf.Extensions;

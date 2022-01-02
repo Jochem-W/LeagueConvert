@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using LeagueToolkit.Helpers.Exceptions;
+﻿using LeagueToolkit.Helpers.Exceptions;
 
 namespace LeagueToolkit.IO.NavigationGridOverlay;
 

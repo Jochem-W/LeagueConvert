@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace LeagueToolkit.IO.WGT;
+﻿namespace LeagueToolkit.IO.WGT;
 
 /// <summary>
 ///     Represents a Weight Entry inside of a <see cref="WGTFile" />

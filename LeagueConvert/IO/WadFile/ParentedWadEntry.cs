@@ -1,4 +1,3 @@
-using System.IO;
 using LeagueToolkit.IO.WadFile;
 
 namespace LeagueConvert.IO.WadFile;

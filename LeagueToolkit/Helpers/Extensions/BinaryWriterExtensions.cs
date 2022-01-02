@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using LeagueToolkit.Helpers.Structures;
 
 namespace LeagueToolkit.Helpers.Extensions;

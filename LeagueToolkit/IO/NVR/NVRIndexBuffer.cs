@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace LeagueToolkit.IO.NVR;
+﻿namespace LeagueToolkit.IO.NVR;
 
 public class NVRIndexBuffer
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 

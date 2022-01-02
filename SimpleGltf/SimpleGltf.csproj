@@ -4,6 +4,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <Authors>Jochem-W</Authors>
         <Version>1.0.0</Version>
+        <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
     <ItemGroup>

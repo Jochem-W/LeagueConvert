@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LeagueToolkit.Helpers.Exceptions;
+﻿namespace LeagueToolkit.Helpers.Exceptions;
 
 public class InvalidFileSignatureException : Exception
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using LeagueToolkit.IO.SkeletonFile;
+﻿using LeagueToolkit.IO.SkeletonFile;
 using LeagueToolkit.IO.WadFile;
 
 namespace LeagueToolkit.Helpers;

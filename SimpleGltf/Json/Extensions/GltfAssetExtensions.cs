@@ -1,9 +1,6 @@
-using System;
-using System.IO;
 using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using ImageMagick;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
