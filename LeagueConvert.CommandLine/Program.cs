@@ -57,7 +57,7 @@ internal static class Program
         var gameHashOption = new Option<string>("-g", "Path to 'hashes.game.txt'");
         var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
 
-        var command = new Command("convert-wad", "Convert all models in a specified WAD file")
+        var command = new Command("convert-wad", "Convert all models in specified WAD files")
         {
             wadsArgument,
             outputOption,
@@ -101,7 +101,7 @@ internal static class Program
         var gameHashOption = new Option<string>("-g", "Path to 'hashes.game.txt'");
         var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
 
-        var command = new Command("convert-all", "Convert all models in a specified WAD file")
+        var command = new Command("convert-all", "Convert all models in WAD files in a specified directory")
         {
             pathArgument,
             outputOption,
