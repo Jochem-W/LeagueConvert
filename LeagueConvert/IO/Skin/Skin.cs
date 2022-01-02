@@ -235,33 +235,64 @@ public class Skin : IDisposable
 
     private void ParseSkinMeshProperties(BinTreeStructure skinMeshProperties)
     {
-        foreach (var property in skinMeshProperties.Properties)
-            switch (property.NameHash)
-            {
-                case 2974586734: // skeleton
-                    _skeletonFile = ((BinTreeString) property).Value;
+        switch (skinMeshProperties.MetaClassHash)
+        {
+            case 1628559524: // SkinMeshDataProperties
+                foreach (var property in skinMeshProperties.Properties)
+                    switch (property.NameHash)
+                    {
+                        case 2974586734: // skeleton
+                            _skeletonFile = ((BinTreeString) property).Value;
+                            break;
+                        case 3600813558: // simpleSkin
+                            _simpleSkinFile = ((BinTreeString) property).Value;
+                            break;
+                        case 1013213428: // texture
+                            _texture = ((BinTreeString) property).Value;
+                            break;
+                        case 3538210912: // material
+                            var material = ((BinTreeObjectLink) property).Value;
+                            if (material != 0)
+                                _material = material;
+                            break;
+                        case 2159540111: // initialSubmeshToHide
+                            var initialSubmeshToHide = ((BinTreeString) property).Value;
+                            if (initialSubmeshToHide != null)
+                                _hiddenSubMeshes = initialSubmeshToHide.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            break;
+                        case 611473680: // materialOverride
+                            foreach (var embedded in ((BinTreeContainer) property).Properties.Cast<BinTreeEmbedded>())
+                                AddMaterial(embedded);
+                            break;
+                    }
+
+                break;
+            case 2340045716: //SkinMeshDataProperties_MaterialOverride
+                BinTreeProperty materialProperty = null;
+                BinTreeProperty submeshProperty = null;
+                BinTreeProperty textureProperty = null;
+                foreach (var property in skinMeshProperties.Properties)
+                {
+                    switch (property.NameHash)
+                    {
+                        case 3538210912: // material
+                            materialProperty = property;
+                            break;
+                        case 2866241836: // submesh
+                            submeshProperty = property;
+                            break;
+                        case 1013213428: // texture
+                            textureProperty = property;
+                            break;
+                    }
+                }
+                
+                if (materialProperty == null || submeshProperty == null || textureProperty == null)
                     break;
-                case 3600813558: // simpleSkin
-                    _simpleSkinFile = ((BinTreeString) property).Value;
-                    break;
-                case 1013213428: // texture
-                    _texture = ((BinTreeString) property).Value;
-                    break;
-                case 3538210912: // material
-                    var material = ((BinTreeObjectLink) property).Value;
-                    if (material != 0)
-                        _material = material;
-                    break;
-                case 2159540111: // initialSubmeshToHide
-                    var initialSubmeshToHide = ((BinTreeString) property).Value;
-                    if (initialSubmeshToHide != null)
-                        _hiddenSubMeshes = initialSubmeshToHide.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    break;
-                case 611473680: // materialOverride
-                    foreach (var embedded in ((BinTreeContainer) property).Properties.Cast<BinTreeEmbedded>())
-                        AddMaterial(embedded);
-                    break;
-            }
+                
+                _materials.Add(new Material(((BinTreeObjectLink) materialProperty).Value, ((BinTreeString) textureProperty).Value, ((BinTreeString) submeshProperty).Value.ToLower()));
+                break;
+        }
     }
 
     private void AddMaterial(BinTreeStructure skinMeshDataPropertiesMaterialOverride)
