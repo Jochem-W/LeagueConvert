@@ -36,17 +36,11 @@ public static class SkinExtensions
     {
         var originalNormal = vertex.Normal;
         vertex.Normal = Vector3.Normalize(vertex.Normal);
-        if (!float.IsNaN(vertex.Normal.Length()))
-        {
-            return;
-        }
-        
+        if (!float.IsNaN(vertex.Normal.Length())) return;
+
         vertex.Normal = Vector3.Normalize(new Vector3(-vertex.Position.X, -vertex.Position.Y, vertex.Position.Z));
-        if (!float.IsNaN(vertex.Normal.Length()))
-        {
-            return;
-        }
-        
+        if (!float.IsNaN(vertex.Normal.Length())) return;
+
         // Both the position and normal vector are either 0 0 0 or NaN
         if (!float.IsNaN(originalNormal.Length()))
         {
@@ -56,7 +50,7 @@ public static class SkinExtensions
             vertex.Normal = Vector3.Normalize(new Vector3(x, y, z));
             return;
         }
-        
+
         if (!float.IsNaN(vertex.Position.Length()))
         {
             var x = BitConverter.SingleToInt32Bits(vertex.Position.X) < 0 ? 1 : -1;

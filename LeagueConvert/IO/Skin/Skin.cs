@@ -259,7 +259,8 @@ public class Skin : IDisposable
                         case 2159540111: // initialSubmeshToHide
                             var initialSubmeshToHide = ((BinTreeString) property).Value;
                             if (initialSubmeshToHide != null)
-                                _hiddenSubMeshes = initialSubmeshToHide.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                                _hiddenSubMeshes =
+                                    initialSubmeshToHide.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                             break;
                         case 611473680: // materialOverride
                             foreach (var embedded in ((BinTreeContainer) property).Properties.Cast<BinTreeEmbedded>())
@@ -273,7 +274,6 @@ public class Skin : IDisposable
                 BinTreeProperty submeshProperty = null;
                 BinTreeProperty textureProperty = null;
                 foreach (var property in skinMeshProperties.Properties)
-                {
                     switch (property.NameHash)
                     {
                         case 3538210912: // material
@@ -286,12 +286,12 @@ public class Skin : IDisposable
                             textureProperty = property;
                             break;
                     }
-                }
-                
+
                 if (materialProperty == null || submeshProperty == null || textureProperty == null)
                     break;
-                
-                _materials.Add(new Material(((BinTreeObjectLink) materialProperty).Value, ((BinTreeString) textureProperty).Value, ((BinTreeString) submeshProperty).Value.ToLower()));
+
+                _materials.Add(new Material(((BinTreeObjectLink) materialProperty).Value,
+                    ((BinTreeString) textureProperty).Value, ((BinTreeString) submeshProperty).Value.ToLower()));
                 break;
         }
     }
