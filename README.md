@@ -36,12 +36,11 @@ To-do:
 ### LeagueConvert
 
 Currently, LeagueConvert can do everything LeagueBulkConvert can do, but with
-code that isn't terrible.
+code that isn't super terrible.
 
 Planned:
 
 * Rewrite hash table loading code
-* Fix missing textures
 * Support for map geometry
 * Support for texture masks (if possible)
 * Optimisation/cleanup
