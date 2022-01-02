@@ -84,9 +84,10 @@ internal static class Program
                 await TryConvertWad(wad, mode.Value, outputDirectory);
                 wad.Dispose();
             }
+
+            Logger.Information("Finished!");
         }, wadsArgument, outputOption, skeletonsOption, animationsOption, gameHashOption, binHashesHashOption);
 
-        Logger.Information("Finished!");
         return command;
     }
 
@@ -129,10 +130,11 @@ internal static class Program
                     await TryConvertWad(wad, mode.Value, outputDirectory);
                     wad.Dispose();
                 }
+
+                Logger.Information("Finished!");
             }, pathArgument, outputOption, skeletonsOption, animationsOption, recurseOption, gameHashOption,
             binHashesHashOption);
 
-        Logger.Information("Finished!");
         return command;
     }
 
