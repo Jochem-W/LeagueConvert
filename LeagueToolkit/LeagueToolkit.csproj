@@ -6,8 +6,6 @@
         <Authors>Crauzer, Jochem-W</Authors>
         <Description>Library for Parsing and Editing file formats from League of Legends</Description>
         <Platforms>x64</Platforms>
-        <AssemblyName>LeagueToolkit</AssemblyName>
-        <RootNamespace>LeagueToolkit</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
