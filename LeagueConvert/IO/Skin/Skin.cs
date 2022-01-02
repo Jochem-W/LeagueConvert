@@ -83,6 +83,7 @@ public class Skin : IDisposable
     {
         try
         {
+            // TODO: check if _simpleSkinFile is null
             await using var stream = _parent.GetEntryByName(_simpleSkinFile).GetStream();
             SimpleSkin = new SimpleSkin(stream);
             State |= SkinState.MeshLoaded;

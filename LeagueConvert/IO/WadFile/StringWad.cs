@@ -76,6 +76,7 @@ public class StringWad : IDisposable
                     continue;
                 try
                 {
+                    // TODO: check if the entry exists
                     binTrees.Add(await ParentedBinTree.FromWadEntry(GetEntryByName(dependency)));
                 }
                 catch (Exception)
