@@ -78,7 +78,7 @@
             Grid.Row="2">
             <Button
                 Command="{Binding BrowseGameHashTable}"
-                Content="Browse game hash table" />
+                Content="Browse" />
         </Border>
         <Border
             Grid.Column="0"
@@ -94,7 +94,7 @@
             Grid.Row="3">
             <Button
                 Command="{Binding BrowseBinHashesHashTable}"
-                Content="Browse binhashes hash table" />
+                Content="Browse" />
         </Border>
         <Border
             Grid.Column="2"
