@@ -65,8 +65,9 @@ work has been finished.
 
 ## Installation instructions
 
-1. Download the .NET 6.0 Runtime
-2. Download the latest build (generic is cross-platform)
+1. Download the
+   [.NET 6.0 Runtime](https://dotnet.microsoft.com/download/dotnet/6.0/runtime)
+3. Download the latest build (generic is cross-platform)
    [here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext).
 3. Extract the archive
 4. Run the executable or `dotnet LeagueConvert.CommandLine.dll`
