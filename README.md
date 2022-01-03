@@ -6,7 +6,10 @@ and animations. Contains code from
 
 ## Status
 
-All development is on hold, but I might still add features that are requested and fix issues.
+This branch will not receive any more updates. If you are comfortable using the
+command-line, please check the vnext branch and/or download the latest version
+of LeagueConvert.CommandLine
+[here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext).
 
 ## How to use | [video tutorial by Luviana (slightly outdated)](https://youtu.be/CAtiX1po4Bk)
 
