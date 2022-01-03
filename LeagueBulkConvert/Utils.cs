@@ -45,7 +45,7 @@ public static class Utils
             if (!(config.ExtractFormats.Contains(Path.GetExtension(entryPath)) &
                   !(entryPath.EndsWith(".bin") && !entryPath.Contains("animations")))) continue;
             var folderPath = Path.GetDirectoryName(entryPath);
-            if (!Directory.Exists(folderPath))
+            if (!string.IsNullOrWhiteSpace(folderPath) && !Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
             await using var outputFile = File.Create(entryPath);
             await using var stream = entry.Value.GetDataHandle().GetDecompressedStream();
@@ -128,28 +128,42 @@ public static class Utils
     public static async Task<IDictionary<string, IDictionary<ulong, string>>> ReadHashTables(Config config,
         ILogger logger = null)
     {
-        logger?.Information("Reading hash tables");
+        logger?.Information("Loading latest downloaded hash tables");
         IDictionary<string, IDictionary<ulong, string>> hashTables =
             new Dictionary<string, IDictionary<ulong, string>>();
-
-        var files = Directory.EnumerateFiles("hashes", "*.txt").ToList();
-        files.AddRange(config.HashTableFiles);
-
-        foreach (var file in files)
+        
+        foreach (var file in Directory.EnumerateFiles("hashes", "*.txt"))
         {
             var name = Path.GetFileNameWithoutExtension(file).Split('.')[1];
             if (!hashTables.ContainsKey(name))
                 hashTables[name] = new Dictionary<ulong, string>();
-            foreach (var line in await File.ReadAllLinesAsync(file))
-            {
-                if (line == string.Empty) continue;
-                var splitLine = line.Split(' ');
-                if (splitLine.Length != 2) continue;
-                var ulongHash = ulong.Parse(splitLine[0], NumberStyles.HexNumber);
-                hashTables[name][ulongHash] = splitLine[1];
-            }
+            await LoadFileIntoHashTable(hashTables[name], file);
+        }
+        
+        if (config.GameHashTablePath != null && hashTables["game"] != null)
+        {
+            logger?.Information("Loading custom game hash table from {Path}", config.GameHashTablePath);
+            await LoadFileIntoHashTable(hashTables["game"], config.GameHashTablePath);
+        }
+
+        if (config.BinHashesHashTablePath != null)
+        {
+            logger?.Information("Loading custom binhashes hash table from {Path}", config.BinHashesHashTablePath);
+            await LoadFileIntoHashTable(hashTables["binhashes"], config.BinHashesHashTablePath);
         }
 
         return hashTables;
+    }
+
+    private static async Task LoadFileIntoHashTable(IDictionary<ulong, string> hashTable, string filePath)
+    {
+        foreach (var line in await File.ReadAllLinesAsync(filePath))
+        {
+            if (line == string.Empty) continue;
+            var splitLine = line.Split(' ');
+            if (splitLine.Length != 2) continue;
+            var ulongHash = ulong.Parse(splitLine[0], NumberStyles.HexNumber);
+            hashTable[ulongHash] = splitLine[1];
+        }
     }
 }

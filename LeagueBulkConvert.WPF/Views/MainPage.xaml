@@ -31,6 +31,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <Border>
@@ -64,16 +65,40 @@
                 Content="Browse" />
         </Border>
         <Border
+            Grid.Column="0"
+            Grid.Row="2">
+            <TextBox
+                materialDesign:HintAssist.Hint="Game hash table path (optional)"
+                Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
+                Text="{Binding GameHashTablePath}" />
+        </Border>
+        <Border
             Grid.Column="1"
             Grid.ColumnSpan="2"
             Grid.Row="2">
             <Button
-                Command="{Binding AddHashTables}"
-                Content="Add hash tables" />
+                Command="{Binding BrowseGameHashTable}"
+                Content="Browse game hash table" />
+        </Border>
+        <Border
+            Grid.Column="0"
+            Grid.Row="3">
+            <TextBox
+                materialDesign:HintAssist.Hint="Binhashes hash table path (optional)"
+                Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
+                Text="{Binding BinHashesHashTablePath}" />
+        </Border>
+        <Border
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            Grid.Row="3">
+            <Button
+                Command="{Binding BrowseBinHashesHashTable}"
+                Content="Browse binhashes hash table" />
         </Border>
         <Border
             Grid.Column="2"
-            Grid.Row="3">
+            Grid.Row="4">
             <Button
                 Command="{Binding NextCommand}"
                 Content="Next"

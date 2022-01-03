@@ -83,7 +83,9 @@ public class Config
 
     public IList<IncludableWad> Wads { get; } = new List<IncludableWad>();
 
-    public List<string> HashTableFiles { get; set; }
+    public string GameHashTablePath { get; init; }
+    
+    public string BinHashesHashTablePath { get; init;  }
 
     private void CalculateScale()
     {

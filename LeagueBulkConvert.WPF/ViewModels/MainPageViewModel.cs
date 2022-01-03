@@ -13,16 +13,14 @@ namespace LeagueBulkConvert.WPF.ViewModels;
 
 internal class MainPageViewModel : INotifyPropertyChanged
 {
-    private readonly Command _addHashTables;
-    private readonly List<string> _hashTableFiles = new();
-
+    private readonly Command _browseGameHashTable;
+    private readonly Command _browseBinHashesHashTable;
     private readonly Command _nextCommand;
-
     private string _exportPath;
-
     private string _leaguePath;
-
     private string _wadsPath;
+    private string _gameHashTablePath;
+    private string _binHashesHashTablePath;
 
     public MainPageViewModel()
     {
@@ -36,9 +34,10 @@ internal class MainPageViewModel : INotifyPropertyChanged
         {
             Directory.CreateDirectory(ExportPath);
             Directory.SetCurrentDirectory(ExportPath);
-            var config = new Config();
-            var t = Directory.EnumerateFiles(_wadsPath, "*.wad.client");
-            config.HashTableFiles = _hashTableFiles;
+            var config = new Config
+            {
+                GameHashTablePath = GameHashTablePath, BinHashesHashTablePath = BinHashesHashTablePath
+            };
             foreach (var filePath in Directory
                          .EnumerateFiles(_wadsPath, "*.wad.client", SearchOption.AllDirectories)
                          .Where(f => Path.GetFileName(f).Count(c => c == '.') == 2))
@@ -46,26 +45,50 @@ internal class MainPageViewModel : INotifyPropertyChanged
             owner.NavigationService.Navigate(new ConfigPage(config));
         }, _ => LeaguePath != null && ExportPath != null);
 
-        _addHashTables = new Command(_ =>
+        _browseGameHashTable = new Command(_ =>
         {
-            using var dialog = new CommonOpenFileDialog
+            using var dialog = new CommonOpenFileDialog()
             {
-                Multiselect = true,
-                InitialDirectory = ExportPath
+                DefaultFileName = "hashes.game.txt"
             };
 
-            var result = dialog.ShowDialog();
-
-            _hashTableFiles.Clear();
-
-            if (result == CommonFileDialogResult.Ok)
-                _hashTableFiles.AddRange(dialog.FileNames);
+            GameHashTablePath = dialog.ShowDialog() != CommonFileDialogResult.Ok ? null : dialog.FileName;
+        });
+        
+        _browseBinHashesHashTable = new Command(_ =>
+        {
+            using var dialog = new CommonOpenFileDialog()
+            {
+                DefaultFileName = "hashes.binhashes.txt"
+            };
+            
+            BinHashesHashTablePath = dialog.ShowDialog() != CommonFileDialogResult.Ok ? null : dialog.FileName;
         });
     }
 
     public ICommand BrowseExport { get; }
 
     public ICommand BrowseLeague { get; }
+
+    public string GameHashTablePath
+    {
+        get => _gameHashTablePath;
+        set
+        {
+            _gameHashTablePath = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public string BinHashesHashTablePath
+    {
+        get => _binHashesHashTablePath;
+        set
+        {
+            _binHashesHashTablePath = value;
+            OnPropertyChanged();
+        }
+    }
 
     public string ExportPath
     {
@@ -123,7 +146,9 @@ internal class MainPageViewModel : INotifyPropertyChanged
 
     public ICommand NextCommand => _nextCommand;
 
-    public ICommand AddHashTables => _addHashTables;
+    public ICommand BrowseGameHashTable => _browseGameHashTable;
+
+    public ICommand BrowseBinHashesHashTable => _browseBinHashesHashTable;
 
     public event PropertyChangedEventHandler PropertyChanged;
 
