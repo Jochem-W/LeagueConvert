@@ -63,6 +63,15 @@ work has been finished.
 * Cross-platform (theoretically and without macOS support)
 * Up to 5 times faster (see [SimpleGltf](#simplegltf))
 
+## Installation instructions
+
+1. Download the .NET 6.0 Runtime
+2. Download the latest build (generic is cross-platform)
+   [here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext).
+3. Extract the build
+4. For windows: run the .exe
+   For generic: run `dotnet LeagueConvert.CommandLine.dll`
+
 ## Set-up instructions for developing
 
 1. Clone the source code
