@@ -20,7 +20,7 @@ be to create my own glTF writing library and also modify LeagueToolkit.
 Currently, all necessary features have been implemented and files created by
 SimpleGltf pass glTF validation.
 
-The following table contains the conversion times when using SharpGLTF (old) and
+The following table contains some conversion times when using SharpGLTF (old) and
 SimpleGltf (new). SimpleGltf yields an increase in speed of up to 5 times!
 
 | Mode            | Old time | New time |
@@ -60,7 +60,7 @@ work has been finished.
 
 * No more temporary 'assets' directories
 * Much more granular control over skin parsing, loading and saving
-* Cross-platform (theoretically and without macOS support)
+* Cross-platform: Windows x86/x64, Linux x86/x64/ARM (musl/glibc) and MacOS x64
 * Up to 5 times faster (see [SimpleGltf](#simplegltf))
 
 ## Installation instructions
@@ -68,7 +68,7 @@ work has been finished.
 1. Download the
    [.NET 6.0 Runtime](https://dotnet.microsoft.com/download/dotnet/6.0/runtime)
 3. Download the latest build (generic is cross-platform)
-   [here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext).
+   [here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext)
 3. Extract the archive
 4. Run the executable or `dotnet LeagueConvert.CommandLine.dll`
 
