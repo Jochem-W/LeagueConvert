@@ -75,8 +75,8 @@ work has been finished.
 ## Set-up instructions for developing
 
 1. Clone the source code
-2. Install Visual Studio 2022 with at least the '.NET desktop development'
-   workload and the optional 'Development tools for .NET' component
-   (seperately installing the .NET 6.0 SDK is also an option)
+2. Install the .NET 6.0 SDK. I recommend installing Visual Studio 2022 with the
+   '.NET desktop development' workload and the optional 'Development tools for
+   .NET' component
 3. Optionally install Rider, which is in my opinion a much better IDE
 4. Open the .sln
