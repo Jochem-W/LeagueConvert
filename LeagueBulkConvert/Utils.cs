@@ -14,10 +14,10 @@ namespace LeagueBulkConvert;
 
 public static class Utils
 {
-    public static async Task Convert(Config config, ILogger logger = null,
+    public static async Task Convert(Config config, bool loadDownloaded, ILogger logger = null,
         CancellationToken? cancellationToken = null)
     {
-        var hashTables = await ReadHashTables(config, logger);
+        var hashTables = await ReadHashTables(config, loadDownloaded, logger);
         foreach (var wad in config.Wads.Where(w => w.Included))
         {
             if (cancellationToken is {IsCancellationRequested: true})
@@ -126,18 +126,24 @@ public static class Utils
     }
 
     public static async Task<IDictionary<string, IDictionary<ulong, string>>> ReadHashTables(Config config,
-        ILogger logger = null)
+        bool loadDownloaded, ILogger logger = null)
     {
-        logger?.Information("Loading latest downloaded hash tables");
-        IDictionary<string, IDictionary<ulong, string>> hashTables =
-            new Dictionary<string, IDictionary<ulong, string>>();
-        
-        foreach (var file in Directory.EnumerateFiles("hashes", "*.txt"))
+        var hashTables = new Dictionary<string, IDictionary<ulong, string>>();
+        if (loadDownloaded)
         {
-            var name = Path.GetFileNameWithoutExtension(file).Split('.')[1];
-            if (!hashTables.ContainsKey(name))
-                hashTables[name] = new Dictionary<ulong, string>();
-            await LoadFileIntoHashTable(hashTables[name], file);
+            logger?.Information("Loading latest downloaded hash tables");
+            foreach (var file in Directory.EnumerateFiles("hashes", "*.txt"))
+            {
+                var name = Path.GetFileNameWithoutExtension(file).Split('.')[1];
+                if (!hashTables.ContainsKey(name))
+                    hashTables[name] = new Dictionary<ulong, string>();
+                await LoadFileIntoHashTable(hashTables[name], file);
+            }
+        }
+        else
+        {
+            hashTables["game"] = new Dictionary<ulong, string>();
+            hashTables["binhashes"] = new Dictionary<ulong, string>();
         }
         
         if (config.GameHashTablePath != null && hashTables["game"] != null)

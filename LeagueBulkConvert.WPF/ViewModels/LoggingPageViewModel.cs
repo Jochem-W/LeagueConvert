@@ -63,8 +63,16 @@ internal class LoggingPageViewModel : INotifyPropertyChanged
         if (!Directory.Exists("hashes"))
             Directory.CreateDirectory("hashes");
 
-        if (await HashTables.TryLoad(_logger))
-            await Task.Run(async () => await Utils.Convert(_config, _logger, _cancellationTokenSource.Token));
+        var validCustomHashTables = _config.GameHashTablePath != null && _config.BinHashesHashTablePath != null;
+        if (validCustomHashTables || await HashTables.TryLoad(_logger))
+        {
+            await Task.Run(async () => await Utils.Convert(_config, !validCustomHashTables, _logger, _cancellationTokenSource.Token));
+        }
+        else
+        {
+            _logger.Fatal("No hash tables found, stopping");
+        }
+
         _completed = true;
         App.AllowNavigation = true;
         _cancelCommand.RaiseCanExecuteChanged();

@@ -21,6 +21,8 @@ internal class MainPageViewModel : INotifyPropertyChanged
     private string _wadsPath;
     private string _gameHashTablePath;
     private string _binHashesHashTablePath;
+    private bool _validBinHashesHashTable = true;
+    private bool _validGameHashTable = true;
 
     public MainPageViewModel()
     {
@@ -43,7 +45,7 @@ internal class MainPageViewModel : INotifyPropertyChanged
                          .Where(f => Path.GetFileName(f).Count(c => c == '.') == 2))
                 config.Wads.Add(new IncludableWad(filePath));
             owner.NavigationService.Navigate(new ConfigPage(config));
-        }, _ => LeaguePath != null && ExportPath != null);
+        }, _ => LeaguePath != null && ExportPath != null && _validGameHashTable && _validBinHashesHashTable);
 
         _browseGameHashTable = new Command(_ =>
         {
@@ -52,7 +54,10 @@ internal class MainPageViewModel : INotifyPropertyChanged
                 DefaultFileName = "hashes.game.txt"
             };
 
-            GameHashTablePath = dialog.ShowDialog() != CommonFileDialogResult.Ok ? null : dialog.FileName;
+            var result = dialog.ShowDialog();
+            GameHashTablePath = null;
+            if (result != CommonFileDialogResult.Ok) return;
+            GameHashTablePath = dialog.FileName;
         });
         
         _browseBinHashesHashTable = new Command(_ =>
@@ -61,8 +66,11 @@ internal class MainPageViewModel : INotifyPropertyChanged
             {
                 DefaultFileName = "hashes.binhashes.txt"
             };
-            
-            BinHashesHashTablePath = dialog.ShowDialog() != CommonFileDialogResult.Ok ? null : dialog.FileName;
+
+            var result = dialog.ShowDialog();
+            BinHashesHashTablePath = null;
+            if (result != CommonFileDialogResult.Ok) return;
+            BinHashesHashTablePath = dialog.FileName;
         });
     }
 
@@ -75,8 +83,18 @@ internal class MainPageViewModel : INotifyPropertyChanged
         get => _gameHashTablePath;
         set
         {
-            _gameHashTablePath = value;
+            _gameHashTablePath = value == string.Empty ? null : value;
+            _validGameHashTable = true;
+            if (_gameHashTablePath != null && !File.Exists(_gameHashTablePath))
+            {
+                _validGameHashTable = false;
+                new MessageWindow("Invalid file",
+                        "The file you've selected doesn't exist.")
+                    .ShowDialog();
+            }
+
             OnPropertyChanged();
+            _nextCommand.RaiseCanExecuteChanged();
         }
     }
     
@@ -85,8 +103,18 @@ internal class MainPageViewModel : INotifyPropertyChanged
         get => _binHashesHashTablePath;
         set
         {
-            _binHashesHashTablePath = value;
+            _binHashesHashTablePath = value == string.Empty ? null : value;
+            _validBinHashesHashTable = true;
+            if (_binHashesHashTablePath != null && !File.Exists(_binHashesHashTablePath))
+            {
+                _validBinHashesHashTable = false;
+                new MessageWindow("Invalid file",
+                        "The file you've selected doesn't exist.")
+                    .ShowDialog();
+            }
+            
             OnPropertyChanged();
+            _nextCommand.RaiseCanExecuteChanged();
         }
     }
 
