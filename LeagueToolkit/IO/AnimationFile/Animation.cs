@@ -14,10 +14,14 @@ public class Animation
     private float _fps;
     private float _frameDuration;
 
-    public Animation(Stream stream)
+    public Animation(string filePath) : this(File.OpenRead(filePath))
     {
-        using var reader = new BinaryReader(stream);
-        var magic = Encoding.ASCII.GetString(reader.ReadBytes(8));
+    }
+
+    public Animation(Stream stream, bool leaveOpen = false)
+    {
+        using var reader = new BinaryReader(stream, Encoding.ASCII, leaveOpen);
+        var magic = new string(reader.ReadChars(8));
         var version = reader.ReadUInt32();
         switch (magic)
         {
@@ -334,11 +338,5 @@ public class Animation
     private static float DecompressTime(ushort compressedTime, float animationLength)
     {
         return compressedTime / (float) ushort.MaxValue * animationLength;
-    }
-
-    public static Animation FromFile(string filePath)
-    {
-        using var fileStream = File.OpenRead(filePath);
-        return new Animation(fileStream);
     }
 }
