@@ -241,10 +241,10 @@ public static class SkinExtensions
             foreach (var track in animation.Tracks)
             {
                 var tracksWithSameId = animation.Tracks
-                    .Where(t => t.JointHash == track.JointHash)
+                    .Where(t => t.JointNameHash == track.JointNameHash)
                     .ToList();
                 var jointsWithSameId = jointsAndHash
-                    .Where(pair => pair.Value == track.JointHash)
+                    .Where(pair => pair.Value == track.JointNameHash)
                     .Select(pair => pair.Key)
                     .ToList();
                 if (tracksWithSameId.Count > jointsWithSameId.Count || jointsWithSameId.Count == 0)
@@ -261,7 +261,7 @@ public static class SkinExtensions
                         gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
                     var translationTarget = new Target(AnimationPath.Translation) {Node = mostLikelyJoint};
                     gltfAnimation.CreateChannel(translationSampler, translationTarget);
-                    foreach (var (time, translation) in track.Translations.OrderBy(pair => pair.Key))
+                    foreach (var (time, translation) in track.Translations)
                     {
                         translationOutputAccessor.Write(translation.X, translation.Y, translation.Z);
                         translationInputAccessor.Write(time);
@@ -280,10 +280,9 @@ public static class SkinExtensions
                         gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
                     var rotationTarget = new Target(AnimationPath.Rotation) {Node = mostLikelyJoint};
                     gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
-                    foreach (var (time, rotation) in track.Rotations.OrderBy(pair => pair.Key))
+                    foreach (var (time, rotation) in track.Rotations)
                     {
-                        var normalized = rotation.Length() is 1f ? rotation : Quaternion.Normalize(rotation);
-                        rotationOutputAccessor.Write(normalized.X, normalized.Y, normalized.Z, normalized.W);
+                        rotationOutputAccessor.Write(rotation.X, rotation.Y, rotation.Z, rotation.W);
                         rotationInputAccessor.Write(time);
                     }
 
@@ -298,7 +297,7 @@ public static class SkinExtensions
                     var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
                     var scaleTarget = new Target(AnimationPath.Scale) {Node = mostLikelyJoint};
                     gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
-                    foreach (var (time, scale) in track.Scales.OrderBy(pair => pair.Key))
+                    foreach (var (time, scale) in track.Scales)
                     {
                         scaleOutputAccessor.Write(scale.X, scale.Y, scale.Z);
                         scaleInputAccessor.Write(time);

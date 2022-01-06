@@ -4,14 +4,14 @@ namespace LeagueToolkit.IO.AnimationFile;
 
 public class AnimationTrack
 {
-    internal AnimationTrack(uint jointHash)
+    internal AnimationTrack(uint jointNameHash)
     {
-        JointHash = jointHash;
+        JointNameHash = jointNameHash;
     }
 
-    public uint JointHash { get; }
+    public uint JointNameHash { get; }
 
-    public Dictionary<float, Vector3> Translations { get; internal set; } = new();
-    public Dictionary<float, Vector3> Scales { get; internal set; } = new();
-    public Dictionary<float, Quaternion> Rotations { get; internal set; } = new();
+    public Dictionary<float, Vector3> Translations { get; } = new();
+    public Dictionary<float, Vector3> Scales { get; } = new();
+    public Dictionary<float, Quaternion> Rotations { get; } = new();
 }

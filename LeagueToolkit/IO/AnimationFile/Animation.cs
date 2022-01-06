@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using System.Text;
 using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.Helpers.Exceptions;
@@ -10,165 +11,136 @@ namespace LeagueToolkit.IO.AnimationFile;
 
 public class Animation
 {
-    private List<List<ushort>> _jumpCaches = new();
-
-    public Animation(string fileLocation) : this(File.OpenRead(fileLocation))
-    {
-    }
+    private float _fps;
+    private float _frameDuration;
 
     public Animation(Stream stream)
     {
-        using (var br = new BinaryReader(stream))
+        using var reader = new BinaryReader(stream);
+        var magic = Encoding.ASCII.GetString(reader.ReadBytes(8));
+        var version = reader.ReadUInt32();
+        switch (magic)
         {
-            var magic = Encoding.ASCII.GetString(br.ReadBytes(8));
-            var version = br.ReadUInt32();
-
-            if (magic == "r3d2canm")
-            {
-                ReadCompressed(br);
-            }
-            else if (magic == "r3d2anmd")
-            {
-                if (version == 5)
-                    ReadV5(br);
-                else if (version == 4)
-                    ReadV4(br);
-                else
-                    ReadLegacy(br);
-            }
-            else
-            {
+            case "r3d2canm":
+                ReadCompressed(reader);
+                break;
+            case "r3d2anmd" when version == 5:
+                ReadV5(reader);
+                break;
+            case "r3d2anmd" when version == 4:
+                ReadV4(reader);
+                break;
+            case "r3d2anmd":
+                ReadLegacy(reader);
+                break;
+            default:
                 throw new InvalidFileSignatureException();
-            }
         }
     }
 
-    public float FrameDuration { get; private set; }
-    public float FPS => 1 / FrameDuration;
+    public float FrameDuration
+    {
+        get => _frameDuration;
+        private set
+        {
+            _frameDuration = value;
+            _fps = 1 / value;
+        }
+    }
 
-    public List<AnimationTrack> Tracks { get; } = new();
+    public float Fps
+    {
+        get => _fps;
+        private set
+        {
+            _fps = value;
+            _frameDuration = 1 / value;
+        }
+    }
+
+    public float Duration { get; private set; }
+    public IList<AnimationTrack> Tracks { get; } = new List<AnimationTrack>();
 
     private void ReadCompressed(BinaryReader br)
     {
         var resourceSize = br.ReadUInt32();
-        var formatToken = br.ReadUInt32();
-        var flags = br.ReadUInt32(); // 7 ?
+        var formatToken = new string(br.ReadChars(4));
+        var flags = br.ReadUInt32(); // ?
 
         var jointCount = br.ReadInt32();
         var frameCount = br.ReadInt32();
         var jumpCacheCount = br.ReadInt32();
 
-        var duration = br.ReadSingle();
-        FrameDuration = 1 / br.ReadSingle();
+        Duration = br.ReadSingle();
+        Fps = br.ReadSingle();
 
-        TransformQuantizationProperties rotationQuantizationProperties = new(br);
-        TransformQuantizationProperties translationQuantizationProperties = new(br);
-        TransformQuantizationProperties scaleQuantizationProperties = new(br);
+        // TODO: quantisation
+        // TransformQuantizationProperties rotationQuantizationProperties = new(br);
+        // TransformQuantizationProperties translationQuantizationProperties = new(br);
+        // TransformQuantizationProperties scaleQuantizationProperties = new(br);
+        br.BaseStream.Seek(6 * sizeof(float), SeekOrigin.Current);
 
-        var translationMin = br.ReadVector3();
-        var translationMax = br.ReadVector3();
+        var minTranslation = br.ReadVector3();
+        var maxTranslation = br.ReadVector3();
+        var minScale = br.ReadVector3();
+        var maxScale = br.ReadVector3();
 
-        var scaleMin = br.ReadVector3();
-        var scaleMax = br.ReadVector3();
-
-        var framesOffset = br.ReadInt32();
-        var jumpCachesOffset = br.ReadInt32(); // 5328
+        var frameOffset = br.ReadInt32();
+        var jumpCacheOffset = br.ReadInt32();
         var jointNameHashesOffset = br.ReadInt32();
 
-        if (framesOffset <= 0) throw new Exception("Animation does not contain Frame data");
-        //if (jumpCachesOffset <= 0) throw new Exception("Animation does not contain jump cache data");
-        if (jointNameHashesOffset <= 0) throw new Exception("Animation does not contain joint data");
+        if (frameOffset <= 0) throw new NotImplementedException();
+        if (jointNameHashesOffset <= 0) throw new NotImplementedException();
 
-        // Read joint hashes
+        // Joint name hashes
         br.BaseStream.Seek(jointNameHashesOffset + 12, SeekOrigin.Begin);
-        List<uint> jointHashes = new(jointCount);
-        for (var i = 0; i < jointCount; i++) jointHashes.Add(br.ReadUInt32());
-
-        // Read frames
-        br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-        List<KeyValuePair<uint, Dictionary<float, Vector3>>> translations = new(jointCount);
-        List<KeyValuePair<uint, Dictionary<float, Vector3>>> scales = new(jointCount);
-        List<KeyValuePair<uint, Dictionary<float, Quaternion>>> rotations = new(jointCount);
-
+        var jointNameHashes = new uint[jointCount];
         for (var i = 0; i < jointCount; i++)
         {
-            var jointHash = jointHashes[i];
-
-            translations.Add(
-                new KeyValuePair<uint, Dictionary<float, Vector3>>(jointHash, new Dictionary<float, Vector3>()));
-            scales.Add(new KeyValuePair<uint, Dictionary<float, Vector3>>(jointHash, new Dictionary<float, Vector3>()));
-            rotations.Add(
-                new KeyValuePair<uint, Dictionary<float, Quaternion>>(jointHash, new Dictionary<float, Quaternion>()));
-
-            Tracks.Add(new AnimationTrack(jointHash));
+            jointNameHashes[i] = br.ReadUInt32();
+            Tracks.Add(new AnimationTrack(jointNameHashes[i]));
         }
 
+        // Frames
+        br.BaseStream.Seek(frameOffset + 12, SeekOrigin.Begin);
         for (var i = 0; i < frameCount; i++)
         {
             var compressedTime = br.ReadUInt16();
 
-            var bits = br.ReadUInt16(); // JointHashIndex | TransformType
-            var jointHashIndex = (byte) (bits & 0x3FFF);
+            var bits = br.ReadUInt16();
+            var jointIndex = (ushort) (bits & 0b_00111111_11111111);
             var transformType = (CompressedTransformType) (bits >> 14);
 
             var compressedTransform = br.ReadBytes(6);
 
-            var jointHash = jointHashes[jointHashIndex];
-            var uncompressedTime = UncompressFrameTime(compressedTime, duration);
-
-            if (transformType == CompressedTransformType.Rotation)
+            var time = DecompressTime(compressedTime, Duration);
+            switch (transformType)
             {
-                var rotation = new QuantizedQuaternion(compressedTransform).Decompress();
-
-                if (!rotations[jointHashIndex].Value.ContainsKey(uncompressedTime))
-                    rotations[jointHashIndex].Value.Add(uncompressedTime, rotation);
-            }
-            else if (transformType == CompressedTransformType.Translation)
-            {
-                var translation = UncompressVector3(translationMin, translationMax, compressedTransform);
-
-                if (!translations[jointHashIndex].Value.ContainsKey(uncompressedTime))
-                    translations[jointHashIndex].Value.Add(uncompressedTime, translation);
-            }
-            else if (transformType == CompressedTransformType.Scale)
-            {
-                var scale = UncompressVector3(scaleMin, scaleMax, compressedTransform);
-
-                if (!scales[jointHashIndex].Value.ContainsKey(uncompressedTime))
-                    scales[jointHashIndex].Value.Add(uncompressedTime, scale);
-            }
-            else
-            {
-                throw new Exception("Encountered unknown transform type: " + transformType);
+                case CompressedTransformType.Rotation:
+                    var rotation = new QuantizedQuaternion(compressedTransform);
+                    Tracks[jointIndex].Rotations[time] = Quaternion.Normalize(rotation.Decompress());
+                    break;
+                case CompressedTransformType.Translation:
+                    var translation = DecompressVector3(minTranslation, maxTranslation, compressedTransform);
+                    Tracks[jointIndex].Translations[time] = translation;
+                    break;
+                case CompressedTransformType.Scale:
+                    var scale = DecompressVector3(minScale, maxScale, compressedTransform);
+                    Tracks[jointIndex].Scales[time] = scale;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
-        // Build quantized tracks
-        for (var i = 0; i < jointCount; i++)
-        {
-            var jointHash = jointHashes[i];
-            var track = Tracks.First(x => x.JointHash == jointHash);
+        // TODO: jump cache
+        // reader.BaseStream.Seek(jumpCacheOffset + 12, SeekOrigin.Begin);
+        // var ushortCount = (jointNameHashesOffset - jumpCacheOffset) / sizeof(ushort);
+        // var data = new ushort[ushortCount];
+        // for (var i = 0; i < ushortCount; i++) data[i] = reader.ReadUInt16();
+        // var jumpCaches = data.Chunk(ushortCount / jumpCacheCount).ToList();
 
-            track.Translations = translations[i].Value;
-            track.Scales = scales[i].Value;
-            track.Rotations = rotations[i].Value;
-        }
-
-        // Read jump caches
-        //br.BaseStream.Seek(jumpCachesOffset + 12, SeekOrigin.Begin);
-        //for(int i = 0; i < jumpCacheCount; i++)
-        //{
-        //    int count = 1332;
-        //
-        //    this._jumpCaches.Add(new List<ushort>());
-        //    for(int j = 0; j < count; j++)
-        //    {
-        //        this._jumpCaches[i].Add(br.ReadUInt16());
-        //    }
-        //}
-
-        DequantizeAnimationChannels(rotationQuantizationProperties, translationQuantizationProperties,
-            scaleQuantizationProperties);
+        Debug.Assert(formatToken == "canm");
     }
 
     private void ReadV4(BinaryReader br)
@@ -179,7 +151,7 @@ public class Animation
         var flags = br.ReadUInt32();
 
         var trackCount = br.ReadInt32();
-        var frameCount = br.ReadInt32();
+        var framesPerTrack = br.ReadInt32();
         FrameDuration = br.ReadSingle();
 
         var tracksOffset = br.ReadInt32();
@@ -189,47 +161,50 @@ public class Animation
         var rotationsOffset = br.ReadInt32();
         var framesOffset = br.ReadInt32();
 
-        if (vectorsOffset <= 0) throw new Exception("Animation does not contain Vector data");
-        if (rotationsOffset <= 0) throw new Exception("Animation does not contain Rotation data");
-        if (framesOffset <= 0) throw new Exception("Animation does not contain Frame data");
+        if (vectorsOffset <= 0) throw new NotImplementedException();
+        if (rotationsOffset <= 0) throw new NotImplementedException();
+        if (framesOffset <= 0) throw new NotImplementedException();
 
-        var vectorsCount = (rotationsOffset - vectorsOffset) / 12;
-        var rotationsCount = (framesOffset - rotationsOffset) / 16;
-
+        // Vectors
         br.BaseStream.Seek(vectorsOffset + 12, SeekOrigin.Begin);
-        List<Vector3> vectors = new();
-        for (var i = 0; i < vectorsCount; i++) vectors.Add(br.ReadVector3());
+        var vectorsCount = (rotationsOffset - vectorsOffset) / (sizeof(float) * 3);
+        var vectors = new Vector3[vectorsCount];
+        for (var i = 0; i < vectorsCount; i++) vectors[i] = br.ReadVector3();
 
+        // Rotations
         br.BaseStream.Seek(rotationsOffset + 12, SeekOrigin.Begin);
-        List<Quaternion> rotations = new();
-        for (var i = 0; i < rotationsCount; i++) rotations.Add(br.ReadQuaternion());
+        var rotationsCount = (framesOffset - rotationsOffset) / (sizeof(float) * 4);
+        var rotations = new Quaternion[rotationsCount];
+        for (var i = 0; i < rotationsCount; i++)
+        {
+            var rotation = br.ReadQuaternion();
+            rotations[i] = Quaternion.Normalize(rotation);
+        }
 
+        // Frames
         br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-        List<(uint, ushort, ushort, ushort)> frames = new(frameCount * trackCount);
-        for (var i = 0; i < frameCount * trackCount; i++)
+        var time = 0f;
+        for (var i = 0; i < framesPerTrack; i++)
         {
-            frames.Add((br.ReadUInt32(), br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
-            br.ReadUInt16(); // padding
+            for (var j = 0; j < trackCount; j++)
+            {
+                var jointHash = br.ReadUInt32();
+                if (i == 0) Tracks.Add(new AnimationTrack(jointHash));
+
+                Tracks[j].Translations.Add(time, vectors[br.ReadUInt16()]);
+                Tracks[j].Scales.Add(time, vectors[br.ReadUInt16()]);
+                Tracks[j].Rotations.Add(time, rotations[br.ReadUInt16()]);
+
+                var unknown = br.ReadUInt16(); // Might not be padding: not always 0.
+            }
+
+            time += FrameDuration;
         }
 
-        foreach (var (jointHash, translationIndex, scaleIndex, rotationIndex) in frames)
-        {
-            if (!Tracks.Any(x => x.JointHash == jointHash)) Tracks.Add(new AnimationTrack(jointHash));
-
-            var track = Tracks.First(x => x.JointHash == jointHash);
-
-            var trackFrameTranslationIndex = track.Translations.Count;
-            var trackFrameScaleIndex = track.Scales.Count;
-            var trackFrameRotationIndex = track.Rotations.Count;
-
-            var translation = vectors[translationIndex];
-            var scale = vectors[scaleIndex];
-            var rotation = rotations[rotationIndex];
-
-            track.Translations.Add(FrameDuration * trackFrameTranslationIndex, translation);
-            track.Scales.Add(FrameDuration * trackFrameScaleIndex, scale);
-            track.Rotations.Add(FrameDuration * trackFrameRotationIndex, rotation);
-        }
+        Debug.Assert(formatToken is 3188167891 or 0);
+        Debug.Assert(version == 0);
+        Debug.Assert(formatToken == 3188167891 && tracksOffset == -1 && assetNameOffset == -1 && timeOffset == -1 ||
+                     formatToken == 0 && tracksOffset == 0 && assetNameOffset == 0 && timeOffset == 0);
     }
 
     private void ReadV5(BinaryReader br)
@@ -241,69 +216,69 @@ public class Animation
 
         var trackCount = br.ReadInt32();
         var framesPerTrack = br.ReadInt32();
+
         FrameDuration = br.ReadSingle();
 
-        var jointHashesOffset = br.ReadInt32();
+        var jointNameHashesOffset = br.ReadInt32();
         var assetNameOffset = br.ReadInt32();
         var timeOffset = br.ReadInt32();
         var vectorsOffset = br.ReadInt32();
         var rotationsOffset = br.ReadInt32();
         var framesOffset = br.ReadInt32();
 
-        if (jointHashesOffset <= 0) throw new Exception("Animation does not contain Joint hashes");
-        if (vectorsOffset <= 0) throw new Exception("Animation does not contain Vector data");
-        if (rotationsOffset <= 0) throw new Exception("Animation does not contain Rotation data");
-        if (framesOffset <= 0) throw new Exception("Animation does not contain Frame data");
+        if (jointNameHashesOffset <= 0) throw new NotImplementedException();
+        if (vectorsOffset <= 0) throw new NotImplementedException();
+        if (rotationsOffset <= 0) throw new NotImplementedException();
+        if (framesOffset <= 0) throw new NotImplementedException();
 
-        var jointHashesCount = (framesOffset - jointHashesOffset) / sizeof(uint);
-        var vectorsCount = (rotationsOffset - vectorsOffset) / 12;
-        var rotationsCount = (jointHashesOffset - rotationsOffset) / 6;
+        var offset1 = br.ReadInt32();
+        var offset2 = br.ReadInt32();
+        var offset3 = br.ReadInt32();
 
-        List<uint> jointHashes = new(jointHashesCount);
-        List<Vector3> vectors = new(vectorsCount);
-        List<Quaternion> rotations = new(rotationsCount);
-        var frames = new List<(ushort, ushort, ushort)>(framesPerTrack * trackCount);
+        // Joint name hashes
+        br.BaseStream.Seek(jointNameHashesOffset + 12, SeekOrigin.Begin);
+        var jointNameHashes = new uint[trackCount];
+        for (var i = 0; i < trackCount; i++)
+        {
+            jointNameHashes[i] = br.ReadUInt32();
+            Tracks.Add(new AnimationTrack(jointNameHashes[i]));
+        }
 
-        // Read Joint Hashes
-        br.BaseStream.Seek(jointHashesOffset + 12, SeekOrigin.Begin);
-        for (var i = 0; i < jointHashesCount; i++) jointHashes.Add(br.ReadUInt32());
-
-        // Read Vectors
+        // Vectors
         br.BaseStream.Seek(vectorsOffset + 12, SeekOrigin.Begin);
-        for (var i = 0; i < vectorsCount; i++) vectors.Add(br.ReadVector3());
+        var vectorsCount = (rotationsOffset - vectorsOffset) / (sizeof(float) * 3);
+        var vectors = new Vector3[vectorsCount];
+        for (var i = 0; i < vectorsCount; i++) vectors[i] = br.ReadVector3();
 
-        // Read Rotations
+        // Rotations
         br.BaseStream.Seek(rotationsOffset + 12, SeekOrigin.Begin);
+        var rotationsCount = (jointNameHashesOffset - rotationsOffset) / 6;
+        var rotations = new Quaternion[rotationsCount];
         for (var i = 0; i < rotationsCount; i++)
         {
-            var rotation = new QuantizedQuaternion(br.ReadBytes(6)).Decompress();
-
-            rotations.Add(Quaternion.Normalize(rotation));
+            var rotation = new QuantizedQuaternion(br.ReadBytes(6));
+            rotations[i] = Quaternion.Normalize(rotation.Decompress());
         }
 
-        // Read Frames
+        // Frames
         br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-        for (var i = 0; i < framesPerTrack * trackCount; i++)
-            frames.Add((br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
-
-        // Create tracks
-        for (var i = 0; i < trackCount; i++) Tracks.Add(new AnimationTrack(jointHashes[i]));
-
-        for (var t = 0; t < trackCount; t++)
+        for (var i = 0; i < trackCount; i++)
         {
-            var track = Tracks[t];
-            float currentTime = 0;
-            for (var f = 0; f < framesPerTrack; f++)
+            var time = 0f;
+            for (var j = 0; j < framesPerTrack; j++)
             {
-                (int translationIndex, int scaleIndex, int rotationIndex) = frames[f * trackCount + t];
-
-                track.Translations.Add(currentTime, vectors[translationIndex]);
-                track.Scales.Add(currentTime, vectors[scaleIndex]);
-                track.Rotations.Add(currentTime, rotations[rotationIndex]);
-
-                currentTime += FrameDuration;
+                Tracks[i].Translations.Add(time, vectors[br.ReadUInt16()]);
+                Tracks[i].Scales.Add(time, vectors[br.ReadUInt16()]);
+                Tracks[i].Rotations.Add(time, rotations[br.ReadUInt16()]);
+                time += FrameDuration;
             }
         }
+
+        Debug.Assert(formatToken == 0);
+        Debug.Assert(version == 0);
+        Debug.Assert(assetNameOffset == 0 && timeOffset == 0);
+        Debug.Assert((framesOffset - jointNameHashesOffset) / sizeof(uint) == trackCount);
+        Debug.Assert(offset1 == 0 && offset2 == 0 && offset3 == 0);
     }
 
     private void ReadLegacy(BinaryReader br)
@@ -313,116 +288,57 @@ public class Animation
         var trackCount = br.ReadInt32();
         var frameCount = br.ReadInt32();
 
-        FrameDuration = 1.0f / br.ReadInt32(); // FPS
-
+        Fps = br.ReadInt32();
+        
         for (var i = 0; i < trackCount; i++)
         {
             var trackName = br.ReadPaddedString(32);
             var flags = br.ReadUInt32();
 
-            var track = new AnimationTrack(Cryptography.ElfHash(trackName));
-
-            var frameTime = 0f;
+            Tracks.Add(new AnimationTrack(Cryptography.ElfHash(trackName)));
+            var time = 0f;
             for (var j = 0; j < frameCount; j++)
             {
-                track.Rotations.Add(frameTime, br.ReadQuaternion());
-                track.Translations.Add(frameTime, br.ReadVector3());
-                track.Scales.Add(frameTime, new Vector3(1, 1, 1));
+                var rotation = br.ReadQuaternion();
+                var translation = br.ReadVector3();
 
-                frameTime += FrameDuration;
+                Tracks[i].Rotations.Add(time, Quaternion.Normalize(rotation));
+                Tracks[i].Translations.Add(time, translation);
+
+                time += FrameDuration;
             }
-
-            Tracks.Add(track);
         }
     }
 
-    private Vector3 UncompressVector3(Vector3 min, Vector3 max, byte[] compressedData)
+    public bool IsCompatibleWithSkeleton(Skeleton skeleton)
+    {
+        // TODO: properly traverse the skeleton
+        return Tracks.All(track => skeleton.Joints.Any(x => Cryptography.ElfHash(x.Name) == track.JointNameHash));
+    }
+
+    private static Vector3 DecompressVector3(Vector3 min, Vector3 max, IReadOnlyList<byte> compressedData)
     {
         var uncompressed = max - min;
         var cX = (ushort) (compressedData[0] | (compressedData[1] << 8));
         var cY = (ushort) (compressedData[2] | (compressedData[3] << 8));
         var cZ = (ushort) (compressedData[4] | (compressedData[5] << 8));
 
-        uncompressed.X *= cX / 65535.0f;
-        uncompressed.Y *= cY / 65535.0f;
-        uncompressed.Z *= cZ / 65535.0f;
+        uncompressed.X *= cX / (float) ushort.MaxValue;
+        uncompressed.Y *= cY / (float) ushort.MaxValue;
+        uncompressed.Z *= cZ / (float) ushort.MaxValue;
 
         uncompressed += min;
-
         return uncompressed;
     }
 
-    private float UncompressFrameTime(ushort compressedTime, float animationLength)
+    private static float DecompressTime(ushort compressedTime, float animationLength)
     {
-        return compressedTime / 65535.0f * animationLength;
+        return compressedTime / (float) ushort.MaxValue * animationLength;
     }
 
-    // ------------ DEQUANTIZATION ------------ \\
-    private void DequantizeAnimationChannels(
-        TransformQuantizationProperties rotationQuantizationProperties,
-        TransformQuantizationProperties translationQuantizationProperties,
-        TransformQuantizationProperties scaleQuantizationProperties)
+    public static Animation FromFile(string filePath)
     {
-        // TODO
-
-        //TranslationDequantizationRound(translationQuantizationProperties);
-    }
-
-    private void TranslationDequantizationRound(TransformQuantizationProperties quantizationProperties)
-    {
-        foreach (var track in Tracks)
-        {
-            List<(float, Vector3)> interpolatedFrames = new();
-            for (var i = 0; i < track.Translations.Count; i++)
-            {
-                // Do not process last frame
-                if (i + 1 >= track.Translations.Count) return;
-
-                var frameA = track.Translations.ElementAt(i + 0);
-                var frameB = track.Translations.ElementAt(i + 1);
-
-                // Check if interpolation is needed
-
-                interpolatedFrames.Add(InterpolateTranslationFrames((frameA.Key, frameA.Value),
-                    (frameB.Key, frameB.Value)));
-            }
-
-            foreach (var (time, value) in interpolatedFrames)
-                track.Translations.Add(time, value);
-        }
-    }
-
-    private (float, Vector3) InterpolateTranslationFrames((float, Vector3) a, (float, Vector3) b)
-    {
-        var time = (a.Item1 + b.Item1) / 2;
-        return (time, Vector3.Lerp(a.Item2, b.Item2, 0.5f));
-    }
-
-    public bool IsCompatibleWithSkeleton(Skeleton skeleton)
-    {
-        foreach (var track in Tracks)
-            if (!skeleton.Joints.Any(x => Cryptography.ElfHash(x.Name) == track.JointHash))
-                return false;
-
-        return true;
-    }
-
-    private struct TransformQuantizationProperties
-    {
-        internal float ErrorMargin { get; }
-        internal float DiscontinuityThreshold { get; }
-
-        internal TransformQuantizationProperties(BinaryReader br)
-        {
-            ErrorMargin = br.ReadSingle();
-            DiscontinuityThreshold = br.ReadSingle();
-        }
-    }
-
-    private enum CompressedTransformType : byte
-    {
-        Rotation = 0,
-        Translation = 1,
-        Scale = 2
+        using var fileStream = File.OpenRead(filePath);
+        return new Animation(fileStream);
     }
 }
