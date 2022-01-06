@@ -38,7 +38,7 @@ public class Animation
                 ReadLegacy(reader);
                 break;
             default:
-                throw new InvalidFileSignatureException();
+                throw new InvalidFileSignatureException($"The animation format '{magic}' isn't supported.");
         }
     }
 
@@ -93,8 +93,8 @@ public class Animation
         var jumpCacheOffset = br.ReadInt32();
         var jointNameHashesOffset = br.ReadInt32();
 
-        if (frameOffset <= 0) throw new NotImplementedException();
-        if (jointNameHashesOffset <= 0) throw new NotImplementedException();
+        if (frameOffset <= 0) throw new InvalidDataException("The animation has no frames.");
+        if (jointNameHashesOffset <= 0) throw new InvalidDataException("The animation has no joint name hashes.");
 
         // Joint name hashes
         br.BaseStream.Seek(jointNameHashesOffset + 12, SeekOrigin.Begin);
@@ -165,9 +165,9 @@ public class Animation
         var rotationsOffset = br.ReadInt32();
         var framesOffset = br.ReadInt32();
 
-        if (vectorsOffset <= 0) throw new NotImplementedException();
-        if (rotationsOffset <= 0) throw new NotImplementedException();
-        if (framesOffset <= 0) throw new NotImplementedException();
+        if (vectorsOffset <= 0) throw new InvalidDataException("The animation has no vectors.");
+        if (rotationsOffset <= 0) throw new InvalidDataException("The animation has no rotations.");
+        if (framesOffset <= 0) throw new InvalidDataException("The animation has no frames.");
 
         // Vectors
         br.BaseStream.Seek(vectorsOffset + 12, SeekOrigin.Begin);
@@ -230,10 +230,10 @@ public class Animation
         var rotationsOffset = br.ReadInt32();
         var framesOffset = br.ReadInt32();
 
-        if (jointNameHashesOffset <= 0) throw new NotImplementedException();
-        if (vectorsOffset <= 0) throw new NotImplementedException();
-        if (rotationsOffset <= 0) throw new NotImplementedException();
-        if (framesOffset <= 0) throw new NotImplementedException();
+        if (jointNameHashesOffset <= 0) throw new InvalidDataException("The animation has no joint name hashes.");
+        if (vectorsOffset <= 0) throw new InvalidDataException("The animation has no vectors.");
+        if (rotationsOffset <= 0) throw new InvalidDataException("The animation has no rotations.");
+        if (framesOffset <= 0) throw new InvalidDataException("The animation has no frames.");
 
         var offset1 = br.ReadInt32();
         var offset2 = br.ReadInt32();
