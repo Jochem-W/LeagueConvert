@@ -192,7 +192,7 @@ public static class SkinExtensions
         if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
             return gltfAsset;
         var skeletonRootNode = gltfAsset.CreateNode();
-        skeletonRootNode.Scale = new Vector3(-1, 1, 1);
+        skeletonRootNode.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
         gltfAsset.Scene.AddNode(skeletonRootNode);
         var inverseBindMatricesBufferView = gltfAsset.CreateBufferView(buffer);
         inverseBindMatricesBufferView.StopStride();
