@@ -93,7 +93,7 @@ public static class Utilities
         {
             return LeagueFileType.JpegImage;
         }
-        else if (BitConverter.ToInt32(magicData, 4) == Skeleton.FORMAT_TOKEN)
+        else if (BitConverter.ToInt32(magicData, 4) == Skeleton.FormatToken)
         {
             return LeagueFileType.Skeleton;
         }

@@ -15,9 +15,9 @@ public class Joint
         GlobalTransform = joint.GlobalTransform;
     }
 
-    public int Id => _joint.ID;
+    public int Id => _joint.Id;
 
-    public int ParentId => _joint.ParentID;
+    public int ParentId => _joint.ParentId;
 
     public Matrix4x4 InverseBindTransform { get; internal set; }
 
