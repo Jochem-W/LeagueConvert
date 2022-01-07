@@ -141,7 +141,6 @@ public static class SkinExtensions
         {
             inverseBindMatricesAccessor.Write(skeletonJoint.InverseBindTransform
                 .Transpose()
-                .FixInverseBindMatrix()
                 .GetValues()
                 .ToArray());
             var jointNode = gltfAsset.CreateNode(skeletonJoint.LocalTransform.Transpose(), skeletonJoint.Name);

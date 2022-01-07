@@ -41,7 +41,8 @@ public class SkeletonJoint
         internal set
         {
             _globalTransform = value;
-            _inverseBindTransform = Matrix4x4.Invert(value, out var inverted) ? inverted : Matrix4x4.Identity;
+            _inverseBindTransform =
+                Matrix4x4.Invert(_globalTransform, out var inverted) ? inverted : Matrix4x4.Identity;
         }
     }
 
@@ -51,7 +52,9 @@ public class SkeletonJoint
         private set
         {
             _inverseBindTransform = value;
-            _globalTransform = Matrix4x4.Invert(value, out var inverted) ? inverted : Matrix4x4.Identity;
+            _globalTransform = Matrix4x4.Invert(_inverseBindTransform, out var inverted)
+                ? inverted
+                : Matrix4x4.Identity;
         }
     }
 
@@ -70,7 +73,7 @@ public class SkeletonJoint
         for (var i = 0; i < 3; i++)
         for (var j = 0; j < 4; j++)
             transform[j, i] = br.ReadSingle();
-
+        
         GlobalTransform = new Matrix4x4
         {
             M11 = transform[0, 0],
@@ -108,12 +111,16 @@ public class SkeletonJoint
         var localTranslation = br.ReadVector3();
         var localScale = br.ReadVector3();
         var localRotation = Quaternion.Normalize(br.ReadQuaternion());
-        LocalTransform = Compose(localTranslation, localScale, localRotation);
+        var localTransform = Compose(localTranslation, localScale, localRotation);
+        localTransform *= 1 / localTransform.M44; // Is this necessary?
+        LocalTransform = localTransform;
 
         var inverseGlobalTranslation = br.ReadVector3();
         var inverseGlobalScale = br.ReadVector3();
         var inverseGlobalRotation = Quaternion.Normalize(br.ReadQuaternion());
-        InverseBindTransform = Compose(inverseGlobalTranslation, inverseGlobalScale, inverseGlobalRotation);
+        var inverseBindTransform = Compose(inverseGlobalTranslation, inverseGlobalScale, inverseGlobalRotation);
+        inverseBindTransform *= 1 / inverseBindTransform.M44; // Is this necessary?
+        InverseBindTransform = inverseBindTransform;
 
         var nameOffset = br.ReadInt32();
         var position = br.BaseStream.Position;

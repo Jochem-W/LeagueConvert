@@ -15,14 +15,6 @@ public static class Matrix4X4Extensions
         };
     }
 
-    //TODO: move to custom version of LeagueToolkit
-    public static Matrix4x4 FixInverseBindMatrix(this Matrix4x4 matrix)
-    {
-        matrix *= 1 / matrix.M44;
-        matrix.M44 = 1;
-        return matrix;
-    }
-
     public static Matrix4x4 Transpose(this Matrix4x4 matrix)
     {
         return Matrix4x4.Transpose(matrix);
