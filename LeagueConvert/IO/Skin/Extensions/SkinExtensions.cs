@@ -181,65 +181,13 @@ public static class SkinExtensions
         {
             var gltfAnimation = gltfAsset.CreateAnimation(name);
 
-            var rootJoints = new Dictionary<SkeletonJoint, Node>();
-            foreach (var rootJoint in skin.Skeleton.RootJoints) rootJoints[rootJoint] = joints[rootJoint];
-
-            var remainingTracks = animation.Tracks.ToList();
-
-            while (rootJoints.Count > 0)
-            {
-                ApplyTracksInOrder(gltfAsset, translationBufferView, rotationBufferView, scaleBufferView, gltfAnimation,
-                    joints, rootJoints, remainingTracks);
-
-                foreach (var key in rootJoints.Keys.ToList())
-                {
-                    rootJoints.Remove(key);
-                    foreach (var child in key.Children) rootJoints[child] = joints[child];
-                }
-            }
-
-            foreach (var track in remainingTracks)
-            {
-                var j = skin.Skeleton.Joints.Where(jj => jj.Hash == track.JointNameHash).ToList();
-                if (j.Count > 0)
-                {
-                    
-                }
-            }
-
-            // Debug.Assert(remainingTracks.All(t => skin.Skeleton.Joints.All(j => j.Hash != t.JointNameHash)));
+            var mapping = skin.Skeleton.MapTracksToJoints(animation);
+            foreach (var (track, skeletonJoint) in mapping)
+                ApplyTrack(gltfAsset, translationBufferView, rotationBufferView, scaleBufferView, gltfAnimation, track,
+                    joints[skeletonJoint]);
         }
 
         return gltfAsset;
-    }
-
-    private static void ApplyTracksInOrder(GltfAsset gltfAsset, BufferView translationBufferView,
-        BufferView rotationBufferView, BufferView scaleBufferView, Animation gltfAnimation,
-        IDictionary<SkeletonJoint, Node> allJoints, IDictionary<SkeletonJoint, Node> rootJoints,
-        IList<AnimationTrack> remainingTracks)
-    {
-        var change = true;
-        while (change)
-        {
-            change = false;
-            for (var i = 0; i < remainingTracks.Count; i++)
-            {
-                var track = remainingTracks[i];
-                var (skeletonJoint, jointNode) =
-                    rootJoints.FirstOrDefault(pair => pair.Key.Hash == track.JointNameHash);
-                if (skeletonJoint == null) continue;
-
-                ApplyTrack(gltfAsset, translationBufferView, rotationBufferView, scaleBufferView,
-                    gltfAnimation, track, jointNode);
-
-                rootJoints.Remove(skeletonJoint);
-                foreach (var childJoint in skeletonJoint.Children) rootJoints[childJoint] = allJoints[childJoint];
-                remainingTracks.Remove(track);
-
-                i--;
-                change = true;
-            }
-        }
     }
 
     private static void ApplyTrack(GltfAsset gltfAsset, BufferView translationBufferView,
