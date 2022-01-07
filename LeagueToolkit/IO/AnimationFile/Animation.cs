@@ -266,16 +266,17 @@ public class Animation
 
         // Frames
         br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-        for (var i = 0; i < trackCount; i++)
+        var time = 0f;
+        for (var i = 0; i < framesPerTrack; i++)
         {
-            var time = 0f;
-            for (var j = 0; j < framesPerTrack; j++)
+            for (var j = 0; j < trackCount; j++)
             {
-                Tracks[i].Translations.Add(time, vectors[br.ReadUInt16()]);
-                Tracks[i].Scales.Add(time, vectors[br.ReadUInt16()]);
-                Tracks[i].Rotations.Add(time, rotations[br.ReadUInt16()]);
-                time += FrameDuration;
+                Tracks[j].Translations.Add(time, vectors[br.ReadUInt16()]);
+                Tracks[j].Scales.Add(time, vectors[br.ReadUInt16()]);
+                Tracks[j].Rotations.Add(time, rotations[br.ReadUInt16()]);
             }
+
+            time += FrameDuration;
         }
 
         Debug.Assert(formatToken == 0);
