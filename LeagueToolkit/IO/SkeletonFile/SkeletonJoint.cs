@@ -14,7 +14,7 @@ public class SkeletonJoint
         Id = id;
         ParentId = parentId;
         Name = name;
-        LocalTransform = Compose(localTranslation, localScale, localRotation);
+        LocalTransform = Compose(localTranslation, localScale, Quaternion.Normalize(localRotation));
     }
 
     internal SkeletonJoint(BinaryReader br)
@@ -107,12 +107,12 @@ public class SkeletonJoint
 
         var localTranslation = br.ReadVector3();
         var localScale = br.ReadVector3();
-        var localRotation = br.ReadQuaternion();
+        var localRotation = Quaternion.Normalize(br.ReadQuaternion());
         LocalTransform = Compose(localTranslation, localScale, localRotation);
 
         var inverseGlobalTranslation = br.ReadVector3();
         var inverseGlobalScale = br.ReadVector3();
-        var inverseGlobalRotation = br.ReadQuaternion();
+        var inverseGlobalRotation = Quaternion.Normalize(br.ReadQuaternion());
         InverseBindTransform = Compose(inverseGlobalTranslation, inverseGlobalScale, inverseGlobalRotation);
 
         var nameOffset = br.ReadInt32();
