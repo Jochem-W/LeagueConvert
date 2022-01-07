@@ -10,8 +10,7 @@ public class AnimationTrack
     }
 
     public uint JointNameHash { get; }
-
-    public Dictionary<float, Vector3> Translations { get; } = new();
-    public Dictionary<float, Vector3> Scales { get; } = new();
-    public Dictionary<float, Quaternion> Rotations { get; } = new();
+    public IDictionary<float, Vector3> Translations { get; } = new Dictionary<float, Vector3>();
+    public IDictionary<float, Vector3> Scales { get; } = new Dictionary<float, Vector3>();
+    public IDictionary<float, Quaternion> Rotations { get; } = new Dictionary<float, Quaternion>();
 }
