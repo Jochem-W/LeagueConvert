@@ -6,14 +6,15 @@ namespace LeagueToolkit.IO.SkeletonFile;
 public class SkeletonJoint
 {
     private Matrix4x4 _globalTransform;
+    private Matrix4x4 _inverseBindTransform;
 
-    internal SkeletonJoint(short id, short parentId, string name, Vector3 localPosition, Vector3 localScale,
+    internal SkeletonJoint(short id, short parentId, string name, Vector3 localTranslation, Vector3 localScale,
         Quaternion localRotation)
     {
         Id = id;
         ParentId = parentId;
         Name = name;
-        LocalTransform = ComposeLocal(localPosition, localScale, localRotation);
+        LocalTransform = Compose(localTranslation, localScale, localRotation);
     }
 
     internal SkeletonJoint(BinaryReader br)
@@ -40,12 +41,19 @@ public class SkeletonJoint
         internal set
         {
             _globalTransform = value;
-            Matrix4x4.Invert(GlobalTransform, out var inverted);
-            InverseBindTransform = inverted;
+            _inverseBindTransform = Matrix4x4.Invert(value, out var inverted) ? inverted : Matrix4x4.Identity;
         }
     }
 
-    public Matrix4x4 InverseBindTransform { get; private set; }
+    public Matrix4x4 InverseBindTransform
+    {
+        get => _inverseBindTransform;
+        private set
+        {
+            _inverseBindTransform = value;
+            _globalTransform = Matrix4x4.Invert(value, out var inverted) ? inverted : Matrix4x4.Identity;
+        }
+    }
 
     private void ReadLegacy(BinaryReader br, short id)
     {
@@ -100,12 +108,12 @@ public class SkeletonJoint
         var localTranslation = br.ReadVector3();
         var localScale = br.ReadVector3();
         var localRotation = br.ReadQuaternion();
-        LocalTransform = ComposeLocal(localTranslation, localScale, localRotation);
+        LocalTransform = Compose(localTranslation, localScale, localRotation);
 
         var inverseGlobalTranslation = br.ReadVector3();
         var inverseGlobalScale = br.ReadVector3();
         var inverseGlobalRotation = br.ReadQuaternion();
-        GlobalTransform = ComposeGlobal(inverseGlobalTranslation, inverseGlobalScale, inverseGlobalRotation);
+        InverseBindTransform = Compose(inverseGlobalTranslation, inverseGlobalScale, inverseGlobalRotation);
 
         var nameOffset = br.ReadInt32();
         var position = br.BaseStream.Position;
@@ -115,24 +123,13 @@ public class SkeletonJoint
         br.BaseStream.Seek(position, SeekOrigin.Begin);
     }
 
-    private static Matrix4x4 ComposeLocal(Vector3 translation, Vector3 scale, Quaternion rotation)
+    private static Matrix4x4 Compose(Vector3 translation, Vector3 scale, Quaternion rotation)
     {
         var translationMatrix = Matrix4x4.CreateTranslation(translation);
         var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
         var scaleMatrix = Matrix4x4.CreateScale(scale);
-
+        
         return scaleMatrix * rotationMatrix * translationMatrix;
-    }
-
-    private static Matrix4x4 ComposeGlobal(Vector3 translation, Vector3 scale, Quaternion rotation)
-    {
-        var translationMatrix = Matrix4x4.CreateTranslation(translation);
-        var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
-        var scaleMatrix = Matrix4x4.CreateScale(scale);
-        
-        Matrix4x4.Invert(scaleMatrix * rotationMatrix * translationMatrix, out var global);
-        
-        return global;
     }
 
     internal void Write(BinaryWriter bw, long nameOffset)

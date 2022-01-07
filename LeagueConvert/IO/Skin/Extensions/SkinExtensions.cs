@@ -3,6 +3,7 @@ using ImageMagick;
 using LeagueConvert.Enums;
 using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.IO.SimpleSkinFile;
+using LeagueToolkit.IO.SkeletonFile;
 using Serilog;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
@@ -198,7 +199,7 @@ public static class SkinExtensions
         inverseBindMatricesBufferView.StopStride();
         var inverseBindMatricesAccessor =
             gltfAsset.CreateFloatAccessor(inverseBindMatricesBufferView, AccessorType.Mat4);
-        var joints = new Dictionary<Joint, Node>();
+        var joints = new Dictionary<SkeletonJoint, Node>();
         foreach (var skeletonJoint in skin.Skeleton.Joints)
         {
             inverseBindMatricesAccessor.Write(skeletonJoint.InverseBindTransform

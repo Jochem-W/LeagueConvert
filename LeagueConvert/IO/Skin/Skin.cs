@@ -7,6 +7,7 @@ using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.PropertyBin.Properties;
 using LeagueToolkit.IO.SimpleSkinFile;
+using LeagueToolkit.IO.SkeletonFile;
 using Serilog;
 
 namespace LeagueConvert.IO.Skin;
@@ -138,7 +139,7 @@ public class Skin : IDisposable
         try
         {
             await using var stream = _parent.GetEntryByName(_skeletonFile).GetStream();
-            Skeleton = new Skeleton(new LeagueToolkit.IO.SkeletonFile.Skeleton(stream));
+            Skeleton = new Skeleton(stream);
             State |= SkinState.SkeletonLoaded;
             return true;
         }
