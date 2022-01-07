@@ -57,7 +57,7 @@ internal static class Program
         var gameHashOption = new Option<string>("-g", "Path to 'hashes.game.txt'");
         var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
         var forceScaleOption = new Option<bool>("--force-scale", () => false,
-            "Scale the model down and flip the X-axis even if it's not allowed by the glTF specification");
+            "Flip the X-axis even if it's not allowed by the glTF specification");
 
         var command = new Command("convert-wad", "Convert all models in specified WAD files")
         {
@@ -105,7 +105,7 @@ internal static class Program
         var gameHashOption = new Option<string>("-g", "Path to 'hashes.game.txt'");
         var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
         var forceScaleOption = new Option<bool>("--force-scale", () => false,
-            "Scale the model down and flip the X-axis even if it's not allowed by the glTF specification");
+            "Flip the X-axis even if it's not allowed by the glTF specification");
 
         var command = new Command("convert-all", "Convert all models in WAD files in a specified directory")
         {
