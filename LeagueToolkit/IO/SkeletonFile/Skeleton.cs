@@ -3,6 +3,7 @@ using System.Text;
 using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.IO.AnimationFile;
 
 namespace LeagueToolkit.IO.SkeletonFile;
 
@@ -167,6 +168,62 @@ public class Skeleton
             case 1:
                 for (var i = 0; i < Joints.Count; i++) Influences.Add((short) i);
                 break;
+        }
+    }
+
+    public IDictionary<AnimationTrack, SkeletonJoint> MapTracksToJoints(Animation animation)
+    {
+        var result = new Dictionary<AnimationTrack, SkeletonJoint>();
+
+        var roots = RootJoints.ToList();
+        var remainingTracks = animation.Tracks.ToList();
+
+        while (roots.Count != 0)
+        {
+            MapAllTracksInOrder(result, remainingTracks, roots);
+            var count = roots.Count;
+            for (var i = 0; i < count; i++)
+            {
+                roots.AddRange(roots[0].Children);
+                roots.RemoveAt(0);
+            }
+        }
+
+        Debug.Assert(remainingTracks.All(t => Joints.All(j => t.JointNameHash != j.Hash)));
+
+        return result;
+    }
+
+    private static void MapAllTracksInOrder(IDictionary<AnimationTrack, SkeletonJoint> result,
+        IList<AnimationTrack> remainingTracks, List<SkeletonJoint> roots)
+    {
+        var change = true;
+        while (change)
+        {
+            change = false;
+            for (var i = 0; i < remainingTracks.Count; i++)
+            {
+                var track = remainingTracks[i];
+
+                SkeletonJoint applicableJoint = null;
+                for (var j = 0; j < roots.Count; j++)
+                {
+                    var joint = roots[j];
+                    if (joint.Hash != track.JointNameHash) continue;
+
+                    applicableJoint = joint;
+                    roots.RemoveAt(j);
+                    roots.AddRange(joint.Children);
+                    break;
+                }
+
+                if (applicableJoint == null) continue;
+
+                change = true;
+                result[track] = applicableJoint;
+                remainingTracks.RemoveAt(i);
+                i--;
+            }
         }
     }
 

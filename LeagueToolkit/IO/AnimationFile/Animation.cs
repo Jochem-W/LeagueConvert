@@ -314,12 +314,6 @@ public class Animation
         }
     }
 
-    public bool IsCompatibleWithSkeleton(Skeleton skeleton)
-    {
-        // TODO: properly traverse the skeleton
-        return Tracks.All(track => skeleton.Joints.Any(x => Cryptography.ElfHash(x.Name) == track.JointNameHash));
-    }
-
     private static Vector3 DecompressVector3(Vector3 min, Vector3 max, IReadOnlyList<byte> compressedData)
     {
         var uncompressed = max - min;
