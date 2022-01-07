@@ -56,6 +56,8 @@ internal static class Program
         var animationsOption = new Option<bool>("-a", () => false, "Include animations");
         var gameHashOption = new Option<string>("-g", "Path to 'hashes.game.txt'");
         var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
+        var forceScaleOption = new Option<bool>("--force-scale", () => false,
+            "Scale the model down and flip the X-axis even if it's not allowed by the glTF specification");
 
         var command = new Command("convert-wad", "Convert all models in specified WAD files")
         {
@@ -64,29 +66,31 @@ internal static class Program
             skeletonsOption,
             animationsOption,
             gameHashOption,
-            binHashesHashOption
+            binHashesHashOption,
+            forceScaleOption
         };
 
         command.SetHandler(async (string[] wads, string outputDirectory, bool skeletons, bool animations,
-            string gameHashFile, string binHashesHashFile) =>
-        {
-            if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
-                return;
-            if (!TryCreateOutputDirectory(outputDirectory))
-                return;
-            if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
-                return;
-            foreach (var path in wads)
+                string gameHashFile, string binHashesHashFile, bool forceScale) =>
             {
-                Logger.Information("Converting {File}", Path.GetFileName(path));
-                if (!TryLoadWad(path, out var wad))
+                if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
                     return;
-                await TryConvertWad(wad, mode.Value, outputDirectory);
-                wad.Dispose();
-            }
+                if (!TryCreateOutputDirectory(outputDirectory))
+                    return;
+                if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
+                    return;
+                foreach (var path in wads)
+                {
+                    Logger.Information("Converting {File}", Path.GetFileName(path));
+                    if (!TryLoadWad(path, out var wad))
+                        return;
+                    await TryConvertWad(wad, mode.Value, outputDirectory, forceScale);
+                    wad.Dispose();
+                }
 
-            Logger.Information("Finished!");
-        }, wadsArgument, outputOption, skeletonsOption, animationsOption, gameHashOption, binHashesHashOption);
+                Logger.Information("Finished!");
+            }, wadsArgument, outputOption, skeletonsOption, animationsOption, gameHashOption, binHashesHashOption,
+            forceScaleOption);
 
         return command;
     }
@@ -100,6 +104,8 @@ internal static class Program
         var recurseOption = new Option<bool>("-r", () => false, "Search for WAD files recursively");
         var gameHashOption = new Option<string>("-g", "Path to 'hashes.game.txt'");
         var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
+        var forceScaleOption = new Option<bool>("--force-scale", () => false,
+            "Scale the model down and flip the X-axis even if it's not allowed by the glTF specification");
 
         var command = new Command("convert-all", "Convert all models in WAD files in a specified directory")
         {
@@ -109,11 +115,12 @@ internal static class Program
             animationsOption,
             recurseOption,
             gameHashOption,
-            binHashesHashOption
+            binHashesHashOption,
+            forceScaleOption
         };
 
         command.SetHandler(async (string path, string outputDirectory, bool skeletons, bool animations, bool recurse,
-                string gameHashFile, string binHashesHashFile) =>
+                string gameHashFile, string binHashesHashFile, bool forceScale) =>
             {
                 if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
                     return;
@@ -127,13 +134,13 @@ internal static class Program
                 {
                     if (!TryLoadWad(filePath, out var wad))
                         continue;
-                    await TryConvertWad(wad, mode.Value, outputDirectory);
+                    await TryConvertWad(wad, mode.Value, outputDirectory, forceScale);
                     wad.Dispose();
                 }
 
                 Logger.Information("Finished!");
             }, pathArgument, outputOption, skeletonsOption, animationsOption, recurseOption, gameHashOption,
-            binHashesHashOption);
+            binHashesHashOption, forceScaleOption);
 
         return command;
     }
@@ -201,12 +208,12 @@ internal static class Program
         }
     }
 
-    private static async Task<bool> TryConvertWad(StringWad wad, SkinMode mode, string outputDirectory)
+    private static async Task<bool> TryConvertWad(StringWad wad, SkinMode mode, string outputDirectory, bool forceScale)
     {
         try
         {
             await foreach (var skin in wad.GetSkins(Logger))
-                await TryConvertSkin(skin, mode, outputDirectory);
+                await TryConvertSkin(skin, mode, outputDirectory, forceScale);
             return true;
         }
         catch (Exception e)
@@ -216,7 +223,7 @@ internal static class Program
         }
     }
 
-    private static async Task<bool> TryConvertSkin(Skin skin, SkinMode mode, string outputDirectory)
+    private static async Task<bool> TryConvertSkin(Skin skin, SkinMode mode, string outputDirectory, bool forceScale)
     {
         try
         {
@@ -226,7 +233,7 @@ internal static class Program
             if (!Directory.Exists(skinDirectory))
                 Directory.CreateDirectory(skinDirectory);
 
-            await using var gltfAsset = await skin.GetGltfAsset(Logger);
+            await using var gltfAsset = await skin.GetGltfAsset(forceScale, Logger);
             await gltfAsset.Save(Path.Combine(skinDirectory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
             return true;
         }

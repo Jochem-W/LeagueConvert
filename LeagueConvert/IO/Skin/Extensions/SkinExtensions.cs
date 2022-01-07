@@ -13,7 +13,7 @@ namespace LeagueConvert.IO.Skin.Extensions;
 
 public static class SkinExtensions
 {
-    public static async Task<GltfAsset> GetGltfAsset(this Skin skin, ILogger logger = null)
+    public static async Task<GltfAsset> GetGltfAsset(this Skin skin, bool forceScale, ILogger logger = null)
     {
         if (!skin.State.HasFlag(SkinState.MeshLoaded))
             return null;
@@ -21,7 +21,6 @@ public static class SkinExtensions
         var gltfAsset = new GltfAsset();
         gltfAsset.Scene = gltfAsset.CreateScene();
         var node = gltfAsset.CreateNode();
-        node.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
         gltfAsset.Scene.AddNode(node);
         var sampler = gltfAsset.CreateSampler(WrappingMode.ClampToEdge, WrappingMode.ClampToEdge);
         node.Mesh = gltfAsset.CreateMesh();
@@ -128,9 +127,18 @@ public static class SkinExtensions
 
         //SKELETON
         if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
+        {
+            node.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
             return gltfAsset;
+        }
+        
         var skeletonRootNode = gltfAsset.CreateNode();
-        skeletonRootNode.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
+        if (forceScale)
+        {
+            node.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
+            skeletonRootNode.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
+        }
+        
         gltfAsset.Scene.AddNode(skeletonRootNode);
         var inverseBindMatricesBufferView = gltfAsset.CreateBufferView(buffer);
         inverseBindMatricesBufferView.StopStride();
