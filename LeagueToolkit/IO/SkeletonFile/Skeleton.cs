@@ -41,6 +41,7 @@ public class Skeleton
         ReadLegacy(br);
     }
 
+    public IList<SkeletonJoint> RootJoints { get; } = new List<SkeletonJoint>();
     public IList<SkeletonJoint> Joints { get; } = new List<SkeletonJoint>();
     public IList<short> Influences { get; } = new List<short>();
     public string Name { get; private set; } = string.Empty;
@@ -74,7 +75,15 @@ public class Skeleton
         if (jointsOffset > 0)
         {
             br.BaseStream.Seek(jointsOffset, SeekOrigin.Begin);
-            for (var i = 0; i < jointCount; i++) Joints.Add(new SkeletonJoint(br));
+            for (var i = 0; i < jointCount; i++)
+            {
+                var joint = new SkeletonJoint(br);
+                Joints.Add(joint);
+                if (joint.ParentId == -1)
+                    RootJoints.Add(joint);
+                else
+                    Joints[joint.ParentId].Children.Add(joint);
+            }
         }
 
         // Joint indices
@@ -132,7 +141,22 @@ public class Skeleton
         var skeletonId = br.ReadUInt32();
 
         var jointCount = br.ReadUInt32();
-        for (var i = 0; i < jointCount; i++) Joints.Add(new SkeletonJoint(br, (short) i));
+        for (var i = 0; i < jointCount; i++)
+        {
+            var joint = new SkeletonJoint(br, (short) i);
+            Joints.Add(joint);
+            if (joint.ParentId == -1)
+            {
+                RootJoints.Add(joint);
+                joint.LocalTransform = joint.GlobalTransform;
+            }
+            else
+            {
+                var parent = Joints[joint.ParentId];
+                parent.Children.Add(joint);
+                joint.LocalTransform = joint.GlobalTransform * parent.InverseBindTransform;
+            }
+        }
 
         switch (version)
         {
@@ -144,17 +168,6 @@ public class Skeleton
                 for (var i = 0; i < Joints.Count; i++) Influences.Add((short) i);
                 break;
         }
-        
-        foreach (var joint in Joints)
-            if (joint.ParentId == -1)
-            {
-                joint.LocalTransform = joint.GlobalTransform;
-            }
-            else
-            {
-                var parent = Joints[joint.ParentId];
-                joint.LocalTransform = joint.GlobalTransform * parent.InverseBindTransform;
-            }
     }
 
     public void Write(string fileLocation)

@@ -1,13 +1,14 @@
 using System.Numerics;
 using ImageMagick;
 using LeagueConvert.Enums;
-using LeagueToolkit.Helpers.Cryptography;
+using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.SkeletonFile;
 using Serilog;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
 using SimpleGltf.Json;
 using SimpleGltf.Json.Extensions;
+using Animation = SimpleGltf.Json.Animation;
 
 namespace LeagueConvert.IO.Skin.Extensions;
 
@@ -179,80 +180,125 @@ public static class SkinExtensions
         foreach (var (name, animation) in skin.Animations)
         {
             var gltfAnimation = gltfAsset.CreateAnimation(name);
-            var jointsAndHash = gltfSkin.Joints
-                .Select(joint => new KeyValuePair<Node, uint>(joint, Cryptography.ElfHash(joint.Name)))
-                .ToList();
 
-            foreach (var track in animation.Tracks)
+            var rootJoints = new Dictionary<SkeletonJoint, Node>();
+            foreach (var rootJoint in skin.Skeleton.RootJoints) rootJoints[rootJoint] = joints[rootJoint];
+
+            var remainingTracks = animation.Tracks.ToList();
+
+            while (rootJoints.Count > 0)
             {
-                var tracksWithSameId = animation.Tracks
-                    .Where(t => t.JointNameHash == track.JointNameHash)
-                    .ToList();
-                var jointsWithSameId = jointsAndHash
-                    .Where(pair => pair.Value == track.JointNameHash)
-                    .Select(pair => pair.Key)
-                    .ToList();
-                if (tracksWithSameId.Count > jointsWithSameId.Count || jointsWithSameId.Count == 0)
-                    continue;
-                var trackPositionAmongSameId = tracksWithSameId.IndexOf(track);
-                var mostLikelyJoint = jointsWithSameId[trackPositionAmongSameId];
-                if (track.Translations.Count != 0)
+                ApplyTracksInOrder(gltfAsset, translationBufferView, rotationBufferView, scaleBufferView, gltfAnimation,
+                    joints, rootJoints, remainingTracks);
+
+                foreach (var key in rootJoints.Keys.ToList())
                 {
-                    var translationInputAccessor =
-                        gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Scalar, true);
-                    var translationOutputAccessor =
-                        gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Vec3);
-                    var translationSampler =
-                        gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
-                    var translationTarget = new Target(AnimationPath.Translation) {Node = mostLikelyJoint};
-                    gltfAnimation.CreateChannel(translationSampler, translationTarget);
-                    foreach (var (time, translation) in track.Translations)
-                    {
-                        translationOutputAccessor.Write(translation.X, translation.Y, translation.Z);
-                        translationInputAccessor.Write(time);
-                    }
-
-                    translationBufferView.StopStride();
-                }
-
-                if (track.Rotations.Count != 0)
-                {
-                    var rotationInputAccessor =
-                        gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Scalar, true);
-                    var rotationOutputAccessor =
-                        gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Vec4);
-                    var rotationSampler =
-                        gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
-                    var rotationTarget = new Target(AnimationPath.Rotation) {Node = mostLikelyJoint};
-                    gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
-                    foreach (var (time, rotation) in track.Rotations)
-                    {
-                        rotationOutputAccessor.Write(rotation.X, rotation.Y, rotation.Z, rotation.W);
-                        rotationInputAccessor.Write(time);
-                    }
-
-                    rotationBufferView.StopStride();
-                }
-
-                if (track.Scales.Count != 0)
-                {
-                    var scaleInputAccessor =
-                        gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Scalar, true);
-                    var scaleOutputAccessor = gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Vec3);
-                    var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
-                    var scaleTarget = new Target(AnimationPath.Scale) {Node = mostLikelyJoint};
-                    gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
-                    foreach (var (time, scale) in track.Scales)
-                    {
-                        scaleOutputAccessor.Write(scale.X, scale.Y, scale.Z);
-                        scaleInputAccessor.Write(time);
-                    }
-
-                    scaleBufferView.StopStride();
+                    rootJoints.Remove(key);
+                    foreach (var child in key.Children) rootJoints[child] = joints[child];
                 }
             }
+
+            foreach (var track in remainingTracks)
+            {
+                var j = skin.Skeleton.Joints.Where(jj => jj.Hash == track.JointNameHash).ToList();
+                if (j.Count > 0)
+                {
+                    
+                }
+            }
+
+            // Debug.Assert(remainingTracks.All(t => skin.Skeleton.Joints.All(j => j.Hash != t.JointNameHash)));
         }
 
         return gltfAsset;
+    }
+
+    private static void ApplyTracksInOrder(GltfAsset gltfAsset, BufferView translationBufferView,
+        BufferView rotationBufferView, BufferView scaleBufferView, Animation gltfAnimation,
+        IDictionary<SkeletonJoint, Node> allJoints, IDictionary<SkeletonJoint, Node> rootJoints,
+        IList<AnimationTrack> remainingTracks)
+    {
+        var change = true;
+        while (change)
+        {
+            change = false;
+            for (var i = 0; i < remainingTracks.Count; i++)
+            {
+                var track = remainingTracks[i];
+                var (skeletonJoint, jointNode) =
+                    rootJoints.FirstOrDefault(pair => pair.Key.Hash == track.JointNameHash);
+                if (skeletonJoint == null) continue;
+
+                ApplyTrack(gltfAsset, translationBufferView, rotationBufferView, scaleBufferView,
+                    gltfAnimation, track, jointNode);
+
+                rootJoints.Remove(skeletonJoint);
+                foreach (var childJoint in skeletonJoint.Children) rootJoints[childJoint] = allJoints[childJoint];
+                remainingTracks.Remove(track);
+
+                i--;
+                change = true;
+            }
+        }
+    }
+
+    private static void ApplyTrack(GltfAsset gltfAsset, BufferView translationBufferView,
+        BufferView rotationBufferView, BufferView scaleBufferView, Animation gltfAnimation,
+        AnimationTrack track, Node jointNode)
+    {
+        if (track.Translations.Count != 0)
+        {
+            var translationInputAccessor =
+                gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Scalar, true);
+            var translationOutputAccessor =
+                gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Vec3);
+            var translationSampler =
+                gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
+            var translationTarget = new Target(AnimationPath.Translation) {Node = jointNode};
+            gltfAnimation.CreateChannel(translationSampler, translationTarget);
+            foreach (var (time, translation) in track.Translations)
+            {
+                translationOutputAccessor.Write(translation.X, translation.Y, translation.Z);
+                translationInputAccessor.Write(time);
+            }
+
+            translationBufferView.StopStride();
+        }
+
+        if (track.Rotations.Count != 0)
+        {
+            var rotationInputAccessor =
+                gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Scalar, true);
+            var rotationOutputAccessor =
+                gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Vec4);
+            var rotationSampler =
+                gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
+            var rotationTarget = new Target(AnimationPath.Rotation) {Node = jointNode};
+            gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
+            foreach (var (time, rotation) in track.Rotations)
+            {
+                rotationOutputAccessor.Write(rotation.X, rotation.Y, rotation.Z, rotation.W);
+                rotationInputAccessor.Write(time);
+            }
+
+            rotationBufferView.StopStride();
+        }
+
+        if (track.Scales.Count != 0)
+        {
+            var scaleInputAccessor =
+                gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Scalar, true);
+            var scaleOutputAccessor = gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Vec3);
+            var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
+            var scaleTarget = new Target(AnimationPath.Scale) {Node = jointNode};
+            gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
+            foreach (var (time, scale) in track.Scales)
+            {
+                scaleOutputAccessor.Write(scale.X, scale.Y, scale.Z);
+                scaleInputAccessor.Write(time);
+            }
+
+            scaleBufferView.StopStride();
+        }
     }
 }

@@ -27,6 +27,7 @@ public class SkeletonJoint
         ReadLegacy(br, id);
     }
 
+    public IList<SkeletonJoint> Children { get; } = new List<SkeletonJoint>();
     public ushort Flags { get; private set; }
     public short Id { get; private set; }
     public short ParentId { get; private set; }
