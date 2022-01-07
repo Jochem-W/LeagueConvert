@@ -106,7 +106,7 @@ public class Skin : IDisposable
                 streams[_texture] = _parent.GetEntryByName(_texture).GetStream();
             var images = new Dictionary<string, IMagickImage>();
             Textures = new Dictionary<string, IMagickImage>();
-            foreach (var subMeshName in SimpleSkin.Submeshes.Select(submesh => submesh.Name))
+            foreach (var subMeshName in SimpleSkin.SubMeshes.Select(submesh => submesh.Name))
             {
                 var texture = _texture;
                 if (_materials.TryGetBySubMesh(subMeshName, out var material))

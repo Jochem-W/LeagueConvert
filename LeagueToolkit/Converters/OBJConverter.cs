@@ -122,13 +122,13 @@ public static class OBJConverter
         var normals = new List<Vector3>();
 
         uint indexOffset = 0;
-        foreach (var submesh in model.Submeshes)
+        foreach (var submesh in model.SubMeshes)
         {
             indices.AddRange(submesh.Indices.Select(x => x + indexOffset));
             foreach (var vertex in submesh.Vertices)
             {
                 vertices.Add(vertex.Position);
-                uv.Add(vertex.UV);
+                uv.Add(vertex.Uv);
                 normals.Add(vertex.Normal);
             }
 
@@ -140,12 +140,12 @@ public static class OBJConverter
     }
 
     /// <summary>
-    ///     Converts the Submeshes of the specified <see cref="SimpleSkin" /> into a List of <see cref="OBJFile" />
+    ///     Converts the SubMeshes of the specified <see cref="SimpleSkin" /> into a List of <see cref="OBJFile" />
     /// </summary>
     /// <param name="model"><see cref="SimpleSkin" /> to convert</param>
     public static IEnumerable<Tuple<string, OBJFile>> ConvertSKNModels(SimpleSkin model)
     {
-        foreach (var submesh in model.Submeshes)
+        foreach (var submesh in model.SubMeshes)
         {
             var indices = new List<uint>();
             var vertices = new List<Vector3>();
@@ -155,7 +155,7 @@ public static class OBJConverter
             foreach (var vertex in submesh.Vertices)
             {
                 vertices.Add(vertex.Position);
-                uv.Add(vertex.UV);
+                uv.Add(vertex.Uv);
                 normals.Add(vertex.Normal);
             }
 
