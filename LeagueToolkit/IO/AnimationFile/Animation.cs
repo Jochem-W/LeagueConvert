@@ -229,15 +229,14 @@ public class Animation
         var vectorsOffset = br.ReadInt32();
         var rotationsOffset = br.ReadInt32();
         var framesOffset = br.ReadInt32();
+        var reservedOffset1 = br.ReadInt32();
+        var reservedOffset2 = br.ReadInt32();
+        var reservedOffset3 = br.ReadInt32();
 
         if (jointNameHashesOffset <= 0) throw new InvalidDataException("The animation has no joint name hashes.");
         if (vectorsOffset <= 0) throw new InvalidDataException("The animation has no vectors.");
         if (rotationsOffset <= 0) throw new InvalidDataException("The animation has no rotations.");
         if (framesOffset <= 0) throw new InvalidDataException("The animation has no frames.");
-
-        var offset1 = br.ReadInt32();
-        var offset2 = br.ReadInt32();
-        var offset3 = br.ReadInt32();
 
         // Joint name hashes
         br.BaseStream.Seek(jointNameHashesOffset + 12, SeekOrigin.Begin);
@@ -283,7 +282,7 @@ public class Animation
         Debug.Assert(version == 0);
         Debug.Assert(assetNameOffset == 0 && timeOffset == 0);
         Debug.Assert((framesOffset - jointNameHashesOffset) / sizeof(uint) == trackCount);
-        Debug.Assert(offset1 == 0 && offset2 == 0 && offset3 == 0);
+        Debug.Assert(reservedOffset1 == 0 && reservedOffset2 == 0 && reservedOffset3 == 0);
     }
 
     private void ReadLegacy(BinaryReader br)
