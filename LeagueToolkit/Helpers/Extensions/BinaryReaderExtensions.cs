@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using System.Text;
 using LeagueToolkit.Helpers.Structures;
 
 namespace LeagueToolkit.Helpers.Extensions;
@@ -124,17 +123,16 @@ internal static class BinaryReaderColorExtensions
 
     public static string ReadPaddedString(this BinaryReader reader, int length)
     {
-        return Encoding.ASCII.GetString(reader.ReadBytes(length)).Replace("\0", "");
+        return new string(reader.ReadChars(length)).Replace("\0", string.Empty);
     }
 
     public static string ReadZeroTerminatedString(this BinaryReader reader)
     {
         var returnString = "";
-
         while (true)
         {
             var c = reader.ReadChar();
-            if (c == 0) break;
+            if (c == '\0') break;
 
             returnString += c;
         }
