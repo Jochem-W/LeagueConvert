@@ -128,15 +128,15 @@ public static class SkinExtensions
         //SKELETON
         if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
         {
-            node.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
+            node.Scale = new Vector3(-1, 1, 1);
             return gltfAsset;
         }
         
         var skeletonRootNode = gltfAsset.CreateNode();
         if (forceScale)
         {
-            node.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
-            skeletonRootNode.Scale = new Vector3(-0.01f, 0.01f, 0.01f);
+            node.Scale = new Vector3(-1, 1, 1);
+            skeletonRootNode.Scale = new Vector3(-1, 1, 1);
         }
         
         gltfAsset.Scene.AddNode(skeletonRootNode);
