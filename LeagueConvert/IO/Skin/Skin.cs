@@ -59,18 +59,18 @@ public class Skin : IDisposable
     public async Task Load(SkinMode mode, ILogger logger = null)
     {
         logger?.Debug("Loading {Character} skin{Id}", Character, Id);
-        if (!State.HasFlag(SkinState.MeshLoaded))
+        if (!State.HasFlagFast(SkinState.MeshLoaded))
             if (!await TryLoadMesh(logger))
                 return;
-        if (!State.HasFlag(SkinState.TexturesLoaded))
+        if (!State.HasFlagFast(SkinState.TexturesLoaded))
             await TryLoadTextures(logger);
         if (mode == SkinMode.MeshAndTextures)
             return;
 
-        if (!State.HasFlag(SkinState.SkeletonLoaded))
+        if (!State.HasFlagFast(SkinState.SkeletonLoaded))
             await TryLoadSkeleton(logger);
-        if (mode == SkinMode.WithSkeleton || !State.HasFlag(SkinState.SkeletonLoaded) ||
-            State.HasFlag(SkinState.AnimationsLoaded))
+        if (mode == SkinMode.WithSkeleton || !State.HasFlagFast(SkinState.SkeletonLoaded) ||
+            State.HasFlagFast(SkinState.AnimationsLoaded))
             return;
         await LoadAnimations(logger);
     }

@@ -16,7 +16,7 @@ public static class SkinExtensions
 {
     public static async Task<GltfAsset> GetGltfAsset(this Skin skin, bool forceScale, ILogger logger = null)
     {
-        if (!skin.State.HasFlag(SkinState.MeshLoaded))
+        if (!skin.State.HasFlagFast(SkinState.MeshLoaded))
             return null;
 
         var gltfAsset = new GltfAsset();
@@ -42,7 +42,7 @@ public static class SkinExtensions
             //SKELETON
             UShortAccessor jointsAccessor = null;
             FloatAccessor weightsAccessor = null;
-            if (skin.State.HasFlag(SkinState.SkeletonLoaded))
+            if (skin.State.HasFlagFast(SkinState.SkeletonLoaded))
             {
                 jointsAccessor = gltfAsset.CreateUShortAccessor(attributesBufferView, AccessorType.Vec4, true);
                 weightsAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
@@ -59,7 +59,7 @@ public static class SkinExtensions
 
 
             //SKELETON
-            if (skin.State.HasFlag(SkinState.SkeletonLoaded))
+            if (skin.State.HasFlagFast(SkinState.SkeletonLoaded))
             {
                 primitive.SetAttribute("WEIGHTS_0", weightsAccessor);
                 primitive.SetAttribute("JOINTS_0", jointsAccessor);
@@ -77,7 +77,7 @@ public static class SkinExtensions
                 //     vertex.Color.Value.A);
                 weightsAccessor?.Write(vertex.Weights[0], vertex.Weights[1], vertex.Weights[2],
                     vertex.Weights[3]);
-                if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
+                if (!skin.State.HasFlagFast(SkinState.SkeletonLoaded))
                     continue;
 
 
@@ -103,7 +103,7 @@ public static class SkinExtensions
             //MATERIALS
             var material = gltfAsset.CreateMaterial(subMesh.Name);
             primitive.Material = material;
-            if (!skin.State.HasFlag(SkinState.TexturesLoaded))
+            if (!skin.State.HasFlagFast(SkinState.TexturesLoaded))
                 continue;
 
             // TODO: ignore case?
@@ -127,7 +127,7 @@ public static class SkinExtensions
 
 
         //SKELETON
-        if (!skin.State.HasFlag(SkinState.SkeletonLoaded))
+        if (!skin.State.HasFlagFast(SkinState.SkeletonLoaded))
         {
             node.Scale = new Vector3(-1, 1, 1);
             return gltfAsset;
@@ -168,7 +168,7 @@ public static class SkinExtensions
             gltfSkin.AddJoint(jointNode);
         }
 
-        if (!skin.State.HasFlag(SkinState.AnimationsLoaded))
+        if (!skin.State.HasFlagFast(SkinState.AnimationsLoaded))
             return gltfAsset;
 
 
