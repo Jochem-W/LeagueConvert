@@ -25,7 +25,7 @@ public class Skeleton
     public Skeleton(string filePath) : this(File.OpenRead(filePath))
     {
     }
-    
+
     public Skeleton(Stream stream, bool leaveOpen = false)
     {
         using var br = new BinaryReader(stream, Encoding.ASCII, leaveOpen);
@@ -56,10 +56,10 @@ public class Skeleton
         if (version != 0) throw new UnsupportedFileVersionException();
 
         var flags = br.ReadUInt16();
-        
+
         var jointCount = br.ReadUInt16();
         var influencesCount = br.ReadUInt32();
-        
+
         var jointsOffset = br.ReadInt32();
         var jointIndicesOffset = br.ReadInt32();
         var influencesOffset = br.ReadInt32();

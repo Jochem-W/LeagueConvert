@@ -4,10 +4,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile;
 
 public class SimpleSkinSubMesh
 {
+    internal readonly uint IndexCount;
+    internal readonly uint StartIndex;
     internal readonly uint StartVertex;
     internal readonly uint VertexCount;
-    internal readonly uint StartIndex;
-    internal readonly uint IndexCount;
 
     public SimpleSkinSubMesh(string name, IList<ushort> indices, IList<SimpleSkinVertex> vertices)
     {

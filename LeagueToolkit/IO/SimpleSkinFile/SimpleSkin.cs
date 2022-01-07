@@ -118,7 +118,7 @@ public class SimpleSkin
 
         SubMeshes.Add(new SimpleSkinSubMesh("Base", indices, vertices));
     }
-    
+
     public void Write(string fileLocation)
     {
         Write(File.Create(fileLocation));
@@ -174,7 +174,8 @@ public class SimpleSkin
         }
 
         foreach (var subMesh in SubMeshes)
-        foreach (var vertex in subMesh.Vertices) vertex.Write(bw, VertexType);
+        foreach (var vertex in subMesh.Vertices)
+            vertex.Write(bw, VertexType);
 
         bw.Pad(16, true);
     }

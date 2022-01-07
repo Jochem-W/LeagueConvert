@@ -74,7 +74,7 @@ public class SkeletonJoint
         for (var i = 0; i < 3; i++)
         for (var j = 0; j < 4; j++)
             transform[j, i] = br.ReadSingle();
-        
+
         GlobalTransform = new Matrix4x4
         {
             M11 = transform[0, 0],
@@ -136,7 +136,7 @@ public class SkeletonJoint
         var translationMatrix = Matrix4x4.CreateTranslation(translation);
         var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
         var scaleMatrix = Matrix4x4.CreateScale(scale);
-        
+
         return scaleMatrix * rotationMatrix * translationMatrix;
     }
 

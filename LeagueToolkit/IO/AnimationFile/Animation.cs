@@ -5,7 +5,6 @@ using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
-using LeagueToolkit.IO.SkeletonFile;
 
 namespace LeagueToolkit.IO.AnimationFile;
 
@@ -293,7 +292,7 @@ public class Animation
         var frameCount = br.ReadInt32();
 
         Fps = br.ReadInt32();
-        
+
         for (var i = 0; i < trackCount; i++)
         {
             var trackName = br.ReadPaddedString(32);

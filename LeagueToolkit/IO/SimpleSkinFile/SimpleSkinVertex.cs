@@ -68,9 +68,7 @@ public class SimpleSkinVertex
         bw.WriteVector2(Uv);
 
         if (vertexType == SimpleSkinVertexType.Color)
-        {
             bw.WriteColor(Color ?? new Color(0, 0, 0, 255), ColorFormat.RgbaU8);
-        }
     }
 
     private void CalculateNormal()
