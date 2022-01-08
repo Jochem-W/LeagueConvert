@@ -3,5 +3,14 @@
 public enum SimpleSkinVertexType
 {
     Basic,
-    Color
+    Color,
+    ColorAndTangent
+}
+
+public static class SimpleSkinVertexTypeExtensions
+{
+    public static bool IsDefinedFast(this SimpleSkinVertexType simpleSkinVertexType)
+    {
+        return simpleSkinVertexType is >= SimpleSkinVertexType.Basic and <= SimpleSkinVertexType.ColorAndTangent;
+    }
 }

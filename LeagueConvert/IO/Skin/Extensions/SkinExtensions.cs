@@ -2,6 +2,7 @@ using System.Numerics;
 using ImageMagick;
 using LeagueConvert.Enums;
 using LeagueToolkit.IO.AnimationFile;
+using LeagueToolkit.IO.SimpleSkinFile;
 using Serilog;
 using SimpleGltf.Enums;
 using SimpleGltf.Extensions;
@@ -67,11 +68,18 @@ public static class SkinExtensions
             var uvAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec2, true);
             primitive.SetAttribute("TEXCOORD_0", uvAccessor);
             // FloatAccessor colourAccessor = null;
-            // if (skin.SimpleSkin.VertexType == SimpleSkinVertexType.Color)
+            // if (skin.SimpleSkin.VertexType is SimpleSkinVertexType.Color or SimpleSkinVertexType.ColorAndTangent)
             // {
             //     colourAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
             //     primitive.SetAttribute("COLOR_0", colourAccessor);
             // }
+
+            FloatAccessor tangentAccessor = null;
+            if (skin.SimpleSkin.VertexType == SimpleSkinVertexType.ColorAndTangent)
+            {
+                tangentAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
+                primitive.SetAttribute("TANGENT", tangentAccessor);
+            }
 
             UShortAccessor jointsAccessor = null;
             FloatAccessor weightsAccessor = null;
@@ -91,6 +99,8 @@ public static class SkinExtensions
                 // colourAccessor?.Write(vertex.Color!.Value.R, vertex.Color.Value.G,
                 //     vertex.Color.Value.B,
                 //     vertex.Color.Value.A);
+                tangentAccessor?.Write(vertex.Tangent.Value.X, vertex.Tangent.Value.Y, vertex.Tangent.Value.Z,
+                    vertex.Tangent.Value.W);
 
                 if (jointsAccessor != null)
                 {

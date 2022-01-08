@@ -44,8 +44,12 @@ public class SimpleSkinVertex
         else if (float.IsPositiveInfinity(uvY)) uvY = float.MaxValue;
 
         Uv = new Vector2(uvX, uvY);
-        if (vertexType == SimpleSkinVertexType.Color) Color = br.ReadColor(ColorFormat.RgbaU8);
+        if (vertexType is SimpleSkinVertexType.Color or SimpleSkinVertexType.ColorAndTangent)
+            Color = br.ReadColor(ColorFormat.RgbaU8);
+        if (vertexType == SimpleSkinVertexType.ColorAndTangent) Tangent = br.ReadVector4();
 
+        Debug.Assert(Tangent == null || Math.Abs(Math.Abs(Tangent.Value.W) - 1f) < 0.01f);
+        
         CalculateNormal();
     }
 
@@ -55,6 +59,7 @@ public class SimpleSkinVertex
     public Vector3 Normal { get; set; }
     public Vector2 Uv { get; set; }
     public Color? Color { get; set; }
+    public Vector4? Tangent { get; set; }
 
     public void Write(BinaryWriter bw, SimpleSkinVertexType vertexType)
     {
