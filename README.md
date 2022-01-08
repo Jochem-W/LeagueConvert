@@ -6,10 +6,15 @@ and animations. Contains code from
 
 ## Status
 
-This branch will not receive any more updates. If you are comfortable using the
-command-line, please check the vnext branch and/or download the latest version
-of LeagueConvert.CommandLine
-[here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext).
+This branch will not receive any more updates, please check the vnext branch
+or download the new version
+[here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext)
+(command-line only for now).
+
+There are numerous issues in the version from this branch (incorrect UVs
+and animations) that have been fixed in the vnext branch. I will not be
+backporting these fixes to this branch. If you want your models to look
+correct, use the version linked above.
 
 ## How to use | [video tutorial by Luviana (slightly outdated)](https://youtu.be/CAtiX1po4Bk)
 
