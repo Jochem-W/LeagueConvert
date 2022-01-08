@@ -14,7 +14,8 @@ namespace LeagueConvert.IO.Skin.Extensions;
 
 public static class SkinExtensions
 {
-    public static async Task<GltfAsset> GetGltfAsset(this Skin skin, bool forceScale, ILogger logger = null)
+    public static async Task<GltfAsset> GetGltfAsset(this Skin skin, bool forceScale, bool keepHiddenSubMeshes,
+        ILogger logger = null)
     {
         if (!skin.State.HasFlagFast(SkinState.MeshLoaded)) return null;
 
@@ -22,7 +23,7 @@ public static class SkinExtensions
         gltfAsset.Scene = gltfAsset.CreateScene();
         var buffer = gltfAsset.CreateBuffer();
 
-        var rootNode = await skin.CreateMeshAsync(gltfAsset, buffer);
+        var rootNode = await skin.CreateMeshAsync(gltfAsset, buffer, keepHiddenSubMeshes);
 
         if (!skin.State.HasFlagFast(SkinState.SkeletonLoaded))
         {
@@ -37,7 +38,8 @@ public static class SkinExtensions
         return gltfAsset;
     }
 
-    private static async Task<Node> CreateMeshAsync(this Skin skin, GltfAsset gltfAsset, Buffer buffer)
+    private static async Task<Node> CreateMeshAsync(this Skin skin, GltfAsset gltfAsset, Buffer buffer,
+        bool keepHiddenSubMeshes)
     {
         var rootNode = gltfAsset.CreateNode();
         gltfAsset.Scene.AddNode(rootNode);
@@ -51,6 +53,10 @@ public static class SkinExtensions
 
         foreach (var subMesh in skin.SimpleSkin.SubMeshes)
         {
+            if (!keepHiddenSubMeshes && skin.HiddenSubMeshes != null &&
+                skin.HiddenSubMeshes.Contains(subMesh.Name, StringComparer.InvariantCultureIgnoreCase))
+                continue;
+
             var primitive = rootNode.Mesh.CreatePrimitive();
 
             // Vertices

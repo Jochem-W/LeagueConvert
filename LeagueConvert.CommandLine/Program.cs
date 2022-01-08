@@ -58,6 +58,8 @@ internal static class Program
         var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
         var forceScaleOption = new Option<bool>("--force-scale", () => false,
             "Flip the X-axis even if it's not allowed by the glTF specification");
+        var keepHiddenSubMeshesOption = new Option<bool>("-k", () => false, "Keep hidden sub meshes");
+
 
         var command = new Command("convert-wad", "Convert all models in specified WAD files")
         {
@@ -67,11 +69,12 @@ internal static class Program
             animationsOption,
             gameHashOption,
             binHashesHashOption,
-            forceScaleOption
+            forceScaleOption,
+            keepHiddenSubMeshesOption
         };
 
         command.SetHandler(async (string[] wads, string outputDirectory, bool skeletons, bool animations,
-                string gameHashFile, string binHashesHashFile, bool forceScale) =>
+                string gameHashFile, string binHashesHashFile, bool forceScale, bool keepHiddenSubMeshes) =>
             {
                 if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
                     return;
@@ -84,13 +87,13 @@ internal static class Program
                     Logger.Information("Converting {File}", Path.GetFileName(path));
                     if (!TryLoadWad(path, out var wad))
                         return;
-                    await TryConvertWad(wad, mode.Value, outputDirectory, forceScale);
+                    await TryConvertWad(wad, mode.Value, outputDirectory, forceScale, keepHiddenSubMeshes);
                     wad.Dispose();
                 }
 
                 Logger.Information("Finished!");
             }, wadsArgument, outputOption, skeletonsOption, animationsOption, gameHashOption, binHashesHashOption,
-            forceScaleOption);
+            forceScaleOption, keepHiddenSubMeshesOption);
 
         return command;
     }
@@ -106,6 +109,7 @@ internal static class Program
         var binHashesHashOption = new Option<string>("-b", "Path to 'hashes.binhashes.txt'");
         var forceScaleOption = new Option<bool>("--force-scale", () => false,
             "Flip the X-axis even if it's not allowed by the glTF specification");
+        var keepHiddenSubMeshesOption = new Option<bool>("-k", () => false, "Keep hidden sub meshes");
 
         var command = new Command("convert-all", "Convert all models in WAD files in a specified directory")
         {
@@ -116,11 +120,12 @@ internal static class Program
             recurseOption,
             gameHashOption,
             binHashesHashOption,
-            forceScaleOption
+            forceScaleOption,
+            keepHiddenSubMeshesOption
         };
 
         command.SetHandler(async (string path, string outputDirectory, bool skeletons, bool animations, bool recurse,
-                string gameHashFile, string binHashesHashFile, bool forceScale) =>
+                string gameHashFile, string binHashesHashFile, bool forceScale, bool keepHiddenSubMeshes) =>
             {
                 if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
                     return;
@@ -134,13 +139,13 @@ internal static class Program
                 {
                     if (!TryLoadWad(filePath, out var wad))
                         continue;
-                    await TryConvertWad(wad, mode.Value, outputDirectory, forceScale);
+                    await TryConvertWad(wad, mode.Value, outputDirectory, forceScale, keepHiddenSubMeshes);
                     wad.Dispose();
                 }
 
                 Logger.Information("Finished!");
             }, pathArgument, outputOption, skeletonsOption, animationsOption, recurseOption, gameHashOption,
-            binHashesHashOption, forceScaleOption);
+            binHashesHashOption, forceScaleOption, keepHiddenSubMeshesOption);
 
         return command;
     }
@@ -208,12 +213,13 @@ internal static class Program
         }
     }
 
-    private static async Task<bool> TryConvertWad(StringWad wad, SkinMode mode, string outputDirectory, bool forceScale)
+    private static async Task<bool> TryConvertWad(StringWad wad, SkinMode mode, string outputDirectory, bool forceScale,
+        bool keepHiddenSubMeshes)
     {
         try
         {
             await foreach (var skin in wad.GetSkins(Logger))
-                await TryConvertSkin(skin, mode, outputDirectory, forceScale);
+                await TryConvertSkin(skin, mode, outputDirectory, forceScale, keepHiddenSubMeshes);
             return true;
         }
         catch (Exception e)
@@ -223,7 +229,8 @@ internal static class Program
         }
     }
 
-    private static async Task<bool> TryConvertSkin(Skin skin, SkinMode mode, string outputDirectory, bool forceScale)
+    private static async Task<bool> TryConvertSkin(Skin skin, SkinMode mode, string outputDirectory, bool forceScale,
+        bool keepHiddenSubMeshes)
     {
         try
         {
@@ -233,7 +240,7 @@ internal static class Program
             if (!Directory.Exists(skinDirectory))
                 Directory.CreateDirectory(skinDirectory);
 
-            await using var gltfAsset = await skin.GetGltfAsset(forceScale, Logger);
+            await using var gltfAsset = await skin.GetGltfAsset(forceScale, keepHiddenSubMeshes, Logger);
             await gltfAsset.Save(Path.Combine(skinDirectory, $"skin{skin.Id.ToString().PadLeft(2, '0')}.glb"));
             return true;
         }

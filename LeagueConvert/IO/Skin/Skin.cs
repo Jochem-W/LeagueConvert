@@ -48,6 +48,8 @@ public class Skin : IDisposable
 
     public SkinState State { get; private set; }
 
+    public IEnumerable<string> HiddenSubMeshes => _hiddenSubMeshes;
+
     public void Dispose()
     {
         if (Textures != null)
