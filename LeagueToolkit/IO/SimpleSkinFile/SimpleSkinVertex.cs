@@ -33,17 +33,8 @@ public class SimpleSkinVertex
         BoneIndices = new[] {br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte()};
         Weights = new[] {br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()};
         Normal = br.ReadVector3();
+        Uv = Vector2.Abs(new Vector2(br.ReadSingle() % 1, br.ReadSingle() % 1));
 
-        var uvX = br.ReadSingle();
-        var uvY = br.ReadSingle();
-        if (float.IsNegativeInfinity(uvX))
-            uvX = float.MinValue;
-        else if (float.IsPositiveInfinity(uvX)) uvX = float.MaxValue;
-        if (float.IsNegativeInfinity(uvY))
-            uvY = float.MinValue;
-        else if (float.IsPositiveInfinity(uvY)) uvY = float.MaxValue;
-
-        Uv = new Vector2(uvX, uvY);
         if (vertexType is SimpleSkinVertexType.Color or SimpleSkinVertexType.ColorAndTangent)
             Color = br.ReadColor(ColorFormat.RgbaU8);
         if (vertexType == SimpleSkinVertexType.ColorAndTangent) Tangent = br.ReadVector4();
