@@ -77,6 +77,10 @@ public class SimpleSkinVertex
         Normal = Vector3.Normalize(Normal);
         if (!float.IsNaN(Normal.Length())) return;
 
+        // Create a vector perpendicular to the position, then normalise
+        Normal = Vector3.Normalize(new Vector3(-Position.X, -Position.Y, Position.Z));
+        if (!float.IsNaN(Normal.Length())) return;
+
         // Extrapolate 0 --> 1 and -0 --> -1 from the original normal, then normalise
         if (!float.IsNaN(originalNormal.Length()))
         {
@@ -84,20 +88,17 @@ public class SimpleSkinVertex
             var y = BitConverter.SingleToInt32Bits(originalNormal.Y) < 0 ? -1 : 1;
             var z = BitConverter.SingleToInt32Bits(originalNormal.Z) < 0 ? -1 : 1;
             Normal = Vector3.Normalize(new Vector3(x, y, z));
-            return;
+            if (!float.IsNaN(Normal.Length())) return;
         }
-
-        // Create a vector perpendicular to the position, then normalise
-        Normal = Vector3.Normalize(new Vector3(-Position.X, -Position.Y, Position.Z));
-
+        
         // Extrapolate 0 --> 1 and -0 --> -1 from a vector perpendicular to the position, then normalise
-        if (!float.IsNaN(originalNormal.Length()))
+        if (!float.IsNaN(Position.Length()))
         {
-            var x = BitConverter.SingleToInt32Bits(originalNormal.X) < 0 ? 1 : -1;
-            var y = BitConverter.SingleToInt32Bits(originalNormal.Y) < 0 ? 1 : -1;
-            var z = BitConverter.SingleToInt32Bits(originalNormal.Z) < 0 ? -1 : 1;
+            var x = BitConverter.SingleToInt32Bits(Position.X) < 0 ? 1 : -1;
+            var y = BitConverter.SingleToInt32Bits(Position.Y) < 0 ? 1 : -1;
+            var z = BitConverter.SingleToInt32Bits(Position.Z) < 0 ? -1 : 1;
             Normal = Vector3.Normalize(new Vector3(x, y, z));
-            return;
+            if (!float.IsNaN(Normal.Length())) return;
         }
         
         Debug.Assert(!float.IsNaN(Normal.Length()));
