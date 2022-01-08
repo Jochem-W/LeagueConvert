@@ -86,6 +86,8 @@ public class SimpleSkin
         {
             var vertexSize = br.ReadUInt32();
             VertexType = (SimpleSkinVertexType) br.ReadUInt32();
+            if (!VertexType.IsDefinedFast())
+                throw new InvalidDataException($"Vertex type {VertexType} is not supported");
             var boundingBox = new R3DBox(br);
             var boundingSphere = new R3DSphere(br);
         }
