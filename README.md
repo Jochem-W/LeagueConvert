@@ -3,71 +3,67 @@
 Easily convert champion models from League of Legends to glTF, complete with
 textures and animations.
 
-## What is 'vnext'
-
-On this branch I'll be working towards the next version of LeagueConvert
-(formerly LeagueBulkConvert, might still be changed).
-
 ## Status and roadmap
 
-Initially I wanted to rewrite all of LeagueBulkConvert into a library, a command
-line version and a GUI version. I also wanted to add support for map geometry
-files, but I ran into a couple of issues. I decided the best way forward would
-be to create my own glTF writing library and also modify LeagueToolkit.
+This version was built from scratch to replace the GUI version
+(LeagueBulkConvert) and is still in development. Currently this version is
+command-line only. The builds from GitHub Actions probably work just fine, but
+there are still a few things that have to be done before I'll create a release.
+I highly recommend not using the release builds anymore because they have many
+issues that have all been fixed in this version.
+
+### Comparison to old version
+
+|                                        |   Old |                New |
+|:---------------------------------------|------:|-------------------:|
+| Aatrox conversion time                 |  16 s |               10 s |
+| Aatrox conversion time (skeleton)      |  16 s |               10 s |
+| Aatrox conversion time (animations)    | 122 s |               24 s |
+| Correct animations                     |   :x: | :heavy_check_mark: |
+| Correct UVs                            |   :x: | :heavy_check_mark: |
+| Cross platform                         |   :x: | :heavy_check_mark: |
+| No temporary files                     |   :x: | :heavy_check_mark: |
+| Support for newer models with tangents |   :x: | :heavy_check_mark: |
+| Valid glTF                             |   :x: | :heavy_check_mark: |
 
 ### SimpleGltf
 
-Currently, all necessary features have been implemented and files created by
-SimpleGltf pass glTF validation.
+SimpleGltf is a library I wrote to replace SharpGltf in the old version. This
+library probably won't be released as a standalone library.
 
-The following table contains some conversion times when using SharpGLTF (old) and
-SimpleGltf (new). SimpleGltf yields an increase in speed of up to 5 times!
-
-| Mode            | Old time | New time |
-|:--------------- | --------:| --------:|
-| MeshAndTextures | 16,5 s   | 10,4 s   |
-| WithSkeleton    | 17,8 s   | 10,5 s   |
-| WithAnimations  | 136,2 s  | 27,6 s   |
-
-To-do:
+Planned:
 
 * Optimisation/cleanup
 
 ### LeagueConvert
 
-Currently, LeagueConvert can do everything LeagueBulkConvert can do, but with
-code that isn't super terrible.
+LeagueConvert is the library that finds models and puts everything together.
 
 Planned:
 
 * Rewrite hash table loading code
 * Support for map geometry
-* Support for texture masks (if possible)
-* Optimisation/cleanup
-* Fix inconsistencies in texture loading
+* Support for textures other than diffuse
+* Move code from LeagueConvert.CommandLine to LeagueConvert
+* Optimisation/clean-up
 
 ### LeagueConvert.CommandLine
 
-Postponed until I am done with LeagueConvert. Most of the code for a
-command-line version is already in place.
+LeagueConvert.CommandLine is the command-line interface for LeagueConvert.
+
+Planned:
+
+* Clean-up
 
 ### LeagueConvert.MAUI
 
-A multiplatform user interface for LeagueConvert. Postponed until all other
-work has been finished.
-
-## Biggest changes compared to LeagueBulkConvert
-
-* No more temporary 'assets' directories
-* Much more granular control over skin parsing, loading and saving
-* Cross-platform: Windows x86/x64, Linux x86/x64/ARM (musl/glibc) and MacOS x64
-* Up to 5 times faster (see [SimpleGltf](#simplegltf))
+A multiplatform user interface for LeagueConvert. Postponed for now.
 
 ## Installation instructions
 
 1. Download the
    [.NET 6.0 Runtime](https://dotnet.microsoft.com/download/dotnet/6.0/runtime)
-3. Download the latest build (generic is cross-platform)
+2. Download the latest build (generic is cross-platform)
    [here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext)
 3. Extract the archive
 4. Run the executable or `dotnet LeagueConvert.CommandLine.dll`
