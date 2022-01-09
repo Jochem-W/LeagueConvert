@@ -35,6 +35,12 @@ Planned:
 
 * Optimisation/cleanup
 
+### LeagueToolkit
+
+I'm using a modified version of
+[LoL-Fantome/LeagueToolkit](https://github.com/LoL-Fantome/LeagueToolkit/). I
+will probably move this to a separate repository in the future.
+
 ### LeagueConvert
 
 LeagueConvert is the library that finds models and puts everything together.
