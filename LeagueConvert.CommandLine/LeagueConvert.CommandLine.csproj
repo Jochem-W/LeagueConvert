@@ -6,7 +6,6 @@
         <Version>3.0.0</Version>
         <Authors>Jochem-W</Authors>
         <ImplicitUsings>enable</ImplicitUsings>
-        <SourceRevisionId>Jochem-W/LeagueConvert+push+main+d73aef2a77101aeceb7980acca2d689241016c5b</SourceRevisionId>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(CI)' == 'true' ">
