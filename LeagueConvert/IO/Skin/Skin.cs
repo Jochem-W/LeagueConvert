@@ -15,8 +15,8 @@ namespace LeagueConvert.IO.Skin;
 
 public class Skin : IDisposable
 {
-    private readonly StringWad _parent;
     private readonly Dictionary<string, string> _animationFiles = new();
+    private readonly StringWad _parent;
     private uint? _material;
     private string _simpleSkinFile;
     private string _skeletonFile;
@@ -100,7 +100,7 @@ public class Skin : IDisposable
             {
                 var texture = FindTexture(primitive.Name);
                 if (texture == null) continue;
-                
+
                 if (!images.ContainsKey(texture))
                 {
                     await using var stream = _parent.GetEntryByName(texture).GetStream();
@@ -258,7 +258,8 @@ public class Skin : IDisposable
                             break;
                         case 2159540111: // initialSubMeshToHide
                             var initialSubMeshToHide = ((BinTreeString) property).Value;
-                            foreach (var primitive in initialSubMeshToHide.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                            foreach (var primitive in initialSubMeshToHide.Split(' ',
+                                         StringSplitOptions.RemoveEmptyEntries))
                                 HiddenPrimitives.Add(primitive);
                             break;
                         case 611473680: // materialOverride
@@ -333,7 +334,7 @@ public class Skin : IDisposable
                    hash.ToString();
         _animationFiles[name] = mAnimationFilePath;
     }
-    
+
     private void ParseStaticMaterialDef(BinTreeObject staticMaterialDef)
     {
         Debug.Assert(!StaticMaterials.ContainsKey(staticMaterialDef.PathHash));

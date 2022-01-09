@@ -185,7 +185,7 @@ public struct Color : IEquatable<Color>
             return string.Format("{0} {1} {2} {3}", B, G, R, A);
         throw new ArgumentException("Unsupported format", nameof(format));
     }
-    
+
     public static implicit operator Vector4(Color color)
     {
         return new Vector4(color.R, color.G, color.B, color.A);

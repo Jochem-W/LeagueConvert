@@ -22,7 +22,7 @@ public class WadBuilder : IDisposable
     }
 
     public ReadOnlyDictionary<ulong, WadEntryBuilder> Entries { get; }
-    
+
     public void Dispose()
     {
         Dispose(true);
@@ -33,14 +33,12 @@ public class WadBuilder : IDisposable
     {
         if (_disposedValue) return;
         if (disposing)
-        {
             foreach (var entry in _entries)
                 entry.Value.DataStream.Dispose();
-        }
 
         _disposedValue = true;
     }
-    
+
     public WadBuilder WithEntry(WadEntryBuilder entryBuilder)
     {
         if (_entries.ContainsKey(entryBuilder.PathXXHash))

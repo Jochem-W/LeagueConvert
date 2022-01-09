@@ -26,7 +26,7 @@ public static class SkinExtensions
 
         var rootNode = gltfAsset.CreateNode();
         gltfAsset.Scene.AddNode(rootNode);
-        
+
         foreach (var primitive in skin.SimpleSkin.Primitives)
         {
             if (!keepHiddenSubMeshes &&
@@ -34,7 +34,7 @@ public static class SkinExtensions
             await skin.CreateMeshAsync(gltfAsset, buffer, rootNode, keepHiddenSubMeshes);
             break;
         }
-        
+
         if (!skin.State.HasFlagFast(SkinState.SkeletonLoaded))
         {
             rootNode.Scale = new Vector3(-1, 1, 1);
@@ -43,7 +43,7 @@ public static class SkinExtensions
 
         if (rootNode.Mesh == null) return gltfAsset;
         var joints = skin.BuildSkeleton(gltfAsset, buffer, rootNode, forceScale);
-        
+
         if (rootNode.Skin == null) return gltfAsset;
 
         if (skin.State.HasFlagFast(SkinState.AnimationsLoaded)) skin.CreateAnimations(gltfAsset, buffer, joints);
@@ -116,7 +116,7 @@ public static class SkinExtensions
 
             weightsAccessor?.Write(vertex.Weights[0], vertex.Weights[1], vertex.Weights[2],
                 vertex.Weights[3]);
-                
+
             attributesBufferView.StopStride();
         }
 
@@ -147,15 +147,15 @@ public static class SkinExtensions
             gltfPrimitive.SetAttribute("TANGENT", tangentAccessor);
             gltfPrimitive.SetAttribute("JOINTS_0", jointsAccessor);
             gltfPrimitive.SetAttribute("WEIGHTS_0", weightsAccessor);
-            
+
             // Materials
             if (!skin.State.HasFlagFast(SkinState.TexturesLoaded)) continue;
             if (!skin.Textures.TryGetValue(primitive.Name, out var magickImage)) continue;
-            
+
             var material = gltfAsset.CreateMaterial(primitive.Name);
             gltfPrimitive.Material = material;
             sampler ??= gltfAsset.CreateSampler(WrappingMode.Repeat, WrappingMode.Repeat);
-            
+
             var pbrMetallicRoughness = material.CreatePbrMetallicRoughness();
             if (!textures.TryGetValue(magickImage, out var texture))
             {
@@ -165,7 +165,7 @@ public static class SkinExtensions
                 texture = gltfAsset.CreateTexture(sampler, image);
                 textures[magickImage] = texture;
             }
-            
+
             pbrMetallicRoughness.SetBaseColorTexture(texture);
         }
     }

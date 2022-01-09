@@ -222,7 +222,7 @@ public static class GltfAssetExtensions
             buffer.Index -= removed;
         }
     }
-    
+
     private static void CleanAnimations(this GltfAsset gltfAsset)
     {
         for (var i = 0; i < gltfAsset.AnimationList.Count; i++)

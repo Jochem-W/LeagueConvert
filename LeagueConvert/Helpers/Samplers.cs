@@ -21,7 +21,7 @@ public static class Samplers
         "Diffuse_Texture",
         "Diffuse",
         "DiffuseTexture",
-        "Main_Texture",
+        "Main_Texture"
         // "Secondary_Texture",
         // "ShadowTexture",
         // "Swapped_Texture",

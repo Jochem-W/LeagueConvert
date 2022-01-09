@@ -47,7 +47,7 @@ public class SimpleSkinVertex
         if (vertexType == SimpleSkinVertexType.ColorAndTangent) Tangent = br.ReadVector4();
 
         Debug.Assert(Tangent == null || Math.Abs(Math.Abs(Tangent.Value.W) - 1f) < 0.01f);
-        
+
         CalculateNormal();
     }
 
@@ -93,7 +93,7 @@ public class SimpleSkinVertex
             Normal = Vector3.Normalize(new Vector3(x, y, z));
             if (!float.IsNaN(Normal.Length())) return;
         }
-        
+
         // Extrapolate 0 --> 1 and -0 --> -1 from a vector perpendicular to the position, then normalise
         if (!float.IsNaN(Position.Length()))
         {
@@ -103,7 +103,7 @@ public class SimpleSkinVertex
             Normal = Vector3.Normalize(new Vector3(x, y, z));
             if (!float.IsNaN(Normal.Length())) return;
         }
-        
+
         Debug.Assert(!float.IsNaN(Normal.Length()));
     }
 }

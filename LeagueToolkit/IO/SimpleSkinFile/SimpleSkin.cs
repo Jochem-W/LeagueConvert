@@ -27,7 +27,7 @@ public class SimpleSkin
         {
             Primitives.Add(new SimpleSkinPrimitive(subMesh.Name, (uint) indexOffset, (uint) subMesh.Indices.Count,
                 (uint) vertexOffset, (uint) subMesh.Vertices.Count));
-            
+
             for (var i = 0; i < subMesh.Vertices.Count; i++)
             {
                 var vertex = subMesh.Vertices[i];
