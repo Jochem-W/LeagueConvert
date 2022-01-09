@@ -241,9 +241,10 @@ public static class GltfAssetExtensions
         for (var i = 0; i < gltfAsset.BufferViewList.Count; i++)
         {
             var bufferView = gltfAsset.BufferViewList[i];
-            if (bufferView.ByteLength == 0)
+            if (bufferView.ByteLength == 0 && bufferView.Accessors.Count == 0)
             {
                 gltfAsset.BufferViewList.Remove(bufferView);
+                bufferView.Buffer.BufferViews.Remove(bufferView);
                 removed++;
                 i--;
                 continue;
