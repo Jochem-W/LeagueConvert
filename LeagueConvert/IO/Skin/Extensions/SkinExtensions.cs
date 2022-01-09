@@ -126,7 +126,7 @@ public static class SkinExtensions
         var indexOffset = 0;
         foreach (var primitive in skin.SimpleSkin.Primitives)
         {
-            if (!keepHiddenSubMeshes && skin.HiddenPrimitives != null &&
+            if (!keepHiddenSubMeshes &&
                 skin.HiddenPrimitives.Contains(primitive.Name, StringComparer.InvariantCultureIgnoreCase))
                 continue;
 
