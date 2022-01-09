@@ -270,7 +270,9 @@ public class Animation
             for (var j = 0; j < trackCount; j++)
             {
                 Tracks[j].Translations.Add(time, vectors[br.ReadUInt16()]);
-                Tracks[j].Scales.Add(time, vectors[br.ReadUInt16()]);
+                var scale = vectors[br.ReadUInt16()];
+                if (float.IsNaN(scale.X) || float.IsNaN(scale.Y) || float.IsNaN(scale.Z)) scale = Vector3.One;
+                Tracks[j].Scales.Add(time, scale);
                 Tracks[j].Rotations.Add(time, rotations[br.ReadUInt16()]);
             }
 
