@@ -91,7 +91,7 @@ internal static class Program
         if (latestVersion > currentVersion) return null;
 
         Logger.Information("A new version is available: {Version}", latestVersion);
-        return new Uri(latestRelease.Url);
+        return new Uri(latestRelease.HtmlUrl);
     }
 
     private static async Task<Uri> CheckForNewBuild(IGitHubClient gitHubClient, string owner, string name, string branch, string commitSha)
