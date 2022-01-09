@@ -1,56 +1,71 @@
-﻿using System.IO;
-using System.Numerics;
-using LeagueToolkit.Helpers.Cryptography;
+﻿using System.Numerics;
 using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.IO.SkeletonFile;
 
 public class SkeletonJoint
 {
-    internal SkeletonJoint(short id, short parentId, string name, Vector3 localPosition, Vector3 localScale,
+    private Matrix4x4 _globalTransform;
+    private Matrix4x4 _inverseBindTransform;
+
+    internal SkeletonJoint(short id, short parentId, string name, Vector3 localTranslation, Vector3 localScale,
         Quaternion localRotation)
     {
-        ID = id;
-        ParentID = parentId;
+        Id = id;
+        ParentId = parentId;
         Name = name;
-        LocalTransform = ComposeLocal(localPosition, localScale, localRotation);
+        LocalTransform = Compose(localTranslation, localScale, Quaternion.Normalize(localRotation));
     }
 
-    internal SkeletonJoint(BinaryReader br, bool isLegacy, short id = 0)
+    internal SkeletonJoint(BinaryReader br)
     {
-        IsLegacy = isLegacy;
-
-        if (isLegacy)
-            ReadLegacy(br, id);
-        else
-            ReadNew(br);
+        Read(br);
     }
 
-    public bool IsLegacy { get; }
+    internal SkeletonJoint(BinaryReader br, short id)
+    {
+        ReadLegacy(br, id);
+    }
 
+    public IList<SkeletonJoint> Children { get; } = new List<SkeletonJoint>();
     public ushort Flags { get; private set; }
-    public short ID { get; private set; }
-    public short ParentID { get; private set; }
+    public short Id { get; private set; }
+    public short ParentId { get; private set; }
     public float Radius { get; private set; } = 2.1f;
     public string Name { get; private set; }
+    public uint Hash { get; internal set; }
     public Matrix4x4 LocalTransform { get; internal set; }
-    public Matrix4x4 GlobalTransform { get; internal set; }
 
-    public Matrix4x4 InverseBindTransform
+    public Matrix4x4 GlobalTransform
     {
-        get
+        get => _globalTransform;
+        internal set
         {
-            Matrix4x4.Invert(GlobalTransform, out var inverted);
-            return inverted;
+            _globalTransform = value;
+            _inverseBindTransform =
+                Matrix4x4.Invert(_globalTransform, out var inverted) ? inverted : Matrix4x4.Identity;
         }
     }
 
-    private void ReadLegacy(BinaryReader br, short id = 0)
+    public Matrix4x4 InverseBindTransform
     {
-        ID = id;
+        get => _inverseBindTransform;
+        private set
+        {
+            _inverseBindTransform = value;
+            _globalTransform = Matrix4x4.Invert(_inverseBindTransform, out var inverted)
+                ? inverted
+                : Matrix4x4.Identity;
+        }
+    }
+
+    private void ReadLegacy(BinaryReader br, short id)
+    {
+        Id = id;
         Name = br.ReadPaddedString(32);
-        ParentID = (short) br.ReadInt32();
+        ParentId = (short) br.ReadInt32();
         var scale = br.ReadSingle();
+
         var transform = new float[4, 4];
         transform[0, 3] = 0;
         transform[1, 3] = 0;
@@ -84,34 +99,39 @@ public class SkeletonJoint
         };
     }
 
-    private void ReadNew(BinaryReader br)
+    private void Read(BinaryReader br)
     {
         Flags = br.ReadUInt16();
-        ID = br.ReadInt16();
-        ParentID = br.ReadInt16();
-        br.ReadInt16(); //padding
-        var nameHash = br.ReadUInt32();
+        Id = br.ReadInt16();
+        ParentId = br.ReadInt16();
+
+        var padding = br.ReadUInt16(); // Might not be padding: not always 0.
+        Hash = br.ReadUInt32();
         Radius = br.ReadSingle();
 
         var localTranslation = br.ReadVector3();
         var localScale = br.ReadVector3();
-        var localRotation = br.ReadQuaternion();
-        LocalTransform = ComposeLocal(localTranslation, localScale, localRotation);
+        var localRotation = Quaternion.Normalize(br.ReadQuaternion());
+        var localTransform = Compose(localTranslation, localScale, localRotation);
+        localTransform *= 1 / localTransform.M44; // Is this necessary?
+        LocalTransform = localTransform;
 
         var inverseGlobalTranslation = br.ReadVector3();
         var inverseGlobalScale = br.ReadVector3();
-        var inverseGlobalRotation = br.ReadQuaternion();
-        GlobalTransform = ComposeGlobal(inverseGlobalTranslation, inverseGlobalScale, inverseGlobalRotation);
+        var inverseGlobalRotation = Quaternion.Normalize(br.ReadQuaternion());
+        var inverseBindTransform = Compose(inverseGlobalTranslation, inverseGlobalScale, inverseGlobalRotation);
+        inverseBindTransform *= 1 / inverseBindTransform.M44; // Is this necessary?
+        InverseBindTransform = inverseBindTransform;
 
         var nameOffset = br.ReadInt32();
-        var returnOffset = br.BaseStream.Position;
+        var position = br.BaseStream.Position;
 
-        br.BaseStream.Seek(returnOffset - 4 + nameOffset, SeekOrigin.Begin);
+        br.BaseStream.Seek(nameOffset - 4, SeekOrigin.Current);
         Name = br.ReadZeroTerminatedString();
-        br.BaseStream.Seek(returnOffset, SeekOrigin.Begin);
+        br.BaseStream.Seek(position, SeekOrigin.Begin);
     }
 
-    private Matrix4x4 ComposeLocal(Vector3 translation, Vector3 scale, Quaternion rotation)
+    private static Matrix4x4 Compose(Vector3 translation, Vector3 scale, Quaternion rotation)
     {
         var translationMatrix = Matrix4x4.CreateTranslation(translation);
         var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
@@ -120,43 +140,30 @@ public class SkeletonJoint
         return scaleMatrix * rotationMatrix * translationMatrix;
     }
 
-    private Matrix4x4 ComposeGlobal(Vector3 translation, Vector3 scale, Quaternion rotation)
-    {
-        var translationMatrix = Matrix4x4.CreateTranslation(translation);
-        var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
-        var scaleMatrix = Matrix4x4.CreateScale(scale);
-
-        Matrix4x4.Invert(scaleMatrix * rotationMatrix * translationMatrix, out var global);
-
-        return global;
-    }
-
-    internal void Write(BinaryWriter bw, int nameOffset)
+    internal void Write(BinaryWriter bw, long nameOffset)
     {
         bw.Write(Flags);
-        bw.Write(ID);
-        bw.Write(ParentID);
-        bw.Write((ushort) 0); // pad
-        bw.Write(Cryptography.ElfHash(Name));
+        bw.Write(Id);
+        bw.Write(ParentId);
+        bw.Write((ushort) 0); // Padding
+        bw.Write(Hash);
         bw.Write(Radius);
         WriteLocalTransform(bw);
         WriteInverseGlobalTransform(bw);
-        bw.Write(nameOffset - (int) bw.BaseStream.Position);
+        bw.Write((int) (nameOffset - bw.BaseStream.Position));
     }
 
     private void WriteLocalTransform(BinaryWriter bw)
     {
         bw.WriteVector3(LocalTransform.Translation);
         bw.WriteVector3(LocalTransform.GetScale());
-        bw.WriteQuaternion(Quaternion.CreateFromRotationMatrix(LocalTransform));
+        bw.WriteQuaternion(Quaternion.Normalize(Quaternion.CreateFromRotationMatrix(LocalTransform)));
     }
 
     private void WriteInverseGlobalTransform(BinaryWriter bw)
     {
-        var inverse = InverseBindTransform;
-
-        bw.WriteVector3(inverse.Translation);
-        bw.WriteVector3(inverse.GetScale());
-        bw.WriteQuaternion(Quaternion.CreateFromRotationMatrix(inverse));
+        bw.WriteVector3(InverseBindTransform.Translation);
+        bw.WriteVector3(InverseBindTransform.GetScale());
+        bw.WriteQuaternion(Quaternion.Normalize(Quaternion.CreateFromRotationMatrix(InverseBindTransform)));
     }
 }

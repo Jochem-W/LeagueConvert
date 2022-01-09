@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.Helpers.Structures;
@@ -9,6 +8,8 @@ namespace LeagueToolkit.Helpers.Structures;
 /// </summary>
 public class R3DBox
 {
+    public static readonly R3DBox Zero = new(Vector3.Zero, Vector3.Zero);
+
     /// <summary>
     ///     Initializes a new <see cref="R3DBox" /> instance
     /// </summary>

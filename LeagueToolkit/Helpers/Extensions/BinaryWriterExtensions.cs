@@ -1,6 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
+using System.Text;
 using LeagueToolkit.Helpers.Structures;
 
 namespace LeagueToolkit.Helpers.Extensions;
@@ -114,5 +113,28 @@ internal static class BinaryWriterExtensions
         writer.Write(matrix.M42);
         writer.Write(matrix.M43);
         writer.Write(matrix.M44);
+    }
+
+    public static void Pad(this BinaryWriter writer, int bytes, bool write = false)
+    {
+        var remainder = (int) writer.BaseStream.Position % bytes;
+        var count = remainder == 0 ? 0 : bytes - remainder;
+        if (write)
+        {
+            for (var i = 0; i < count; i++) writer.Write((byte) 0);
+            return;
+        }
+
+        writer.Seek(count, SeekOrigin.Current);
+    }
+
+    public static long WriteZeroTerminatedString(this BinaryWriter writer, string data)
+    {
+        writer.Pad(4);
+        var position = writer.BaseStream.Position;
+        writer.Write(Encoding.ASCII.GetBytes(data));
+        writer.Write((byte) 0);
+        writer.Pad(4, true);
+        return position;
     }
 }

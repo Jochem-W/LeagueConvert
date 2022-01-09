@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace LeagueToolkit.IO.NavigationGridOverlay;
+﻿namespace LeagueToolkit.IO.NavigationGridOverlay;
 
 public class NavigationGridOverlayRegion
 {

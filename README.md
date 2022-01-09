@@ -1,103 +1,78 @@
-# LeagueBulkConvert
+# LeagueConvert
 
-Convert champion models from League of Legends to glTF, with automatic textures
-and animations. Contains code from
-[LoL-Fantome/LeagueToolkit](https://github.com/LoL-Fantome/LeagueToolkit).
+Easily convert champion models from League of Legends to glTF, complete with
+textures and animations.
 
-## Status
+## Status and roadmap
 
-This branch will not receive any more updates, please check the vnext branch
-or download the new version
-[here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext)
-(command-line only for now).
+This version was built from scratch to replace the GUI version
+(LeagueBulkConvert) and is still in development. Currently this version is
+command-line only. The builds from GitHub Actions probably work just fine, but
+there are still a few things that have to be done before I'll create a release.
+I highly recommend not using the release builds anymore because they have many
+issues that have all been fixed in this version.
 
-There are numerous issues in the version from this branch (incorrect UVs
-and animations) that have been fixed in the vnext branch. I will not be
-backporting these fixes to this branch. If you want your models to look
-correct, use the version linked above.
+### Comparison to old version
 
-## How to use | [video tutorial by Luviana (slightly outdated)](https://youtu.be/CAtiX1po4Bk)
+|                                        |   Old |                New |
+|:---------------------------------------|------:|-------------------:|
+| Aatrox conversion time                 |  16 s |               10 s |
+| Aatrox conversion time (skeleton)      |  16 s |               10 s |
+| Aatrox conversion time (animations)    | 122 s |               24 s |
+| Correct animations                     |   :x: | :heavy_check_mark: |
+| Correct UVs                            |   :x: | :heavy_check_mark: |
+| Cross platform                         |   :x: | :heavy_check_mark: |
+| No temporary files                     |   :x: | :heavy_check_mark: |
+| Support for newer models with tangents |   :x: | :heavy_check_mark: |
+| Valid glTF                             |   :x: | :heavy_check_mark: |
 
-1. Extract the .zip file
-2. Run LeagueBulkConvert.exe
-3. Select your League of Legends installation directory
-4. Select an output directory
-5. Select the desired options
-6. Choose which champion WADs to convert
-7. Wait for the conversion to finish
+### SimpleGltf
 
-## To-do
+SimpleGltf is a library I wrote to replace SharpGltf in the old version. This
+library probably won't be released as a standalone library.
 
-* Automatically search for a League installation directory
-* Add support for
-  [LoL-Fantome/LeagueDownloader](https://github.com/LoL-Fantome/LeagueDownloader)
+Planned:
 
-## Options
+* Optimisation/cleanup
 
-* **League install directory**: the path to the "League of Legends" folder, e.g.
-  "C:\Riot Games\League of Legends"
+### LeagueConvert
 
-* **Output directory**: the path to the directory you'd like the model files to
-  end up, e.g. "D:\LeagueBulkConvert"
+LeagueConvert is the library that finds models and puts everything together.
 
-* **Add hash tables**: import hash tables on top of the latest available 
-  version (you can select multiple)
+Planned:
 
-* **Include skeleton**: include the skeleton for each skin
+* Rewrite hash table loading code
+* Support for map geometry
+* Support for textures other than diffuse
+* Move code from LeagueConvert.CommandLine to LeagueConvert
+* Optimisation/clean-up
 
-* **Include animations**: include the skin's animations
+### LeagueConvert.CommandLine
 
-* **Include hidden meshes**: include meshes that would normally be hidden, like
-  meshes used for the recall animation
+LeagueConvert.CommandLine is the command-line interface for LeagueConvert.
 
-* **Save as separate files (.gltf)**: save the model as a .gltf, with separate
-  .bin and .png files
+Planned:
 
-## Troubleshooting
+* Clean-up
 
-### Why are some skins not converted?
+### LeagueConvert.MAUI
 
-Some skins or entire characters can't be converted because the hashfiles in
-[CommunityDragon/CDTB](https://github.com/CommunityDragon/CDTB) haven't been
-updated yet. I might add an option to automatically generate updated hashfiles.
+A multiplatform user interface for LeagueConvert. Postponed for now.
 
-### Why can't some files be parsed?
+## Installation instructions
 
-Some files can't be parsed, because
-[LoL-Fantome/LeagueToolkit](https://github.com/LoL-Fantome/LeagueToolkit)
-doesn't support them. Please open an issue there!
+1. Download the
+   [.NET 6.0 Runtime](https://dotnet.microsoft.com/download/dotnet/6.0/runtime)
+2. Download the latest build (generic is cross-platform)
+   [here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext)
+3. Extract the archive
+4. Run the executable or `dotnet LeagueConvert.CommandLine.dll`
 
-### Why can't some skins be saved?
+## Set-up instructions for developing
 
-Some skins can't be saved with a skeleton or with animations, probably because
-of issues in [vpenades/SharpGLTF](https://github.com/vpenades/SharpGLTF). I
-might look into this later.
-
-### What happened to the `IgnoreMeshes` option?
-
-I got rid of it because I couldn't think of any good use cases. If you need this
-option, feel free to open an issue.
-
-### What happened to the `IgnoreCharacters` option?
-
-I initially added this option to cut down on unnecessary export directories. Now
-that you have to manually select the WADs you want to convert, this option
-doesn't make sense anymore. I won't be adding this option back in.
-
-### What happened to the `ScaleList` option?
-
-I got rid of it because the default setting is pretty much as good as it gets.
-If you need this option, feel free to open an issue.
-
-### What happened to the `ExtractFormats` option?
-
-I got rid of it because this option didn't make sense in the first place. This
-program should only extract files that it needs for conversion. If you want to
-extract other files from WADs, use
-[Crauzer/Obsidian](https://github.com/Crauzer/Obsidian).
-
-### What happened to the `SamplerNames` option?
-
-I got rid of it because the vast majority of users will never need to change
-this option and because it isn't up to the user to add sampler names. If any
-sampler names are missing, please open an issue.
+1. Clone the source code
+2. Install the .NET 6.0 SDK. I recommend installing Visual Studio 2022 with the
+   '.NET desktop development' workload and the optional 'Development tools for
+   .NET' component
+3. Optionally install Rider, which is in my opinion a much better IDE
+4. Open the .sln

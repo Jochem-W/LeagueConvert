@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using LeagueToolkit.Helpers.Structures;
-using LeagueToolkit.IO.OBJ;
 
 namespace LeagueToolkit.IO.NVR;
 
@@ -70,63 +66,6 @@ public class NVRMesh
         bw.Write(MaterialIndex);
         IndexedPrimitives[0].Write(bw);
         IndexedPrimitives[1].Write(bw);
-    }
-
-    public static Tuple<List<NVRVertex>, List<int>> GetGeometryFromOBJ(OBJFile objFile)
-    {
-        var vertices = new List<NVRVertex>();
-        var indices = new List<int>();
-
-        // We first add all the vertices in a list.
-        var objVertices = new List<NVRVertex>();
-        foreach (var position in objFile.Vertices) objVertices.Add(new NVRVertex8(position));
-        foreach (var face in objFile.Faces)
-            for (var i = 0; i < 3; i++)
-            {
-                var position = (NVRVertex8) objVertices[(int) face.VertexIndices[i]];
-                var UV = new Vector2(0, 0);
-                if (objFile.UVs.Count > 0) UV = objFile.UVs[(int) face.UVIndices[i]];
-                var normal = new Vector3(0, 0, 0);
-                if (objFile.Normals.Count > 0) normal = objFile.Normals[(int) face.NormalIndices[i]];
-
-                if (position.UV != null && position.Normal != null &&
-                    (!position.UV.Equals(UV) || !position.Normal.Equals(normal)))
-                    // Needs to replicate
-                    position = new NVRVertex8(position.Position);
-                position.UV = UV;
-                position.Normal = normal;
-                position.DiffuseColor = new Color(0, 0, 0, 255);
-                position.EmissiveColor = new Color(0.5f, 0.5f, 0.5f, 1f);
-
-                var vertexIndex = vertices.IndexOf(position);
-                if (vertexIndex == -1)
-                {
-                    vertexIndex = vertices.Count;
-                    vertices.Add(position);
-                }
-
-                indices.Add(vertexIndex);
-            }
-
-        //for (int i = 0; i < indices.Count; i += 3)
-        //{
-        //    NVRVertex8 v1 = (NVRVertex8)vertices[indices[i]];
-        //    NVRVertex8 v2 = (NVRVertex8)vertices[indices[i + 1]];
-        //    NVRVertex8 v3 = (NVRVertex8)vertices[indices[i + 2]];
-        //    Vector3 faceNormal = CalcNormal(v1.Position, v2.Position, v3.Position);
-        //    v1.Normal = v1.Normal + faceNormal;
-        //    v2.Normal = v2.Normal + faceNormal;
-        //    v3.Normal = v3.Normal + faceNormal;
-        //}
-        //foreach (NVRVertex8 vert in vertices)
-        //{
-        //    float length = (float)Math.Sqrt(Math.Pow(vert.Normal.X, 2) + Math.Pow(vert.Normal.Y, 2) + Math.Pow(vert.Normal.Z, 2));
-        //    vert.Normal.X = vert.Normal.X / length;
-        //    vert.Normal.Y = vert.Normal.Y / length;
-        //    vert.Normal.Z = vert.Normal.Z / length;
-        //}
-
-        return new Tuple<List<NVRVertex>, List<int>>(vertices, indices);
     }
 
     private static Vector3 CalcNormal(Vector3 v1, Vector3 v2, Vector3 v3)

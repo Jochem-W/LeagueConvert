@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Numerics;
 using System.Reflection;
 using LeagueToolkit.Helpers;

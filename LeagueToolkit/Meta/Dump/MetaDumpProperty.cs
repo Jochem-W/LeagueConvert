@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using LeagueToolkit.IO.PropertyBin;
 using Newtonsoft.Json;
 

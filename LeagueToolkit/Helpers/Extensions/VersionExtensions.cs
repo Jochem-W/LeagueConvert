@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LeagueToolkit.Helpers.Extensions;
+﻿namespace LeagueToolkit.Helpers.Extensions;
 
 public static class VersionExtensions
 {

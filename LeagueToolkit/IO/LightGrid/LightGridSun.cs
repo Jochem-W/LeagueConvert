@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace LeagueToolkit.IO.LightGrid;
+﻿namespace LeagueToolkit.IO.LightGrid;
 
 public class LightGridSun
 {

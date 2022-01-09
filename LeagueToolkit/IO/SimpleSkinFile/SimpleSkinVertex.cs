@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
 using System.Numerics;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
@@ -13,7 +13,7 @@ public class SimpleSkinVertex
         BoneIndices = boneIndices;
         Weights = weights;
         Normal = normal;
-        UV = uv;
+        Uv = uv;
     }
 
     public SimpleSkinVertex(Vector3 position, byte[] boneIndices, float[] weights, Vector3 normal, Vector2 uv,
@@ -23,7 +23,7 @@ public class SimpleSkinVertex
         BoneIndices = boneIndices;
         Weights = weights;
         Normal = normal;
-        UV = uv;
+        Uv = uv;
         Color = color;
     }
 
@@ -33,17 +33,31 @@ public class SimpleSkinVertex
         BoneIndices = new[] {br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte()};
         Weights = new[] {br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()};
         Normal = br.ReadVector3();
-        UV = br.ReadVector2();
 
-        if (vertexType == SimpleSkinVertexType.Color) Color = br.ReadColor(ColorFormat.RgbaU8);
+        var uvX = br.ReadSingle();
+        var uvY = br.ReadSingle();
+        if (float.IsPositiveInfinity(uvX)) uvX = float.MaxValue;
+        else if (float.IsNegativeInfinity(uvX)) uvX = float.MinValue;
+        if (float.IsPositiveInfinity(uvY)) uvY = float.MaxValue;
+        else if (float.IsNegativeInfinity(uvY)) uvY = float.MinValue;
+        Uv = new Vector2(uvX, uvY);
+
+        if (vertexType is SimpleSkinVertexType.Color or SimpleSkinVertexType.ColorAndTangent)
+            Color = br.ReadColor(ColorFormat.RgbaU8);
+        if (vertexType == SimpleSkinVertexType.ColorAndTangent) Tangent = br.ReadVector4();
+
+        Debug.Assert(Tangent == null || Math.Abs(Math.Abs(Tangent.Value.W) - 1f) < 0.01f);
+        
+        CalculateNormal();
     }
 
     public Vector3 Position { get; set; }
     public byte[] BoneIndices { get; set; }
     public float[] Weights { get; set; }
     public Vector3 Normal { get; set; }
-    public Vector2 UV { get; set; }
+    public Vector2 Uv { get; set; }
     public Color? Color { get; set; }
+    public Vector4? Tangent { get; set; }
 
     public void Write(BinaryWriter bw, SimpleSkinVertexType vertexType)
     {
@@ -54,20 +68,42 @@ public class SimpleSkinVertex
         for (var i = 0; i < 4; i++) bw.Write(Weights[i]);
 
         bw.WriteVector3(Normal);
-        bw.WriteVector2(UV);
+        bw.WriteVector2(Uv);
 
         if (vertexType == SimpleSkinVertexType.Color)
-        {
-            if (Color.HasValue)
-                bw.WriteColor(Color.Value, ColorFormat.RgbaU8);
-            else
-                bw.WriteColor(new Color(0, 0, 0, 255), ColorFormat.RgbaU8);
-        }
+            bw.WriteColor(Color ?? new Color(0, 0, 0, 255), ColorFormat.RgbaU8);
     }
-}
 
-public enum SimpleSkinVertexType : uint
-{
-    Basic,
-    Color
+    private void CalculateNormal()
+    {
+        var originalNormal = Normal;
+        Normal = Vector3.Normalize(Normal);
+        if (!float.IsNaN(Normal.Length())) return;
+
+        // Create a vector perpendicular to the position, then normalise
+        Normal = Vector3.Normalize(new Vector3(-Position.X, -Position.Y, Position.Z));
+        if (!float.IsNaN(Normal.Length())) return;
+
+        // Extrapolate 0 --> 1 and -0 --> -1 from the original normal, then normalise
+        if (!float.IsNaN(originalNormal.Length()))
+        {
+            var x = BitConverter.SingleToInt32Bits(originalNormal.X) < 0 ? -1 : 1;
+            var y = BitConverter.SingleToInt32Bits(originalNormal.Y) < 0 ? -1 : 1;
+            var z = BitConverter.SingleToInt32Bits(originalNormal.Z) < 0 ? -1 : 1;
+            Normal = Vector3.Normalize(new Vector3(x, y, z));
+            if (!float.IsNaN(Normal.Length())) return;
+        }
+        
+        // Extrapolate 0 --> 1 and -0 --> -1 from a vector perpendicular to the position, then normalise
+        if (!float.IsNaN(Position.Length()))
+        {
+            var x = BitConverter.SingleToInt32Bits(Position.X) < 0 ? 1 : -1;
+            var y = BitConverter.SingleToInt32Bits(Position.Y) < 0 ? 1 : -1;
+            var z = BitConverter.SingleToInt32Bits(Position.Z) < 0 ? -1 : 1;
+            Normal = Vector3.Normalize(new Vector3(x, y, z));
+            if (!float.IsNaN(Normal.Length())) return;
+        }
+        
+        Debug.Assert(!float.IsNaN(Normal.Length()));
+    }
 }

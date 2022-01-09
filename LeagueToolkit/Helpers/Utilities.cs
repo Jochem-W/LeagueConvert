@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using LeagueToolkit.IO.SkeletonFile;
+﻿using LeagueToolkit.IO.SkeletonFile;
 using LeagueToolkit.IO.WadFile;
 
 namespace LeagueToolkit.Helpers;
@@ -95,7 +93,7 @@ public static class Utilities
         {
             return LeagueFileType.JpegImage;
         }
-        else if (BitConverter.ToInt32(magicData, 4) == Skeleton.FORMAT_TOKEN)
+        else if (BitConverter.ToInt32(magicData, 4) == Skeleton.FormatToken)
         {
             return LeagueFileType.Skeleton;
         }

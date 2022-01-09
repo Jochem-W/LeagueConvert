@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using LeagueToolkit.Helpers.Structures.BucketGrid;
 using LeagueToolkit.IO.NVR;
 using LeagueToolkit.IO.WorldGeometry;

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Authors>Jochem-W</Authors>
+        <TargetFramework>net6.0</TargetFramework>
+        <Version>3.0.0</Version>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Octokit" Version="0.50.0"/>
+        <PackageReference Include="Serilog" Version="2.10.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj"/>
+        <ProjectReference Include="..\SimpleGltf\SimpleGltf.csproj"/>
+    </ItemGroup>
+
+</Project>

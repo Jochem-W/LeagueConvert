@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text;
 using LeagueToolkit.Helpers.Exceptions;
+using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.IO.WGT;
@@ -12,34 +10,36 @@ namespace LeagueToolkit.IO.SimpleSkinFile;
 
 public class SimpleSkin
 {
-    public SimpleSkin(List<SimpleSkinSubmesh> submeshes)
+    public const int Magic = 0x00112233;
+
+    public SimpleSkin(IList<SimpleSkinPrimitive> primitives, SimpleSkinVertexType vertexType)
     {
-        Submeshes = submeshes;
+        Primitives = primitives;
+        VertexType = vertexType;
     }
 
     public SimpleSkin(StaticObject staticObject, WGTFile weightFile)
     {
-        var staticObjectIndices = staticObject.GetIndices();
-        var staticObjectVertices = staticObject.GetVertices();
-
-        var currentVertexOffset = 0;
-        foreach (var submesh in staticObject.Submeshes)
+        // Untested
+        var vertexOffset = 0;
+        var indexOffset = 0;
+        foreach (var subMesh in staticObject.Submeshes)
         {
-            // Build vertices
-            List<SimpleSkinVertex> vertices = new(staticObjectVertices.Count);
-            for (var i = 0; i < submesh.Vertices.Count; i++)
+            Primitives.Add(new SimpleSkinPrimitive(subMesh.Name, (uint) indexOffset, (uint) subMesh.Indices.Count,
+                (uint) vertexOffset, (uint) subMesh.Vertices.Count));
+            
+            for (var i = 0; i < subMesh.Vertices.Count; i++)
             {
-                var vertex = submesh.Vertices[i];
-                var weightData = weightFile.Weights[i + currentVertexOffset];
-
-                vertices.Add(new SimpleSkinVertex(vertex.Position, weightData.BoneIndices, weightData.Weights,
+                var vertex = subMesh.Vertices[i];
+                var weightData = weightFile.Weights[i + vertexOffset];
+                Vertices.Add(new SimpleSkinVertex(vertex.Position, weightData.BoneIndices, weightData.Weights,
                     Vector3.Zero, vertex.UV));
             }
 
-            Submeshes.Add(new SimpleSkinSubmesh(submesh.Name, submesh.Indices.Select(x => (ushort) x).ToList(),
-                vertices));
+            foreach (var index in subMesh.Indices) Indices.Add((ushort) index);
 
-            currentVertexOffset += submesh.Vertices.Count;
+            vertexOffset += subMesh.Vertices.Count;
+            indexOffset += subMesh.Indices.Count;
         }
     }
 
@@ -49,128 +49,112 @@ public class SimpleSkin
 
     public SimpleSkin(Stream stream, bool leaveOpen = false)
     {
-        using (var br = new BinaryReader(stream, Encoding.UTF8, leaveOpen))
+        using var br = new BinaryReader(stream, Encoding.ASCII, leaveOpen);
+        var magic = br.ReadUInt32();
+        if (magic != Magic) throw new InvalidFileSignatureException();
+
+        var major = br.ReadUInt16();
+        var minor = br.ReadUInt16();
+        switch (major)
         {
-            var magic = br.ReadUInt32();
-            if (magic != 0x00112233) throw new InvalidFileSignatureException();
-
-            var major = br.ReadUInt16();
-            var minor = br.ReadUInt16();
-            if (major != 0 && major != 2 && major != 4 && minor != 1) throw new UnsupportedFileVersionException();
-
-            uint indexCount = 0;
-            uint vertexCount = 0;
-            var vertexType = SimpleSkinVertexType.Basic;
-            if (major == 0)
-            {
-                indexCount = br.ReadUInt32();
-                vertexCount = br.ReadUInt32();
-            }
-            else
-            {
-                var submeshCount = br.ReadUInt32();
-
-                for (var i = 0; i < submeshCount; i++) Submeshes.Add(new SimpleSkinSubmesh(br));
-                if (major == 4)
-                {
-                    var flags = br.ReadUInt32();
-                }
-
-                indexCount = br.ReadUInt32();
-                vertexCount = br.ReadUInt32();
-
-                var vertexSize = major == 4 ? br.ReadUInt32() : 52;
-                vertexType = major == 4 ? (SimpleSkinVertexType) br.ReadUInt32() : SimpleSkinVertexType.Basic;
-                var boundingBox = major == 4 ? new R3DBox(br) : new R3DBox(Vector3.Zero, Vector3.Zero);
-                var boundingSphere = major == 4 ? new R3DSphere(br) : R3DSphere.Infinite;
-            }
-
-            var indices = new List<ushort>();
-            var vertices = new List<SimpleSkinVertex>();
-            for (var i = 0; i < indexCount; i++) indices.Add(br.ReadUInt16());
-            for (var i = 0; i < vertexCount; i++) vertices.Add(new SimpleSkinVertex(br, vertexType));
-
-            if (major == 0)
-                Submeshes.Add(new SimpleSkinSubmesh("Base", indices, vertices));
-            else
-                foreach (var submesh in Submeshes)
-                {
-                    var submeshIndices = indices.GetRange((int) submesh._startIndex, (int) submesh._indexCount);
-                    var minIndex = submeshIndices.Min();
-
-                    submesh.Indices = submeshIndices.Select(x => x -= minIndex).ToList();
-                    submesh.Vertices = vertices.GetRange((int) submesh._startVertex, (int) submesh._vertexCount);
-                }
+            case 1 or 2 or 4 when minor == 1:
+                Read(br, major);
+                break;
+            case 0 when minor == 1:
+                ReadLegacy(br);
+                break;
+            default:
+                throw new UnsupportedFileVersionException();
         }
     }
 
-    public List<SimpleSkinSubmesh> Submeshes { get; } = new();
+    public IList<SimpleSkinPrimitive> Primitives { get; } = new List<SimpleSkinPrimitive>();
+    public IList<SimpleSkinVertex> Vertices { get; } = new List<SimpleSkinVertex>();
+    public IList<ushort> Indices { get; } = new List<ushort>();
+    public SimpleSkinVertexType VertexType { get; private set; } = SimpleSkinVertexType.Basic;
+
+    private void Read(BinaryReader br, int major)
+    {
+        var primitiveCount = br.ReadUInt32();
+        for (var i = 0; i < primitiveCount; i++) Primitives.Add(new SimpleSkinPrimitive(br));
+
+        if (major == 4)
+        {
+            var flags = br.ReadUInt32();
+        }
+
+        var indexCount = br.ReadUInt32();
+        var vertexCount = br.ReadUInt32();
+
+        if (major == 4)
+        {
+            var vertexSize = br.ReadUInt32();
+            VertexType = (SimpleSkinVertexType) br.ReadUInt32();
+            if (!VertexType.IsDefinedFast())
+                throw new InvalidDataException($"Vertex type {VertexType} is not supported");
+            var boundingBox = new R3DBox(br);
+            var boundingSphere = new R3DSphere(br);
+        }
+
+        for (var i = 0; i < indexCount; i++) Indices.Add(br.ReadUInt16());
+        for (var i = 0; i < vertexCount; i++) Vertices.Add(new SimpleSkinVertex(br, VertexType));
+    }
+
+    private void ReadLegacy(BinaryReader br)
+    {
+        var indexCount = br.ReadUInt32();
+        var vertexCount = br.ReadUInt32();
+
+        Primitives.Add(new SimpleSkinPrimitive("Base", 0, indexCount, 0, vertexCount));
+
+        for (var i = 0; i < indexCount; i++) Indices.Add(br.ReadUInt16());
+        for (var i = 0; i < vertexCount; i++) Vertices.Add(new SimpleSkinVertex(br, VertexType));
+    }
 
     public void Write(string fileLocation)
     {
         Write(File.Create(fileLocation));
     }
 
-    public void Write(Stream stream)
+    public void Write(Stream stream, bool leaveOpen = false)
     {
-        using (var bw = new BinaryWriter(stream))
+        using var bw = new BinaryWriter(stream, Encoding.ASCII, leaveOpen);
+        bw.Write(Magic);
+
+        bw.Write((ushort) 4); // Major version
+        bw.Write((ushort) 1); // Minor version
+
+        bw.Write(Primitives.Count);
+
+        foreach (var primitive in Primitives) primitive.Write(bw);
+
+        bw.Write((uint) 0); // Flags
+
+        bw.Write(Indices.Count);
+        bw.Write(Vertices.Count);
+
+        switch (VertexType)
         {
-            bw.Write(0x00112233);
-            bw.Write((ushort) 4);
-            bw.Write((ushort) 1);
-            bw.Write(Submeshes.Count);
-
-            var hasVertexColors = false;
-            uint indexCount = 0;
-            uint vertexCount = 0;
-            foreach (var submesh in Submeshes)
-            {
-                if (!hasVertexColors)
-                    foreach (var vertex in submesh.Vertices)
-                        if (vertex.Color != null)
-                        {
-                            hasVertexColors = true;
-                            break;
-                        }
-
-                submesh.Write(bw, vertexCount, indexCount);
-
-                indexCount += (uint) submesh.Indices.Count;
-                vertexCount += (uint) submesh.Vertices.Count;
-            }
-
-            bw.Write((uint) 0); //Flags
-            bw.Write(indexCount);
-            bw.Write(vertexCount);
-            if (hasVertexColors)
-            {
-                bw.Write((uint) 56);
-                bw.Write((uint) SimpleSkinVertexType.Color);
-            }
-            else
-            {
-                bw.Write((uint) 52);
-                bw.Write((uint) SimpleSkinVertexType.Basic);
-            }
-
-            var box = GetBoundingBox();
-            box.Write(bw);
-            box.GetBoundingSphere().Write(bw);
-
-            ushort indexOffset = 0;
-            foreach (var submesh in Submeshes)
-            {
-                foreach (var index in submesh.Indices.Select(x => x += indexOffset)) bw.Write(index);
-
-                indexOffset += submesh.Indices.Max();
-            }
-
-            foreach (var submesh in Submeshes)
-            foreach (var vertex in submesh.Vertices)
-                vertex.Write(bw, hasVertexColors ? SimpleSkinVertexType.Color : SimpleSkinVertexType.Basic);
-
-            bw.Write(new byte[12]); //End tab
+            case SimpleSkinVertexType.Basic:
+                bw.Write((uint) (12 * sizeof(float) + 4 * sizeof(byte)));
+                break;
+            case SimpleSkinVertexType.Color:
+                bw.Write((uint) (12 * sizeof(float) + 8 * sizeof(byte)));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
+
+        bw.Write((uint) VertexType);
+
+        var box = GetBoundingBox();
+        box.Write(bw);
+        box.GetBoundingSphere().Write(bw);
+
+        foreach (var index in Indices) bw.Write(index);
+        foreach (var vertex in Vertices) vertex.Write(bw, VertexType);
+
+        bw.Pad(16, true);
     }
 
     public R3DBox GetBoundingBox()
@@ -178,8 +162,7 @@ public class SimpleSkin
         var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
         var max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-        foreach (var submesh in Submeshes)
-        foreach (var vertex in submesh.Vertices)
+        foreach (var vertex in Vertices)
         {
             if (min.X > vertex.Position.X) min.X = vertex.Position.X;
             if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;

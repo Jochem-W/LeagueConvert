@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace LeagueToolkit.Helpers.Structures.BucketGrid;
+﻿namespace LeagueToolkit.Helpers.Structures.BucketGrid;
 
 public class BucketGridBucket
 {

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
+﻿using System.Collections.ObjectModel;
 using System.IO.Compression;
 using System.Text;
-using ZstdSharp;
+using ImpromptuNinjas.ZStd;
 
 namespace LeagueToolkit.IO.WadFile;
 
@@ -99,9 +96,10 @@ public class WadBuilder : IDisposable
             }
             else if (entryBuilder.EntryType == WadEntryType.ZStandardCompressed)
             {
-                using (var zstdStream = new ZstdStream(compressedStream, ZstdStreamMode.Compress, true))
+                using (var compressStream = new ZStdCompressStream(compressedStream))
                 {
-                    entryBuilder.DataStream.CopyTo(zstdStream);
+                    entryBuilder.DataStream.CopyTo(compressStream);
+                    compressStream.Flush();
                 }
 
                 entryBuilder.DataStream = compressedStream;

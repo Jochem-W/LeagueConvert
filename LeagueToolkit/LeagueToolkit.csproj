@@ -5,23 +5,14 @@
         <Version>2.4.3</Version>
         <Authors>Crauzer, Jochem-W</Authors>
         <Description>Library for Parsing and Editing file formats from League of Legends</Description>
-        <Platforms>x64</Platforms>
-        <AssemblyName>LeagueToolkit</AssemblyName>
-        <RootNamespace>LeagueToolkit</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="SharpGLTF.Core.dll"/>
-        <None Remove="SharpGLTF.Toolkit.dll"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="FlatSharp" Version="6.0.4"/>
-        <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="8.5.0"/>
+        <PackageReference Include="ImpromptuNinjas.ZStd" Version="1.4.5.5"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020"/>
         <PackageReference Include="XXHash3.NET" Version="1.2.2"/>
-        <PackageReference Include="ZstdSharp" Version="0.7.2"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -30,12 +21,4 @@
             <PackagePath></PackagePath>
         </None>
     </ItemGroup>
-
-    <ItemGroup>
-        <Resource Include="SharpGLTF.Core.dll"/>
-        <Resource Include="SharpGLTF.Toolkit.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Resource>
-    </ItemGroup>
-
 </Project>
