@@ -44,7 +44,7 @@ public static class SkinExtensions
     private static async Task CreateMeshAsync(this Skin skin, GltfAsset gltfAsset, Buffer buffer, Node rootNode,
         bool keepHiddenSubMeshes)
     {
-        if (skin.SimpleSkin.Vertices.Count == 0) return;
+        if (skin.SimpleSkin.Primitives.Count == 0) return;
         rootNode.Mesh = gltfAsset.CreateMesh();
 
         // Indices, this might write unused data if keepHiddenSubMeshes is true
