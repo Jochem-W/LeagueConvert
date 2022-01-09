@@ -41,7 +41,10 @@ public static class SkinExtensions
             return gltfAsset;
         }
 
+        if (rootNode.Mesh == null) return gltfAsset;
         var joints = skin.BuildSkeleton(gltfAsset, buffer, rootNode, forceScale);
+        
+        if (rootNode.Skin == null) return gltfAsset;
 
         if (skin.State.HasFlagFast(SkinState.AnimationsLoaded)) skin.CreateAnimations(gltfAsset, buffer, joints);
 
