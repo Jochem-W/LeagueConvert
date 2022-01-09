@@ -12,9 +12,9 @@ public class SimpleSkin
 {
     public const int Magic = 0x00112233;
 
-    public SimpleSkin(IList<SimpleSkinSubMesh> subMeshes, SimpleSkinVertexType vertexType)
+    public SimpleSkin(IList<SimpleSkinPrimitive> primitives, SimpleSkinVertexType vertexType)
     {
-        SubMeshes = subMeshes;
+        Primitives = primitives;
         VertexType = vertexType;
     }
 
@@ -35,7 +35,7 @@ public class SimpleSkin
                     Vector3.Zero, vertex.UV);
             }
 
-            SubMeshes.Add(new SimpleSkinSubMesh(subMesh.Name, indices, vertices));
+            Primitives.Add(new SimpleSkinPrimitive(subMesh.Name, indices, vertices));
 
             indexOffset += subMesh.Vertices.Count;
         }
@@ -66,13 +66,13 @@ public class SimpleSkin
         }
     }
 
-    public IList<SimpleSkinSubMesh> SubMeshes { get; } = new List<SimpleSkinSubMesh>();
+    public IList<SimpleSkinPrimitive> Primitives { get; } = new List<SimpleSkinPrimitive>();
     public SimpleSkinVertexType VertexType { get; private set; } = SimpleSkinVertexType.Basic;
 
     private void Read(BinaryReader br, int major)
     {
-        var subMeshCount = br.ReadUInt32();
-        for (var i = 0; i < subMeshCount; i++) SubMeshes.Add(new SimpleSkinSubMesh(br));
+        var primitiveCount = br.ReadUInt32();
+        for (var i = 0; i < primitiveCount; i++) Primitives.Add(new SimpleSkinPrimitive(br));
 
         if (major == 4)
         {
@@ -97,13 +97,13 @@ public class SimpleSkin
         for (var i = 0; i < indexCount; i++) indices.Add(br.ReadUInt16());
         for (var i = 0; i < vertexCount; i++) vertices.Add(new SimpleSkinVertex(br, VertexType));
 
-        foreach (var subMesh in SubMeshes)
+        foreach (var primitive in Primitives)
         {
-            subMesh.Indices = indices
-                .GetRange((int) subMesh.StartIndex, (int) subMesh.IndexCount)
-                .Select(i => (ushort) (i - subMesh.StartVertex))
+            primitive.Indices = indices
+                .GetRange((int) primitive.StartIndex, (int) primitive.IndexCount)
+                .Select(i => (ushort) (i - primitive.StartVertex))
                 .ToList();
-            subMesh.Vertices = vertices.GetRange((int) subMesh.StartVertex, (int) subMesh.VertexCount);
+            primitive.Vertices = vertices.GetRange((int) primitive.StartVertex, (int) primitive.VertexCount);
         }
     }
 
@@ -118,7 +118,7 @@ public class SimpleSkin
         for (var i = 0; i < indexCount; i++) indices.Add(br.ReadUInt16());
         for (var i = 0; i < vertexCount; i++) vertices.Add(new SimpleSkinVertex(br, VertexType));
 
-        SubMeshes.Add(new SimpleSkinSubMesh("Base", indices, vertices));
+        Primitives.Add(new SimpleSkinPrimitive("Base", indices, vertices));
     }
 
     public void Write(string fileLocation)
@@ -134,15 +134,15 @@ public class SimpleSkin
         bw.Write((ushort) 4); // Major version
         bw.Write((ushort) 1); // Minor version
 
-        bw.Write(SubMeshes.Count);
+        bw.Write(Primitives.Count);
 
         uint vertexCount = 0;
         uint indexCount = 0;
-        foreach (var subMesh in SubMeshes)
+        foreach (var primitive in Primitives)
         {
-            subMesh.Write(bw, vertexCount, indexCount);
-            vertexCount += (uint) subMesh.Vertices.Count;
-            indexCount += (uint) subMesh.Indices.Count;
+            primitive.Write(bw, vertexCount, indexCount);
+            vertexCount += (uint) primitive.Vertices.Count;
+            indexCount += (uint) primitive.Indices.Count;
         }
 
         bw.Write((uint) 0); // Flags
@@ -169,14 +169,14 @@ public class SimpleSkin
         box.GetBoundingSphere().Write(bw);
 
         uint indexOffset = 0;
-        foreach (var subMesh in SubMeshes)
+        foreach (var primitive in Primitives)
         {
-            foreach (var index in subMesh.Indices) bw.Write((ushort) (index + indexOffset));
-            indexOffset += (uint) subMesh.Vertices.Count;
+            foreach (var index in primitive.Indices) bw.Write((ushort) (index + indexOffset));
+            indexOffset += (uint) primitive.Vertices.Count;
         }
 
-        foreach (var subMesh in SubMeshes)
-        foreach (var vertex in subMesh.Vertices)
+        foreach (var primitive in Primitives)
+        foreach (var vertex in primitive.Vertices)
             vertex.Write(bw, VertexType);
 
         bw.Pad(16, true);
@@ -187,8 +187,8 @@ public class SimpleSkin
         var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
         var max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-        foreach (var subMesh in SubMeshes)
-        foreach (var vertex in subMesh.Vertices)
+        foreach (var primitive in Primitives)
+        foreach (var vertex in primitive.Vertices)
         {
             if (min.X > vertex.Position.X) min.X = vertex.Position.X;
             if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;

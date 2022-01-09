@@ -95,10 +95,10 @@ public class Skin : IDisposable
         SetDefaultTexture();
         Textures = new Dictionary<string, IMagickImage>();
         var images = new Dictionary<string, IMagickImage>();
-        foreach (var subMesh in SimpleSkin.SubMeshes)
+        foreach (var primitive in SimpleSkin.Primitives)
             try
             {
-                var texture = FindTexture(subMesh.Name);
+                var texture = FindTexture(primitive.Name);
                 if (texture == null) continue;
                 
                 if (!images.ContainsKey(texture))
@@ -107,7 +107,7 @@ public class Skin : IDisposable
                     images[texture] = new MagickImage(stream);
                 }
 
-                Textures[subMesh.Name] = images[texture];
+                Textures[primitive.Name] = images[texture];
             }
             catch (Exception e)
             {

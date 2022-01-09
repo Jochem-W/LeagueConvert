@@ -24,7 +24,9 @@ public static class SkinExtensions
         gltfAsset.Scene = gltfAsset.CreateScene();
         var buffer = gltfAsset.CreateBuffer();
 
-        var rootNode = await skin.CreateMeshAsync(gltfAsset, buffer, keepHiddenSubMeshes);
+        var rootNode = gltfAsset.CreateNode();
+        gltfAsset.Scene.AddNode(rootNode);
+        await skin.CreateMeshAsync(gltfAsset, buffer, rootNode, keepHiddenSubMeshes);
 
         if (!skin.State.HasFlagFast(SkinState.SkeletonLoaded))
         {
@@ -39,11 +41,9 @@ public static class SkinExtensions
         return gltfAsset;
     }
 
-    private static async Task<Node> CreateMeshAsync(this Skin skin, GltfAsset gltfAsset, Buffer buffer,
+    private static async Task CreateMeshAsync(this Skin skin, GltfAsset gltfAsset, Buffer buffer, Node rootNode,
         bool keepHiddenSubMeshes)
     {
-        var rootNode = gltfAsset.CreateNode();
-        gltfAsset.Scene.AddNode(rootNode);
         rootNode.Mesh = gltfAsset.CreateMesh();
         var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
         var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
@@ -52,21 +52,21 @@ public static class SkinExtensions
         Sampler sampler = null;
         var textures = new Dictionary<IMagickImage, Texture>();
 
-        foreach (var subMesh in skin.SimpleSkin.SubMeshes)
+        foreach (var primitive in skin.SimpleSkin.Primitives)
         {
             if (!keepHiddenSubMeshes && skin.HiddenSubMeshes != null &&
-                skin.HiddenSubMeshes.Contains(subMesh.Name, StringComparer.InvariantCultureIgnoreCase))
+                skin.HiddenSubMeshes.Contains(primitive.Name, StringComparer.InvariantCultureIgnoreCase))
                 continue;
 
-            var primitive = rootNode.Mesh.CreatePrimitive();
+            var gltfPrimitive = rootNode.Mesh.CreatePrimitive();
 
             // Vertices
             var positionAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
-            primitive.SetAttribute("POSITION", positionAccessor);
+            gltfPrimitive.SetAttribute("POSITION", positionAccessor);
             var normalAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
-            primitive.SetAttribute("NORMAL", normalAccessor);
+            gltfPrimitive.SetAttribute("NORMAL", normalAccessor);
             var uvAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec2, true);
-            primitive.SetAttribute("TEXCOORD_0", uvAccessor);
+            gltfPrimitive.SetAttribute("TEXCOORD_0", uvAccessor);
             // FloatAccessor colourAccessor = null;
             // if (skin.SimpleSkin.VertexType is SimpleSkinVertexType.Color or SimpleSkinVertexType.ColorAndTangent)
             // {
@@ -78,7 +78,7 @@ public static class SkinExtensions
             if (skin.SimpleSkin.VertexType == SimpleSkinVertexType.ColorAndTangent)
             {
                 tangentAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
-                primitive.SetAttribute("TANGENT", tangentAccessor);
+                gltfPrimitive.SetAttribute("TANGENT", tangentAccessor);
             }
 
             UShortAccessor jointsAccessor = null;
@@ -86,12 +86,12 @@ public static class SkinExtensions
             if (skin.State.HasFlagFast(SkinState.SkeletonLoaded))
             {
                 jointsAccessor = gltfAsset.CreateUShortAccessor(attributesBufferView, AccessorType.Vec4, true);
-                primitive.SetAttribute("JOINTS_0", jointsAccessor);
+                gltfPrimitive.SetAttribute("JOINTS_0", jointsAccessor);
                 weightsAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
-                primitive.SetAttribute("WEIGHTS_0", weightsAccessor);
+                gltfPrimitive.SetAttribute("WEIGHTS_0", weightsAccessor);
             }
 
-            foreach (var vertex in subMesh.Vertices)
+            foreach (var vertex in primitive.Vertices)
             {
                 positionAccessor.Write(vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
                 normalAccessor.Write(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
@@ -128,17 +128,17 @@ public static class SkinExtensions
 
             // Indices
             var indicesAccessor = gltfAsset.CreateUShortAccessor(indicesBufferView, AccessorType.Scalar);
-            primitive.Indices = indicesAccessor;
-            foreach (var index in subMesh.Indices) indicesAccessor.Write(index);
+            gltfPrimitive.Indices = indicesAccessor;
+            foreach (var index in primitive.Indices) indicesAccessor.Write(index);
             indicesBufferView.StopStride();
 
 
             // Materials
             if (!skin.State.HasFlagFast(SkinState.TexturesLoaded)) continue;
-            if (!skin.Textures.TryGetValue(subMesh.Name, out var magickImage)) continue;
+            if (!skin.Textures.TryGetValue(primitive.Name, out var magickImage)) continue;
 
-            var material = gltfAsset.CreateMaterial(subMesh.Name);
-            primitive.Material = material;
+            var material = gltfAsset.CreateMaterial(primitive.Name);
+            gltfPrimitive.Material = material;
             sampler ??= gltfAsset.CreateSampler(WrappingMode.ClampToEdge, WrappingMode.ClampToEdge);
 
             var pbrMetallicRoughness = material.CreatePbrMetallicRoughness();
@@ -153,8 +153,6 @@ public static class SkinExtensions
 
             pbrMetallicRoughness.SetBaseColorTexture(texture);
         }
-
-        return rootNode;
     }
 
     private static IReadOnlyList<Node> BuildSkeleton(this Skin skin, GltfAsset gltfAsset,

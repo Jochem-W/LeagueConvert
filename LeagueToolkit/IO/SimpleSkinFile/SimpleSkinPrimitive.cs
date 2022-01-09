@@ -2,21 +2,21 @@
 
 namespace LeagueToolkit.IO.SimpleSkinFile;
 
-public class SimpleSkinSubMesh
+public class SimpleSkinPrimitive
 {
     internal readonly uint IndexCount;
     internal readonly uint StartIndex;
     internal readonly uint StartVertex;
     internal readonly uint VertexCount;
 
-    public SimpleSkinSubMesh(string name, IList<ushort> indices, IList<SimpleSkinVertex> vertices)
+    public SimpleSkinPrimitive(string name, IList<ushort> indices, IList<SimpleSkinVertex> vertices)
     {
         Name = name;
         Indices = indices;
         Vertices = vertices;
     }
 
-    public SimpleSkinSubMesh(BinaryReader br)
+    public SimpleSkinPrimitive(BinaryReader br)
     {
         Name = Encoding.ASCII.GetString(br.ReadBytes(64)).Replace("\0", "");
         StartVertex = br.ReadUInt32();
