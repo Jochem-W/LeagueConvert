@@ -147,7 +147,7 @@ public static class SkinExtensions
             
             var material = gltfAsset.CreateMaterial(primitive.Name);
             gltfPrimitive.Material = material;
-            sampler ??= gltfAsset.CreateSampler(WrappingMode.ClampToEdge, WrappingMode.ClampToEdge);
+            sampler ??= gltfAsset.CreateSampler(WrappingMode.Repeat, WrappingMode.Repeat);
             
             var pbrMetallicRoughness = material.CreatePbrMetallicRoughness();
             if (!textures.TryGetValue(magickImage, out var texture))
