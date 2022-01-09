@@ -23,6 +23,7 @@ issues that have all been fixed in this version.
 | Correct UVs                            |   :x: | :heavy_check_mark: |
 | Cross platform                         |   :x: | :heavy_check_mark: |
 | No temporary files                     |   :x: | :heavy_check_mark: |
+| Smart update check                     |   :x: | :heavy_check_mark: |
 | Support for newer models with tangents |   :x: | :heavy_check_mark: |
 | Valid glTF                             |   :x: | :heavy_check_mark: |
 
