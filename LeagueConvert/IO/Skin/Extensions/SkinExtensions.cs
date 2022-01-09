@@ -44,14 +44,80 @@ public static class SkinExtensions
     private static async Task CreateMeshAsync(this Skin skin, GltfAsset gltfAsset, Buffer buffer, Node rootNode,
         bool keepHiddenSubMeshes)
     {
+        if (skin.SimpleSkin.Vertices.Count == 0) return;
         rootNode.Mesh = gltfAsset.CreateMesh();
-        var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
+
+        // Indices, this might write unused data if keepHiddenSubMeshes is true
         var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
         indicesBufferView.StopStride();
+        var indicesAccessor = gltfAsset.CreateUShortAccessor(indicesBufferView, AccessorType.Scalar);
+        foreach (var index in skin.SimpleSkin.Indices) indicesAccessor.Write(index);
 
+        // Vertices, this might write unused data if keepHiddenSubMeshes is true
+        var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
+        var positionAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
+        var normalAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
+        var uvAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec2, true);
+        // FloatAccessor colourAccessor = null;
+        // if (skin.SimpleSkin.VertexType is SimpleSkinVertexType.Color or SimpleSkinVertexType.ColorAndTangent)
+        // {
+        //     colourAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
+        //     primitive.SetAttribute("COLOR_0", colourAccessor);
+        // }
+
+        FloatAccessor tangentAccessor = null;
+        if (skin.SimpleSkin.VertexType == SimpleSkinVertexType.ColorAndTangent)
+            tangentAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
+
+        UShortAccessor jointsAccessor = null;
+        FloatAccessor weightsAccessor = null;
+        if (skin.State.HasFlagFast(SkinState.SkeletonLoaded))
+        {
+            jointsAccessor = gltfAsset.CreateUShortAccessor(attributesBufferView, AccessorType.Vec4, true);
+            weightsAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
+        }
+
+        foreach (var vertex in skin.SimpleSkin.Vertices)
+        {
+            positionAccessor.Write(vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
+            normalAccessor.Write(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+            uvAccessor.Write(vertex.Uv.X, vertex.Uv.Y);
+            // colourAccessor?.Write(vertex.Color!.Value.R, vertex.Color.Value.G,
+            //     vertex.Color.Value.B,
+            //     vertex.Color.Value.A);
+            tangentAccessor?.Write(vertex.Tangent.Value.X, vertex.Tangent.Value.Y, vertex.Tangent.Value.Z,
+                vertex.Tangent.Value.W);
+
+            if (jointsAccessor != null)
+            {
+                var joints = new List<ushort>();
+                for (var i = 0; i < 4; i++)
+                {
+                    if (vertex.Weights[i] == 0)
+                    {
+                        joints.Add(0);
+                        continue;
+                    }
+
+                    joints.Add((ushort) skin.Skeleton.Influences[vertex.BoneIndices[i]]);
+                }
+
+                jointsAccessor.Write(joints.ToArray());
+            }
+
+            weightsAccessor?.Write(vertex.Weights[0], vertex.Weights[1], vertex.Weights[2],
+                vertex.Weights[3]);
+                
+            attributesBufferView.StopStride();
+        }
+
+        // Materials
         Sampler sampler = null;
         var textures = new Dictionary<IMagickImage, Texture>();
 
+        // Write vertices and indices and create materials
+        var vertexOffset = 0;
+        var indexOffset = 0;
         foreach (var primitive in skin.SimpleSkin.Primitives)
         {
             if (!keepHiddenSubMeshes && skin.HiddenSubMeshes != null &&
@@ -60,87 +126,29 @@ public static class SkinExtensions
 
             var gltfPrimitive = rootNode.Mesh.CreatePrimitive();
 
-            // Vertices
-            var positionAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
-            gltfPrimitive.SetAttribute("POSITION", positionAccessor);
-            var normalAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec3, true);
-            gltfPrimitive.SetAttribute("NORMAL", normalAccessor);
-            var uvAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec2, true);
-            gltfPrimitive.SetAttribute("TEXCOORD_0", uvAccessor);
-            // FloatAccessor colourAccessor = null;
-            // if (skin.SimpleSkin.VertexType is SimpleSkinVertexType.Color or SimpleSkinVertexType.ColorAndTangent)
-            // {
-            //     colourAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
-            //     primitive.SetAttribute("COLOR_0", colourAccessor);
-            // }
-
-            FloatAccessor tangentAccessor = null;
-            if (skin.SimpleSkin.VertexType == SimpleSkinVertexType.ColorAndTangent)
-            {
-                tangentAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
-                gltfPrimitive.SetAttribute("TANGENT", tangentAccessor);
-            }
-
-            UShortAccessor jointsAccessor = null;
-            FloatAccessor weightsAccessor = null;
-            if (skin.State.HasFlagFast(SkinState.SkeletonLoaded))
-            {
-                jointsAccessor = gltfAsset.CreateUShortAccessor(attributesBufferView, AccessorType.Vec4, true);
-                gltfPrimitive.SetAttribute("JOINTS_0", jointsAccessor);
-                weightsAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
-                gltfPrimitive.SetAttribute("WEIGHTS_0", weightsAccessor);
-            }
-
-            foreach (var vertex in primitive.Vertices)
-            {
-                positionAccessor.Write(vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
-                normalAccessor.Write(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
-                uvAccessor.Write(vertex.Uv.X, vertex.Uv.Y);
-                // colourAccessor?.Write(vertex.Color!.Value.R, vertex.Color.Value.G,
-                //     vertex.Color.Value.B,
-                //     vertex.Color.Value.A);
-                tangentAccessor?.Write(vertex.Tangent.Value.X, vertex.Tangent.Value.Y, vertex.Tangent.Value.Z,
-                    vertex.Tangent.Value.W);
-
-                if (jointsAccessor != null)
-                {
-                    var joints = new List<ushort>();
-                    for (var i = 0; i < 4; i++)
-                    {
-                        if (vertex.Weights[i] == 0)
-                        {
-                            joints.Add(0);
-                            continue;
-                        }
-
-                        joints.Add((ushort) skin.Skeleton.Influences[vertex.BoneIndices[i]]);
-                    }
-
-                    jointsAccessor.Write(joints.ToArray());
-                }
-
-                weightsAccessor?.Write(vertex.Weights[0], vertex.Weights[1], vertex.Weights[2],
-                    vertex.Weights[3]);
-            }
-
-            attributesBufferView.StopStride();
-
-
-            // Indices
-            var indicesAccessor = gltfAsset.CreateUShortAccessor(indicesBufferView, AccessorType.Scalar);
+            // Create a new index accessor if necessary
+            indicesAccessor ??= gltfAsset.CreateUShortAccessor(indicesBufferView, AccessorType.Scalar);
+            indicesAccessor.Count = (int) primitive.IndexCount;
+            indicesAccessor.SetOffset((int) primitive.IndexOffset);
             gltfPrimitive.Indices = indicesAccessor;
-            foreach (var index in primitive.Indices) indicesAccessor.Write(index);
-            indicesBufferView.StopStride();
+            indicesAccessor = null;
 
-
+            // Set vertex attributes
+            gltfPrimitive.SetAttribute("POSITION", positionAccessor);
+            gltfPrimitive.SetAttribute("NORMAL", normalAccessor);
+            gltfPrimitive.SetAttribute("TEXCOORD_0", uvAccessor);
+            gltfPrimitive.SetAttribute("TANGENT", tangentAccessor);
+            gltfPrimitive.SetAttribute("JOINTS_0", jointsAccessor);
+            gltfPrimitive.SetAttribute("WEIGHTS_0", weightsAccessor);
+            
             // Materials
             if (!skin.State.HasFlagFast(SkinState.TexturesLoaded)) continue;
             if (!skin.Textures.TryGetValue(primitive.Name, out var magickImage)) continue;
-
+            
             var material = gltfAsset.CreateMaterial(primitive.Name);
             gltfPrimitive.Material = material;
             sampler ??= gltfAsset.CreateSampler(WrappingMode.ClampToEdge, WrappingMode.ClampToEdge);
-
+            
             var pbrMetallicRoughness = material.CreatePbrMetallicRoughness();
             if (!textures.TryGetValue(magickImage, out var texture))
             {
@@ -150,7 +158,7 @@ public static class SkinExtensions
                 texture = gltfAsset.CreateTexture(sampler, image);
                 textures[magickImage] = texture;
             }
-
+            
             pbrMetallicRoughness.SetBaseColorTexture(texture);
         }
     }

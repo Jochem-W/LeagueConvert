@@ -4,40 +4,39 @@ namespace LeagueToolkit.IO.SimpleSkinFile;
 
 public class SimpleSkinPrimitive
 {
-    internal readonly uint IndexCount;
-    internal readonly uint StartIndex;
-    internal readonly uint StartVertex;
-    internal readonly uint VertexCount;
-
-    public SimpleSkinPrimitive(string name, IList<ushort> indices, IList<SimpleSkinVertex> vertices)
+    public SimpleSkinPrimitive(string name, uint indexOffset, uint indexCount, uint vertexOffset, uint vertexCount)
     {
         Name = name;
-        Indices = indices;
-        Vertices = vertices;
+        IndexOffset = indexOffset;
+        IndexCount = indexCount;
+        VertexOffset = vertexOffset;
+        VertexCount = vertexCount;
     }
 
     public SimpleSkinPrimitive(BinaryReader br)
     {
         Name = Encoding.ASCII.GetString(br.ReadBytes(64)).Replace("\0", "");
-        StartVertex = br.ReadUInt32();
+        VertexOffset = br.ReadUInt32();
         VertexCount = br.ReadUInt32();
-        StartIndex = br.ReadUInt32();
+        IndexOffset = br.ReadUInt32();
         IndexCount = br.ReadUInt32();
     }
 
     public string Name { get; set; }
-    public IList<SimpleSkinVertex> Vertices { get; set; }
-    public IList<ushort> Indices { get; set; }
+    public uint IndexCount { get; }
+    public uint IndexOffset { get; }
+    public uint VertexCount { get; }
+    public uint VertexOffset { get; }
 
-    public void Write(BinaryWriter bw, uint startVertex, uint startIndex)
+    public void Write(BinaryWriter bw)
     {
         var position = bw.BaseStream.Position;
         bw.Write(Encoding.ASCII.GetBytes(Name));
         var nameLength = bw.BaseStream.Position - position;
         if (nameLength < 64) bw.Seek((int) (64 - nameLength), SeekOrigin.Current);
-        bw.Write(startVertex);
-        bw.Write(Vertices.Count);
-        bw.Write(startIndex);
-        bw.Write(Indices.Count);
+        bw.Write(VertexOffset);
+        bw.Write(VertexCount);
+        bw.Write(IndexOffset);
+        bw.Write(IndexCount);
     }
 }
