@@ -8,13 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Octokit" Version="0.50.0"/>
-        <PackageReference Include="Serilog" Version="2.10.0"/>
+        <PackageReference Include="Octokit" Version="0.50.0" />
+        <PackageReference Include="Serilog" Version="2.10.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj"/>
-        <ProjectReference Include="..\SimpleGltf\SimpleGltf.csproj"/>
+        <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
+        <ProjectReference Include="..\SimpleGltf\SimpleGltf.csproj" />
     </ItemGroup>
 
 </Project>

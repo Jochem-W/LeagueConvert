@@ -1,10 +1,13 @@
 ﻿using System.CommandLine;
 using System.Reflection;
+using System.Text.Json.Nodes;
 using LeagueConvert.Enums;
 using LeagueConvert.IO.HashTables;
 using LeagueConvert.IO.Skin;
 using LeagueConvert.IO.Skin.Extensions;
 using LeagueConvert.IO.WadFile;
+using Octokit;
+using Octokit.Extensions.Models;
 using Serilog;
 using SimpleGltf.Json.Extensions;
 
@@ -16,7 +19,15 @@ internal static class Program
 
     private static async Task<int> Main(string[] args)
     {
-        await TryCheckForUpdates();
+        try
+        {
+            await CheckForUpdates();
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "An error occurred while checking for updates");
+        }
+        
         var rootCommand = new RootCommand
         {
             GetConvertWadCommand(),
@@ -25,24 +36,82 @@ internal static class Program
         return await rootCommand.InvokeAsync(args);
     }
 
-    private static async Task<bool> TryCheckForUpdates()
+    private static async Task CheckForUpdates()
     {
-        try
+        var assembly = Assembly.GetExecutingAssembly();
+        var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        if (informationalVersion == null)
         {
-            var assembly = Assembly.GetExecutingAssembly().GetName();
-            var httpClient = new HttpClient();
-            var latestVersion = new Version(await httpClient.GetStringAsync(
-                $"https://api.jochemw.workers.dev/products/{assembly.Name?.ToLower()}/version/latest"));
-            httpClient.Dispose();
-            if (assembly.Version?.CompareTo(latestVersion) < 0)
-                Logger.Information("A new version of {Name} is available: {Version}", assembly.Name, latestVersion);
-            return true;
+            Logger.Error("Update check failed: could not determine current version");
+            return;
         }
-        catch (Exception e)
+
+        var split = informationalVersion.InformationalVersion.Split('+');
+        if (split.Length == 1) return;
+
+        if (split.Length != 5)
         {
-            Logger.Error(e, "Update check failed");
-            return false;
+            Logger.Error("Update check failed: invalid version format {Version}",
+                informationalVersion.InformationalVersion);
+            return;
         }
+        
+        var currentVersion = new Version(split[0]);
+        var repository = split[1].Split('/');
+        var owner = repository[0];
+        var name = repository[1];
+        var eventName = split[2];
+        var reference = split[3];
+        var commitSha = split[4];
+
+        var gitHubClient = new GitHubClient(new ProductHeaderValue(name));
+
+        Uri uri;
+        switch (eventName)
+        {
+            case "push":
+                uri = await CheckForNewRelease(gitHubClient, owner, name, currentVersion);
+                if (uri == null) uri = await CheckForNewBuild(gitHubClient, owner, name, reference, commitSha);
+                break;
+            case "release":
+                uri = await CheckForNewRelease(gitHubClient, owner, name, currentVersion);
+                break;
+            default:
+                uri = null;
+                break;
+        }
+
+        if (uri != null) Logger.Information("Download link: {Uri}", uri);
+    }
+
+    private static async Task<Uri> CheckForNewRelease(IGitHubClient gitHubClient, string owner, string name, Version currentVersion)
+    {
+        var latestRelease = await gitHubClient.Repository.Release.GetLatest(owner, name);
+        var latestVersion = new Version(latestRelease.TagName.Remove(0, 1));
+        if (latestVersion == currentVersion) return null;
+
+        Logger.Information("A new version is available: {Version}", latestVersion);
+        return new Uri(latestRelease.Url);
+    }
+
+    private static async Task<Uri> CheckForNewBuild(IGitHubClient gitHubClient, string owner, string name, string branch, string commitSha)
+    {
+        var apiResponse = await gitHubClient.Connection.Get<ActionRunsResponse>(
+            new Uri(
+                $"https://api.github.com/repos/{owner}/{name}/actions/runs?branch={branch}&event=push&status=success&per_page=1"),
+            TimeSpan.FromSeconds(5));
+
+        if (apiResponse?.Body == null || apiResponse.Body.TotalCount == 0)
+        {
+            Logger.Error("Error while checking for updates: no builds found");
+            return null;
+        }
+
+        var run = apiResponse.Body.WorkflowRuns[0];
+        if (run.HeadSha == commitSha) return null;
+        
+        Logger.Information("A new build is available: {Commit}", run.HeadSha);
+        return new Uri(run.HtmlUrl);
     }
 
     private static Command GetConvertWadCommand()
@@ -134,7 +203,7 @@ internal static class Program
                 if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
                     return;
                 var searchOption = recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-                foreach (var filePath in Directory.EnumerateFiles(path, "*.wad.client", searchOption)
+                foreach (var filePath in Directory.EnumerateFiles(path, "*.wad.gitHubClient", searchOption)
                              .Where(filePath => Path.GetFileName(filePath).Count(character => character == '.') == 2))
                 {
                     if (!TryLoadWad(filePath, out var wad))
