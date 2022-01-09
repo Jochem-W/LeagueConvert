@@ -123,7 +123,7 @@ public static class GltfAssetExtensions
 
         await WriteJson(binaryWriter, gltfAsset);
 
-        foreach (var buffer in gltfAsset.Buffers)
+        foreach (var buffer in gltfAsset.BufferList)
             await WriteChunk(binaryWriter, "BIN", buffer.Stream);
 
         binaryWriter.Seek(8, SeekOrigin.Begin);
