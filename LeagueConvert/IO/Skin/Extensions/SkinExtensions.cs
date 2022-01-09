@@ -30,7 +30,7 @@ public static class SkinExtensions
         foreach (var primitive in skin.SimpleSkin.Primitives)
         {
             if (!keepHiddenSubMeshes &&
-                !skin.HiddenPrimitives.Contains(primitive.Name, StringComparer.InvariantCultureIgnoreCase)) continue;
+                skin.HiddenPrimitives.Contains(primitive.Name, StringComparer.InvariantCultureIgnoreCase)) continue;
             await skin.CreateMeshAsync(gltfAsset, buffer, rootNode, keepHiddenSubMeshes);
             break;
         }
