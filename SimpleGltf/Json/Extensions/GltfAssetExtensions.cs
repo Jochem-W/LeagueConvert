@@ -173,7 +173,7 @@ public static class GltfAssetExtensions
 
     private static async Task WriteBuffers(this GltfAsset gltfAsset)
     {
-        foreach (var buffer in gltfAsset.Buffers)
+        foreach (var buffer in gltfAsset.BufferList)
         {
             if (buffer.Stream != null)
                 await buffer.Stream.DisposeAsync();
