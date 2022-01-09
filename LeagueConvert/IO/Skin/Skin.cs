@@ -36,7 +36,7 @@ public class Skin : IDisposable
     public int Id { get; }
     public string Name { get; private set; }
     public SkinState State { get; private set; }
-    public IList<string> HiddenSubMeshes { get; private set; }
+    public IList<string> HiddenPrimitives { get; } = new List<string>();
     public IList<MaterialOverride> MaterialOverrides { get; } = new List<MaterialOverride>();
     public IDictionary<uint, StaticMaterial> StaticMaterials { get; } = new Dictionary<uint, StaticMaterial>();
     public SimpleSkin SimpleSkin { get; private set; }
@@ -258,7 +258,8 @@ public class Skin : IDisposable
                             break;
                         case 2159540111: // initialSubMeshToHide
                             var initialSubMeshToHide = ((BinTreeString) property).Value;
-                            HiddenSubMeshes = initialSubMeshToHide.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            foreach (var primitive in initialSubMeshToHide.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                                HiddenPrimitives.Add(primitive);
                             break;
                         case 611473680: // materialOverride
                             foreach (var materialOverride in ((BinTreeContainer) property).Properties)
