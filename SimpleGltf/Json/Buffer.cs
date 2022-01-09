@@ -17,5 +17,5 @@ public class Buffer : IIndexable
 
     public int ByteLength => (int) Stream.Length;
 
-    [JsonIgnore] public int Index { get; }
+    [JsonIgnore] public int Index { get; internal set; }
 }

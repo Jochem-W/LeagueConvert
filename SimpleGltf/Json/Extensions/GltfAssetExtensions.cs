@@ -196,12 +196,33 @@ public static class GltfAssetExtensions
 
     private static void Clean(this GltfAsset gltfAsset)
     {
+        // TODO: maybe check accessors too
         if (gltfAsset.BufferViews != null)
             gltfAsset.CleanBufferViews();
         if (gltfAsset.Animations != null)
             gltfAsset.CleanAnimations();
+        if (gltfAsset.Buffers != null)
+            gltfAsset.CleanBuffers();
     }
 
+    private static void CleanBuffers(this GltfAsset gltfAsset)
+    {
+        var removed = 0;
+        for (var i = 0; i < gltfAsset.BufferList.Count; i++)
+        {
+            var buffer = gltfAsset.BufferList[i];
+            if (buffer.BufferViews.Count == 0)
+            {
+                gltfAsset.BufferList.RemoveAt(i);
+                removed++;
+                i--;
+                continue;
+            }
+
+            buffer.Index -= removed;
+        }
+    }
+    
     private static void CleanAnimations(this GltfAsset gltfAsset)
     {
         for (var i = 0; i < gltfAsset.AnimationList.Count; i++)
