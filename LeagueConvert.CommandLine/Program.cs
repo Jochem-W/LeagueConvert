@@ -1,6 +1,5 @@
 ﻿using System.CommandLine;
 using System.Reflection;
-using System.Text.Json.Nodes;
 using LeagueConvert.Enums;
 using LeagueConvert.IO.HashTables;
 using LeagueConvert.IO.Skin;
@@ -27,7 +26,7 @@ internal static class Program
         {
             Logger.Error(e, "An error occurred while checking for updates");
         }
-        
+
         var rootCommand = new RootCommand
         {
             GetConvertWadCommand(),
@@ -55,7 +54,7 @@ internal static class Program
                 informationalVersion.InformationalVersion);
             return;
         }
-        
+
         var currentVersion = new Version(split[0]);
         var repository = split[1].Split('/');
         var owner = repository[0];
@@ -84,7 +83,8 @@ internal static class Program
         if (uri != null) Logger.Information("Download link: {Uri}", uri);
     }
 
-    private static async Task<Uri> CheckForNewRelease(IGitHubClient gitHubClient, string owner, string name, Version currentVersion)
+    private static async Task<Uri> CheckForNewRelease(IGitHubClient gitHubClient, string owner, string name,
+        Version currentVersion)
     {
         var latestRelease = await gitHubClient.Repository.Release.GetLatest(owner, name);
         var latestVersion = new Version(latestRelease.TagName.Remove(0, 1));
@@ -94,7 +94,8 @@ internal static class Program
         return new Uri(latestRelease.HtmlUrl);
     }
 
-    private static async Task<Uri> CheckForNewBuild(IGitHubClient gitHubClient, string owner, string name, string branch, string commitSha)
+    private static async Task<Uri> CheckForNewBuild(IGitHubClient gitHubClient, string owner, string name,
+        string branch, string commitSha)
     {
         var apiResponse = await gitHubClient.Connection.Get<ActionRunsResponse>(
             new Uri(
@@ -109,7 +110,7 @@ internal static class Program
 
         var run = apiResponse.Body.WorkflowRuns[0];
         if (run.HeadSha == commitSha) return null;
-        
+
         Logger.Information("A new build is available: {Commit}", run.HeadSha);
         return new Uri(run.HtmlUrl);
     }

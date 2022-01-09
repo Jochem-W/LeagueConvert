@@ -15,10 +15,11 @@ public class ActionRunsResponse
         TotalCount = totalCount;
         WorkflowRuns = workflowRuns;
     }
-    
+
     public int TotalCount { get; protected set; }
-    
+
     public IReadOnlyList<ActionRun> WorkflowRuns { get; protected set; }
-    
-    internal string DebuggerDisplay => string.Format(CultureInfo.CurrentCulture, "TotalCount: {0}, CheckSuites: {1}", TotalCount, WorkflowRuns.Count);
+
+    internal string DebuggerDisplay => string.Format(CultureInfo.CurrentCulture, "TotalCount: {0}, CheckSuites: {1}",
+        TotalCount, WorkflowRuns.Count);
 }

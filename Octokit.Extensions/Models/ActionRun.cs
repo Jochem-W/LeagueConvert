@@ -15,10 +15,10 @@ public class ActionRun
         HeadSha = headSha;
         HtmlUrl = htmlUrl;
     }
-    
+
     public string HeadSha { get; protected set; }
-    
+
     public string HtmlUrl { get; protected set; }
-    
+
     internal string DebuggerDisplay => string.Format(CultureInfo.InvariantCulture, "HeadSha: {2}", HeadSha);
 }
