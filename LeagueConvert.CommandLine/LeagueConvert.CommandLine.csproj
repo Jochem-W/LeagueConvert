@@ -8,8 +8,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(CI)' == 'true' ">
+        <SourceRevisionId>$(GITHUB_REPOSITORY)+$(GITHUB_EVENT_NAME)+$(GITHUB_REF_NAME)+$(GITHUB_SHA)</SourceRevisionId>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\LeagueConvert\LeagueConvert.csproj"/>
+        <ProjectReference Include="..\Octokit.Extensions\Octokit.Extensions.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
