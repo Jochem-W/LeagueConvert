@@ -63,24 +63,7 @@ public class StringWad : IDisposable
             var binTrees = new List<ParentedBinTree>();
             var skinBinTree = await ParentedBinTree.FromWadEntry(skinEntry);
             binTrees.Add(skinBinTree);
-            foreach (var dependency in skinBinTree.Dependencies.Select(d => d))
-            {
-                var split = dependency.Split('/');
-                if (split[0] != "DATA" ||
-                    split[1] != "Characters" ||
-                    split[3] != "Animations")
-                    continue;
-                try
-                {
-                    // TODO: check if the entry exists
-                    binTrees.Add(await ParentedBinTree.FromWadEntry(GetEntryByName(dependency)));
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-            }
-
+            binTrees.AddRange(await skinBinTree.GetDependenciesRecurseAsync(this, true));
             yield return new Skin.Skin(character, skinName, logger, binTrees.ToArray());
         }
     }

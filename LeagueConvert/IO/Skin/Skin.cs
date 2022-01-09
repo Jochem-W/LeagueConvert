@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using ImageMagick;
 using LeagueConvert.Enums;
 using LeagueConvert.Helpers;
@@ -14,25 +15,16 @@ namespace LeagueConvert.IO.Skin;
 
 public class Skin : IDisposable
 {
-    private readonly IDictionary<string, string> _animationFiles;
-    private readonly IList<Material> _materials;
     private readonly StringWad _parent;
-    private IList<string> _hiddenSubMeshes;
+    private readonly Dictionary<string, string> _animationFiles = new();
     private uint? _material;
     private string _simpleSkinFile;
     private string _skeletonFile;
     private string _texture;
-    public IDictionary<string, Animation> Animations;
-
-    internal SimpleSkin SimpleSkin;
-    internal Skeleton Skeleton;
-    internal IDictionary<string, IMagickImage> Textures;
 
     internal Skin(string character, string name, ILogger logger = null, params ParentedBinTree[] binTrees)
     {
         logger?.Debug("Parsing {Character} skin{Id}", Character, Id);
-        _animationFiles = new Dictionary<string, string>();
-        _materials = new List<Material>();
         _parent = binTrees[0].Parent;
         Character = character;
         Id = int.Parse(name[4..]);
@@ -41,14 +33,17 @@ public class Skin : IDisposable
     }
 
     public string Character { get; }
-
     public int Id { get; }
-
     public string Name { get; private set; }
-
     public SkinState State { get; private set; }
-
-    public IEnumerable<string> HiddenSubMeshes => _hiddenSubMeshes;
+    public IList<string> HiddenSubMeshes { get; private set; }
+    public IList<MaterialOverride> MaterialOverrides { get; } = new List<MaterialOverride>();
+    public IDictionary<uint, StaticMaterial> StaticMaterials { get; } = new Dictionary<uint, StaticMaterial>();
+    public SimpleSkin SimpleSkin { get; private set; }
+    public IMagickImage Texture { get; private set; }
+    public IDictionary<string, IMagickImage> Textures { get; private set; }
+    public Skeleton Skeleton { get; private set; }
+    public IDictionary<string, Animation> Animations { get; private set; }
 
     public void Dispose()
     {
@@ -97,43 +92,64 @@ public class Skin : IDisposable
 
     private async Task<bool> TryLoadTextures(ILogger logger = null)
     {
-        _materials.Clean(_parent);
-        Dictionary<string, Stream> streams = null;
-        try
-        {
-            streams = new Dictionary<string, Stream>();
-            foreach (var texture in _materials.GetTextures())
-                streams[texture] = _parent.GetEntryByName(texture).GetStream();
-            if (_texture != null && !streams.ContainsKey(_texture))
-                streams[_texture] = _parent.GetEntryByName(_texture).GetStream();
-            var images = new Dictionary<string, IMagickImage>();
-            Textures = new Dictionary<string, IMagickImage>();
-            foreach (var subMeshName in SimpleSkin.SubMeshes.Select(submesh => submesh.Name))
+        SetDefaultTexture();
+        Textures = new Dictionary<string, IMagickImage>();
+        var images = new Dictionary<string, IMagickImage>();
+        foreach (var subMesh in SimpleSkin.SubMeshes)
+            try
             {
-                var texture = _texture;
-                if (_materials.TryGetBySubMesh(subMeshName, out var material))
-                    texture = material.Texture;
-                if (texture == null)
-                    continue;
+                var texture = FindTexture(subMesh.Name);
+                if (texture == null) continue;
+                
                 if (!images.ContainsKey(texture))
-                    images[texture] = new MagickImage(streams[texture]);
-                Textures[subMeshName] = images[texture];
+                {
+                    await using var stream = _parent.GetEntryByName(texture).GetStream();
+                    images[texture] = new MagickImage(stream);
+                }
+
+                Textures[subMesh.Name] = images[texture];
+            }
+            catch (Exception e)
+            {
+                logger?.Warning(e, "Unexpected error when loading textures: {Exception}", e);
+                return false;
             }
 
-            State |= SkinState.TexturesLoaded;
-            return true;
-        }
-        catch (Exception e)
+        State |= SkinState.TexturesLoaded;
+        return true;
+    }
+
+    private void SetDefaultTexture()
+    {
+        if (!_material.HasValue) return;
+
+        string newTexture = null;
+        foreach (var materialOverride in MaterialOverrides)
         {
-            logger?.Warning(e, "Unexpected error when loading textures");
-            return false;
+            if (materialOverride.Hash != _material.Value) continue;
+            newTexture = materialOverride.Texture;
+            break;
         }
-        finally
+
+        if (newTexture == null && StaticMaterials.ContainsKey(_material.Value))
+            StaticMaterials[_material.Value].Samplers.TryGetValue(SamplerType.Diffuse, out newTexture);
+
+        if (newTexture != null) _texture = newTexture;
+    }
+
+    private string FindTexture(string subMeshName)
+    {
+        foreach (var materialOverride in MaterialOverrides)
         {
-            if (streams != null)
-                foreach (var stream in streams.Values)
-                    await stream.DisposeAsync();
+            if (!StringComparer.InvariantCultureIgnoreCase.Equals(materialOverride.SubMesh, subMeshName)) continue;
+            if (materialOverride.Texture != null) return materialOverride.Texture;
+            if (!materialOverride.Hash.HasValue) continue;
+            if (!StaticMaterials.TryGetValue(materialOverride.Hash.Value, out var staticMaterial)) continue;
+            if (!staticMaterial.Samplers.TryGetValue(SamplerType.Diffuse, out var texture)) continue;
+            if (texture != null) return texture;
         }
+
+        return _texture;
     }
 
     private async Task<bool> TryLoadSkeleton(ILogger logger = null)
@@ -188,33 +204,21 @@ public class Skin : IDisposable
         }
     }
 
-    /*public void Save(string filePath, ILogger logger = null)
-    {
-        logger?.Debug("Saving {Character} skin{Id}", Character, Id);
-        try
-        {
-            GetModelRoot().Save(filePath);
-        }
-        catch (Exception e)
-        {
-            logger?.Warning(e, "Unexpected error when saving");
-        }
-    }*/
-
     private void ParseBinTree(BinTree binTree)
     {
         foreach (var binTreeObject in binTree.Objects)
             switch (binTreeObject.MetaClassHash)
             {
-                case 2607278582:
+                case 2607278582: // SkinCharacterDataProperties
                     ParseSkinCharacterDataProperties(binTreeObject);
                     break;
-                case 4126869447:
+                case 4126869447: // TODO
                     ParseAnimationGraphData(binTreeObject);
                     break;
-                case 4288492553:
+                case 4288492553: // StaticMaterialDef
                     ParseStaticMaterialDef(binTreeObject);
                     break;
+                // TODO: MaterialInstanceDef?
             }
     }
 
@@ -250,19 +254,15 @@ public class Skin : IDisposable
                             _texture = ((BinTreeString) property).Value;
                             break;
                         case 3538210912: // material
-                            var material = ((BinTreeObjectLink) property).Value;
-                            if (material != 0)
-                                _material = material;
+                            _material = ((BinTreeObjectLink) property).Value;
                             break;
-                        case 2159540111: // initialSubmeshToHide
-                            var initialSubmeshToHide = ((BinTreeString) property).Value;
-                            if (initialSubmeshToHide != null)
-                                _hiddenSubMeshes =
-                                    initialSubmeshToHide.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        case 2159540111: // initialSubMeshToHide
+                            var initialSubMeshToHide = ((BinTreeString) property).Value;
+                            HiddenSubMeshes = initialSubMeshToHide.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                             break;
                         case 611473680: // materialOverride
-                            foreach (var embedded in ((BinTreeContainer) property).Properties.Cast<BinTreeEmbedded>())
-                                AddMaterial(embedded);
+                            foreach (var materialOverride in ((BinTreeContainer) property).Properties)
+                                AddMaterialOverride((BinTreeEmbedded) materialOverride);
                             break;
                     }
 
@@ -270,7 +270,7 @@ public class Skin : IDisposable
         }
     }
 
-    private void AddMaterial(BinTreeStructure skinMeshDataPropertiesMaterialOverride)
+    private void AddMaterialOverride(BinTreeStructure skinMeshDataPropertiesMaterialOverride)
     {
         uint? materialLink = null;
         string texture = null;
@@ -289,7 +289,7 @@ public class Skin : IDisposable
                     break;
             }
 
-        _materials.Add(new Material(materialLink, texture, subMesh));
+        MaterialOverrides.Add(new MaterialOverride(materialLink, texture, subMesh));
     }
 
     private void ParseAnimationGraphData(BinTreeObject animationGraphData)
@@ -332,45 +332,49 @@ public class Skin : IDisposable
                    hash.ToString();
         _animationFiles[name] = mAnimationFilePath;
     }
-
+    
     private void ParseStaticMaterialDef(BinTreeObject staticMaterialDef)
     {
-        var samplerValues =
-            (BinTreeContainer) staticMaterialDef.Properties.FirstOrDefault(property =>
-                property.NameHash == 175050421);
-        if (samplerValues == null)
-            return;
-        string texture = null;
-        foreach (var staticMaterialShaderSamplerDef in samplerValues.Properties.Cast<BinTreeEmbedded>())
-        {
-            if (!ParseStaticMaterialShaderSamplerDef(staticMaterialShaderSamplerDef, out var possibleTexture))
-                continue;
-            texture = possibleTexture;
-            break;
-        }
+        Debug.Assert(!StaticMaterials.ContainsKey(staticMaterialDef.PathHash));
 
-        if (_material == staticMaterialDef.PathHash)
-            _texture = texture;
-        foreach (var material in _materials.Where(material => material.Hash == staticMaterialDef.PathHash))
-            material.Texture = texture;
+        var staticMaterial = new StaticMaterial(staticMaterialDef.PathHash);
+        foreach (var property in staticMaterialDef.Properties)
+            switch (property.NameHash)
+            {
+                case 175050421: // samplerValues
+                    var samplerValues = (BinTreeContainer) property;
+                    foreach (var binTreeProperty in samplerValues.Properties)
+                    {
+                        var samplerValue = (BinTreeEmbedded) binTreeProperty;
+                        ParseStaticMaterialShaderSamplerDef(staticMaterial, samplerValue);
+                    }
+
+                    break;
+            }
+
+        StaticMaterials[staticMaterialDef.PathHash] = staticMaterial;
     }
 
-    private static bool ParseStaticMaterialShaderSamplerDef(BinTreeStructure staticMaterialShaderSamplerDef,
-        out string texture)
+    private static void ParseStaticMaterialShaderSamplerDef(StaticMaterial staticMaterial,
+        BinTreeEmbedded staticMaterialShaderSamplerDef)
     {
-        texture = null;
-        var diffuse = false;
+        var samplerType = SamplerType.Unknown;
+        string texture = null;
         foreach (var property in staticMaterialShaderSamplerDef.Properties)
             switch (property.NameHash)
             {
                 case 48757580: // samplerName
-                    diffuse = Samplers.Diffuse.Contains(((BinTreeString) property).Value);
+                    samplerType = Samplers.FromString(((BinTreeString) property).Value);
                     break;
                 case 3004290287: // texture
                     texture = ((BinTreeString) property).Value;
                     break;
             }
 
-        return diffuse;
+        if (samplerType == SamplerType.Unknown) return;
+
+        Debug.Assert(!staticMaterial.Samplers.ContainsKey(samplerType));
+
+        staticMaterial.Samplers[samplerType] = texture;
     }
 }

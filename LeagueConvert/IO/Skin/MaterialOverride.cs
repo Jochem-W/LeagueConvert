@@ -1,8 +1,8 @@
 namespace LeagueConvert.IO.Skin;
 
-public class Material
+public class MaterialOverride
 {
-    public Material(uint? hash = null, string texture = null, string subMesh = null)
+    public MaterialOverride(uint? hash = null, string texture = null, string subMesh = null)
     {
         Hash = hash;
         Texture = texture;

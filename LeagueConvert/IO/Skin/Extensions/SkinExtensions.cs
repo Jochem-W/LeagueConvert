@@ -135,7 +135,7 @@ public static class SkinExtensions
 
             // Materials
             if (!skin.State.HasFlagFast(SkinState.TexturesLoaded)) continue;
-            if (!skin.Textures.TryGetValue(subMesh.Name, out var magickImage)) continue; // TODO: lowercase?
+            if (!skin.Textures.TryGetValue(subMesh.Name, out var magickImage)) continue;
 
             var material = gltfAsset.CreateMaterial(subMesh.Name);
             primitive.Material = material;
