@@ -3,7 +3,7 @@
     <PropertyGroup>
         <Authors>Jochem-W</Authors>
         <TargetFramework>net6.0</TargetFramework>
-        <Version>3.0.0</Version>
+        <Version>2.3.0</Version>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 

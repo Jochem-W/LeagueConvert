@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <Version>2.4.3</Version>
+        <Version>2.4.2</Version>
         <Authors>Crauzer, Jochem-W</Authors>
         <Description>Library for Parsing and Editing file formats from League of Legends</Description>
         <ImplicitUsings>enable</ImplicitUsings>
