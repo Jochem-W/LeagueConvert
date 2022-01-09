@@ -26,8 +26,15 @@ public static class SkinExtensions
 
         var rootNode = gltfAsset.CreateNode();
         gltfAsset.Scene.AddNode(rootNode);
-        await skin.CreateMeshAsync(gltfAsset, buffer, rootNode, keepHiddenSubMeshes);
-
+        
+        foreach (var primitive in skin.SimpleSkin.Primitives)
+        {
+            if (!keepHiddenSubMeshes &&
+                !skin.HiddenSubMeshes.Contains(primitive.Name, StringComparer.InvariantCultureIgnoreCase)) continue;
+            await skin.CreateMeshAsync(gltfAsset, buffer, rootNode, keepHiddenSubMeshes);
+            break;
+        }
+        
         if (!skin.State.HasFlagFast(SkinState.SkeletonLoaded))
         {
             rootNode.Scale = new Vector3(-1, 1, 1);
@@ -44,7 +51,6 @@ public static class SkinExtensions
     private static async Task CreateMeshAsync(this Skin skin, GltfAsset gltfAsset, Buffer buffer, Node rootNode,
         bool keepHiddenSubMeshes)
     {
-        if (skin.SimpleSkin.Primitives.Count == 0) return;
         rootNode.Mesh = gltfAsset.CreateMesh();
 
         // Indices, this might write unused data if keepHiddenSubMeshes is true
