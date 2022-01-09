@@ -55,7 +55,7 @@ public class SimpleSkin
         var minor = br.ReadUInt16();
         switch (major)
         {
-            case 2 or 4 when minor == 1:
+            case 1 or 2 or 4 when minor == 1:
                 Read(br, major);
                 break;
             case 0 when minor == 1:
