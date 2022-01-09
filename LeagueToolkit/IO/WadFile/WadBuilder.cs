@@ -9,7 +9,7 @@ public class WadBuilder : IDisposable
 {
     private readonly Dictionary<ulong, WadEntryBuilder> _entries = new();
 
-    private bool _isDisposed;
+    private bool _disposedValue;
 
     public WadBuilder()
     {
@@ -22,14 +22,25 @@ public class WadBuilder : IDisposable
     }
 
     public ReadOnlyDictionary<ulong, WadEntryBuilder> Entries { get; }
-
+    
     public void Dispose()
     {
-        if (_isDisposed is false)
-            foreach (var entry in _entries)
-                entry.Value.DataStream.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposedValue) return;
+        if (disposing)
+        {
+            foreach (var entry in _entries)
+                entry.Value.DataStream.Dispose();
+        }
+
+        _disposedValue = true;
+    }
+    
     public WadBuilder WithEntry(WadEntryBuilder entryBuilder)
     {
         if (_entries.ContainsKey(entryBuilder.PathXXHash))

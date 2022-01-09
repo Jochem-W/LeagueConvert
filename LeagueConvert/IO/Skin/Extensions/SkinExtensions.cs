@@ -125,8 +125,6 @@ public static class SkinExtensions
         var textures = new Dictionary<IMagickImage, Texture>();
 
         // Write vertices and indices and create materials
-        var vertexOffset = 0;
-        var indexOffset = 0;
         foreach (var primitive in skin.SimpleSkin.Primitives)
         {
             if (!keepHiddenSubMeshes &&

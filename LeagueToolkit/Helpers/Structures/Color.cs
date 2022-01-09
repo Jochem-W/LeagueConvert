@@ -185,28 +185,35 @@ public struct Color : IEquatable<Color>
             return string.Format("{0} {1} {2} {3}", B, G, R, A);
         throw new ArgumentException("Unsupported format", nameof(format));
     }
-
-    public bool Equals(Color other)
-    {
-        return R == other.R &&
-               G == other.G &&
-               B == other.B &&
-               A == other.A;
-    }
-
-    public static bool operator ==(Color a, Color b)
-    {
-        return a.Equals(b);
-    }
-
-    public static bool operator !=(Color a, Color b)
-    {
-        return !a.Equals(b);
-    }
-
+    
     public static implicit operator Vector4(Color color)
     {
         return new Vector4(color.R, color.G, color.B, color.A);
+    }
+
+    public bool Equals(Color other)
+    {
+        return _r.Equals(other._r) && _g.Equals(other._g) && _b.Equals(other._b) && _a.Equals(other._a);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Color other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(_r, _g, _b, _a);
+    }
+
+    public static bool operator ==(Color left, Color right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Color left, Color right)
+    {
+        return !left.Equals(right);
     }
 }
 
