@@ -20,7 +20,6 @@ issues that have all been fixed in this version.
 | Aatrox conversion time (skeleton)      |  16 s |               10 s |
 | Aatrox conversion time (animations)    | 122 s |               24 s |
 | Correct animations                     |   :x: | :heavy_check_mark: |
-| Correct UVs                            |   :x: | :heavy_check_mark: |
 | Cross platform                         |   :x: | :heavy_check_mark: |
 | No temporary files                     |   :x: | :heavy_check_mark: |
 | Smart update check                     |   :x: | :heavy_check_mark: |
