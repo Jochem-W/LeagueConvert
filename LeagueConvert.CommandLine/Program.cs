@@ -88,7 +88,7 @@ internal static class Program
     {
         var latestRelease = await gitHubClient.Repository.Release.GetLatest(owner, name);
         var latestVersion = new Version(latestRelease.TagName.Remove(0, 1));
-        if (latestVersion < currentVersion) return null;
+        if (latestVersion <= currentVersion) return null;
 
         Logger.Information("A new version is available: {Version}", latestVersion);
         return new Uri(latestRelease.HtmlUrl);
