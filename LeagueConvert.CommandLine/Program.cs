@@ -63,7 +63,7 @@ internal static class Program
         var reference = split[3];
         var commitSha = split[4];
 
-        var gitHubClient = new GitHubClient(new ProductHeaderValue(name));
+        var gitHubClient = new GitHubClient(new ProductHeaderValue(name, split[0]));
 
         Uri uri;
         switch (eventName)
