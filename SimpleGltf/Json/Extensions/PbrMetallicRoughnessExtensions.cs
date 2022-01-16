@@ -2,8 +2,9 @@ namespace SimpleGltf.Json.Extensions;
 
 public static class PbrMetallicRoughnessExtensions
 {
-    public static void SetBaseColorTexture(this PbrMetallicRoughness pbrMetallicRoughness, Texture texture)
+    public static void SetBaseColorTexture(this MaterialPbrMetallicRoughness materialPbrMetallicRoughness,
+        Texture texture)
     {
-        pbrMetallicRoughness.BaseColorTexture = new TextureInfo(texture);
+        materialPbrMetallicRoughness.BaseColorTexture = new TextureInfo(texture);
     }
 }

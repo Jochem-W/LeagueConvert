@@ -4,11 +4,11 @@ using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json;
 
-public class Target
+public class AnimationChannelTarget
 {
     private readonly Node _node;
 
-    public Target(AnimationPath path)
+    public AnimationChannelTarget(AnimationPath path)
     {
         Path = path;
     }

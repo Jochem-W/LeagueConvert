@@ -2,9 +2,9 @@ namespace SimpleGltf.Json.Extensions;
 
 public static class PrimitiveExtensions
 {
-    public static Primitive SetAttribute(this Primitive primitive, string attribute, Accessor accessor)
+    public static MeshPrimitive SetAttribute(this MeshPrimitive meshPrimitive, string attribute, Accessor accessor)
     {
-        if (accessor != null) primitive.AttributesDictionary[attribute] = accessor;
-        return primitive;
+        if (accessor != null) meshPrimitive.AttributesDictionary[attribute] = accessor;
+        return meshPrimitive;
     }
 }

@@ -4,7 +4,7 @@ namespace SimpleGltf.Json;
 
 public class Mesh : IIndexable
 {
-    internal readonly IList<Primitive> PrimitiveList = new List<Primitive>();
+    internal readonly IList<MeshPrimitive> PrimitiveList = new List<MeshPrimitive>();
 
     internal Mesh(GltfAsset gltfAsset)
     {
@@ -12,7 +12,7 @@ public class Mesh : IIndexable
         gltfAsset.MeshList.Add(this);
     }
 
-    public IEnumerable<Primitive> Primitives => PrimitiveList;
+    public IEnumerable<MeshPrimitive> Primitives => PrimitiveList;
 
     [JsonIgnore] public int Index { get; }
 }

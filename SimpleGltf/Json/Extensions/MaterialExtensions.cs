@@ -2,10 +2,10 @@ namespace SimpleGltf.Json.Extensions;
 
 public static class MaterialExtensions
 {
-    public static PbrMetallicRoughness CreatePbrMetallicRoughness(this Material material)
+    public static MaterialPbrMetallicRoughness CreatePbrMetallicRoughness(this Material material)
     {
-        var pbrMetallicRoughness = new PbrMetallicRoughness();
-        material.PbrMetallicRoughness = pbrMetallicRoughness;
+        var pbrMetallicRoughness = new MaterialPbrMetallicRoughness();
+        material.MaterialPbrMetallicRoughness = pbrMetallicRoughness;
         return pbrMetallicRoughness;
     }
 }

@@ -241,7 +241,7 @@ public static class SkinExtensions
                 gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Vec3);
             var translationSampler =
                 gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
-            var translationTarget = new Target(AnimationPath.Translation) {Node = jointNode};
+            var translationTarget = new AnimationChannelTarget(AnimationPath.Translation) {Node = jointNode};
             gltfAnimation.CreateChannel(translationSampler, translationTarget);
             foreach (var (time, translation) in track.Translations)
             {
@@ -260,7 +260,7 @@ public static class SkinExtensions
                 gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Vec4);
             var rotationSampler =
                 gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
-            var rotationTarget = new Target(AnimationPath.Rotation) {Node = jointNode};
+            var rotationTarget = new AnimationChannelTarget(AnimationPath.Rotation) {Node = jointNode};
             gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
             foreach (var (time, rotation) in track.Rotations)
             {
@@ -277,7 +277,7 @@ public static class SkinExtensions
                 gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Scalar, true);
             var scaleOutputAccessor = gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Vec3);
             var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
-            var scaleTarget = new Target(AnimationPath.Scale) {Node = jointNode};
+            var scaleTarget = new AnimationChannelTarget(AnimationPath.Scale) {Node = jointNode};
             gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
             foreach (var (time, scale) in track.Scales)
             {

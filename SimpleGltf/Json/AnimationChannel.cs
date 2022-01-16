@@ -3,17 +3,18 @@ using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json;
 
-public class Channel
+public class AnimationChannel
 {
-    internal Channel(Animation animation, AnimationSampler sampler, Target target)
+    internal AnimationChannel(Animation animation, AnimationSampler sampler,
+        AnimationChannelTarget animationChannelTarget)
     {
         animation.ChannelList.Add(this);
         Sampler = sampler;
-        Target = target;
+        AnimationChannelTarget = animationChannelTarget;
     }
 
     [JsonConverter(typeof(IndexableConverter<AnimationSampler>))]
     public AnimationSampler Sampler { get; }
 
-    public Target Target { get; }
+    public AnimationChannelTarget AnimationChannelTarget { get; }
 }

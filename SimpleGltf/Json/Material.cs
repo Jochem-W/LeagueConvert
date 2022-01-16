@@ -18,7 +18,7 @@ public class Material : IIndexable
         gltfAsset.MaterialList.Add(this);
     }
 
-    public PbrMetallicRoughness PbrMetallicRoughness { get; internal set; }
+    public MaterialPbrMetallicRoughness MaterialPbrMetallicRoughness { get; internal set; }
 
     public string Name { get; init; }
 

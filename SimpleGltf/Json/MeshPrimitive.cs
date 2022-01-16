@@ -3,11 +3,11 @@ using SimpleGltf.Json.Converters;
 
 namespace SimpleGltf.Json;
 
-public class Primitive
+public class MeshPrimitive
 {
     internal readonly IDictionary<string, Accessor> AttributesDictionary;
 
-    internal Primitive(Mesh mesh)
+    internal MeshPrimitive(Mesh mesh)
     {
         mesh.PrimitiveList.Add(this);
         AttributesDictionary = new Dictionary<string, Accessor>();

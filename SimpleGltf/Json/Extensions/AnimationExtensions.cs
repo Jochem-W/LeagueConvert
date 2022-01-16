@@ -2,10 +2,10 @@ namespace SimpleGltf.Json.Extensions;
 
 public static class AnimationExtensions
 {
-    public static Channel CreateChannel(this Animation animation, AnimationSampler sampler,
-        Target target)
+    public static AnimationChannel CreateChannel(this Animation animation, AnimationSampler sampler,
+        AnimationChannelTarget animationChannelTarget)
     {
-        return new Channel(animation, sampler, target);
+        return new AnimationChannel(animation, sampler, animationChannelTarget);
     }
 
     public static AnimationSampler CreateSampler(this Animation animation, FloatAccessor input,
