@@ -17,7 +17,7 @@ jobs:
           dotnet-version: "6.0.x"
 
       - name: Checkout
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
 
       - name: Publish generic
         run: dotnet.exe publish LeagueConvert.CommandLine -c Release
