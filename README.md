@@ -19,7 +19,7 @@ issues that have all been fixed in this version.
 | Aatrox conversion time                 |  16 s |               10 s |
 | Aatrox conversion time (skeleton)      |  16 s |               10 s |
 | Aatrox conversion time (animations)    | 122 s |               24 s |
-| Correct animations                     |   :x: | :heavy_check_mark: |
+| (More) correct animations              |   :x: | :heavy_check_mark: |
 | Cross platform                         |   :x: | :heavy_check_mark: |
 | No temporary files                     |   :x: | :heavy_check_mark: |
 | Smart update check                     |   :x: | :heavy_check_mark: |
@@ -43,7 +43,8 @@ will probably move this to a separate repository in the future.
 
 ### LeagueConvert
 
-LeagueConvert is the library that finds models and puts everything together.
+LeagueConvert is a library I wrote that searches for game models, textures and
+animations.
 
 Planned:
 
