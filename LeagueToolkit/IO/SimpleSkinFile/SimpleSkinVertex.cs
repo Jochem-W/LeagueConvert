@@ -80,9 +80,8 @@ public class SimpleSkinVertex
         Normal = Vector3.Normalize(Normal);
         if (!float.IsNaN(Normal.Length())) return;
 
-        // Create a vector perpendicular to the position, then normalise
-        Normal = Vector3.Normalize(new Vector3(-Position.X, -Position.Y, Position.Z));
-        if (!float.IsNaN(Normal.Length())) return;
+        // Previous attempts at creating a normal were incorrect. Doing it the proper way might incur a big performance
+        // hit, but is worth looking into. For now, fall back to the position vector.
 
         // Extrapolate 0 --> 1 and -0 --> -1 from the original normal, then normalise
         if (!float.IsNaN(originalNormal.Length()))
@@ -94,15 +93,7 @@ public class SimpleSkinVertex
             if (!float.IsNaN(Normal.Length())) return;
         }
 
-        // Extrapolate 0 --> 1 and -0 --> -1 from a vector perpendicular to the position, then normalise
-        if (!float.IsNaN(Position.Length()))
-        {
-            var x = BitConverter.SingleToInt32Bits(Position.X) < 0 ? 1 : -1;
-            var y = BitConverter.SingleToInt32Bits(Position.Y) < 0 ? 1 : -1;
-            var z = BitConverter.SingleToInt32Bits(Position.Z) < 0 ? -1 : 1;
-            Normal = Vector3.Normalize(new Vector3(x, y, z));
-            if (!float.IsNaN(Normal.Length())) return;
-        }
+        Normal = Vector3.Normalize(Position);
 
         Debug.Assert(!float.IsNaN(Normal.Length()));
     }
