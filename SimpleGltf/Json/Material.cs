@@ -18,12 +18,12 @@ public class Material : IIndexable
         gltfAsset.MaterialList.Add(this);
     }
 
-    public MaterialPbrMetallicRoughness MaterialPbrMetallicRoughness { get; internal set; }
-
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonConverter(typeof(ExtensionsConverter))]
     public IEnumerable<KeyValuePair<string, IDictionary>> Extensions => ExtensionsDictionary;
+
+    public MaterialPbrMetallicRoughness PbrMetallicRoughness { get; internal set; }
 
     [JsonIgnore] public int Index { get; }
 }
