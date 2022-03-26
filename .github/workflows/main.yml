@@ -32,19 +32,19 @@ jobs:
         run: Write-Output "name=$($Env:GITHUB_SHA.SubString(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Append;
 
       - name: Upload generic build artifact
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v3
         with:
           name: LeagueConvert.CommandLine-${{ env.name }}-generic
           path: LeagueConvert.CommandLine/bin/Release/net6.0/publish
 
       - name: Upload win-x64 build artifact
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v3
         with:
           name: LeagueConvert.CommandLine-${{ env.name }}-win-x64
           path: LeagueConvert.CommandLine/bin/Release/net6.0/win-x64/publish
 
       - name: Upload win-x86 build artifact
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v3
         with:
           name: LeagueConvert.CommandLine-${{ env.name }}-win-x86
           path: LeagueConvert.CommandLine/bin/Release/net6.0/win-x86/publish
