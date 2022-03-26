@@ -10,11 +10,11 @@ public class AnimationChannel
     {
         animation.ChannelList.Add(this);
         Sampler = sampler;
-        AnimationChannelTarget = animationChannelTarget;
+        Target = animationChannelTarget;
     }
 
     [JsonConverter(typeof(IndexableConverter<AnimationSampler>))]
     public AnimationSampler Sampler { get; }
-
-    public AnimationChannelTarget AnimationChannelTarget { get; }
+    
+    public AnimationChannelTarget Target { get; }
 }
