@@ -15,6 +15,6 @@ public class AnimationChannel
 
     [JsonConverter(typeof(IndexableConverter<AnimationSampler>))]
     public AnimationSampler Sampler { get; }
-    
+
     public AnimationChannelTarget Target { get; }
 }
