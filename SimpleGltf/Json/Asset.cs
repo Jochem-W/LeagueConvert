@@ -9,7 +9,7 @@ public class Asset
         gltfAsset.Asset = this;
     }
 
-    public string Copyright { get; init; }
+    public string Copyright { get; set; }
 
     public string Generator
     {

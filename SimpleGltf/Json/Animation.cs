@@ -14,5 +14,5 @@ public class Animation
 
     public IEnumerable<AnimationSampler> Samplers => SamplerList;
 
-    public string Name { get; init; }
+    public string Name { get; set; }
 }

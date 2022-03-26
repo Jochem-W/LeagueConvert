@@ -18,15 +18,13 @@ public class Image : IIndexable
         MimeType = mimeType;
     }
 
-    public string Uri { get; internal set; }
-
     [JsonConverter(typeof(MimeTypeConverter))]
     public MimeType? MimeType { get; }
 
     [JsonConverter(typeof(IndexableConverter<BufferView>))]
     public BufferView BufferView { get; }
 
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonIgnore] public int Index { get; }
 }
