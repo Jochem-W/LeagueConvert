@@ -27,6 +27,18 @@ jobs:
 
       - name: Publish win-x86
         run: dotnet.exe publish LeagueConvert.CommandLine -c Release -r win-x86 --no-self-contained -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true
+        
+      - name: Publish linux-arm64
+        run: dotnet.exe publish LeagueConvert.CommandLine -c Release -r linux-arm64 --no-self-contained -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true
+        
+      - name: Publish linux-musl-x64
+        run: dotnet.exe publish LeagueConvert.CommandLine -c Release -r linux-musl-x64 --no-self-contained -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true
+        
+      - name: Publish linux-x64
+        run: dotnet.exe publish LeagueConvert.CommandLine -c Release -r linux-x64 --no-self-contained -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true
+
+      - name: Publish osx-x64
+        run: dotnet.exe publish LeagueConvert.CommandLine -c Release -r osx-x64 --no-self-contained -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true
 
       - name: Get short SHA
         run: Write-Output "name=$($Env:GITHUB_SHA.SubString(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Append;
@@ -48,3 +60,27 @@ jobs:
         with:
           name: LeagueConvert.CommandLine-${{ env.name }}-win-x86
           path: LeagueConvert.CommandLine/bin/Release/net6.0/win-x86/publish
+
+      - name: Upload linux-arm64 build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: LeagueConvert.CommandLine-${{ env.name }}-linux-arm64
+          path: LeagueConvert.CommandLine/bin/Release/net6.0/linux-arm64/publish
+          
+      - name: Upload linux-musl-x64 build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: LeagueConvert.CommandLine-${{ env.name }}-linux-musl-x64
+          path: LeagueConvert.CommandLine/bin/Release/net6.0/linux-musl-x64/publish
+      
+      - name: Upload linux-x64 build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: LeagueConvert.CommandLine-${{ env.name }}-linux-x64
+          path: LeagueConvert.CommandLine/bin/Release/net6.0/linux-x64/publish
+      
+      - name: Upload osx-x64 build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: LeagueConvert.CommandLine-${{ env.name }}-osx-x64
+          path: LeagueConvert.CommandLine/bin/Release/net6.0/osx-x64/publish
