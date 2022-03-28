@@ -8,7 +8,7 @@ animations.
 This version was built from scratch to replace the GUI version
 (LeagueBulkConvert) and is still in development. Currently this version is
 command-line only. The builds from GitHub Actions probably work just fine, but
-there are still a few things that have to be done before I'll create a release.
+there are still a few things that have to be done before a release is created.
 I highly recommend not using the release builds anymore because they have many
 issues that have all been fixed in this version.
 
@@ -28,22 +28,23 @@ issues that have all been fixed in this version.
 
 ### SimpleGltf
 
-SimpleGltf is a library I wrote to replace SharpGltf in the old version. This
+SimpleGltf is a custom library that was written to replace SharpGltf. This
 library probably won't be released as a standalone library.
 
 Planned:
 
 * Optimisation/cleanup
+* Reading glTF
 
 ### LeagueToolkit
 
-I'm using a modified version of
-[LoL-Fantome/LeagueToolkit](https://github.com/LoL-Fantome/LeagueToolkit/). I
-will probably move this to a separate repository in the future.
+This is a modified version of
+[LoL-Fantome/LeagueToolkit](https://github.com/LoL-Fantome/LeagueToolkit/). and
+will probably be moved to a separate repository in the future.
 
 ### LeagueConvert
 
-LeagueConvert is a library I wrote that searches for game models, textures and
+LeagueConvert is a custom library that searches for game models, textures and
 animations.
 
 Planned:
@@ -77,9 +78,9 @@ A multiplatform user interface for LeagueConvert. Postponed for now.
 
 ## Set-up instructions for developing
 
-1. Clone the source code
-2. Install the .NET 6.0 SDK. I recommend installing Visual Studio 2022 with the
-   '.NET desktop development' workload and the optional 'Development tools for
-   .NET' component
-3. Optionally install Rider, which is in my opinion a much better IDE
-4. Open the .sln
+1. Clone or download the source code.
+2. Install the .NET 6.0 SDK. (Recommended: Visual Studio 2022 with the '.NET
+   desktop development' workload and the 'Development tools for .NET'
+   component.)
+3. Install Rider, a better C# IDE (optional).
+4. Open the .sln.
