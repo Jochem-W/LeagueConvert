@@ -105,6 +105,7 @@ public class Skin : IDisposable
                 {
                     await using var stream = _parent.GetEntryByName(texture).GetStream();
                     images[texture] = new MagickImage(stream);
+                    images[texture].Alpha(AlphaOption.Off);
                 }
 
                 Textures[primitive.Name] = images[texture];
