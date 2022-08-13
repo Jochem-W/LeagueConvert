@@ -252,6 +252,10 @@ public static class SkinExtensions
         var rotationBufferView = gltfAsset.CreateBufferView(buffer);
         var scaleBufferView = gltfAsset.CreateBufferView(buffer);
 
+        translationBufferView.StopStride();
+        rotationBufferView.StopStride();
+        scaleBufferView.StopStride();
+
         foreach (var (name, animation) in skin.Animations)
         {
             var gltfAnimation = gltfAsset.CreateAnimation(name);
@@ -268,62 +272,71 @@ public static class SkinExtensions
     }
 
     private static void WriteAnimationChannel(GltfAsset gltfAsset, BufferView translationBufferView,
-        BufferView rotationBufferView, BufferView scaleBufferView, Animation gltfAnimation,
-        AnimationTrack track, Node jointNode)
+        BufferView rotationBufferView, BufferView scaleBufferView, Animation gltfAnimation, AnimationTrack track,
+        Node jointNode)
     {
         if (track.Translations.Count != 0)
         {
             var translationInputAccessor =
                 gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Scalar, true);
+            foreach (var (time, _) in track.Translations)
+            {
+                translationInputAccessor.Write(time);
+            }
+
             var translationOutputAccessor =
                 gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Vec3);
+            foreach (var (_, translation) in track.Translations)
+            {
+                translationOutputAccessor.Write(translation.X, translation.Y, translation.Z);
+            }
+
             var translationSampler =
                 gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
             var translationTarget = new AnimationChannelTarget(AnimationPath.Translation) { Node = jointNode };
             gltfAnimation.CreateChannel(translationSampler, translationTarget);
-            foreach (var (time, translation) in track.Translations)
-            {
-                translationOutputAccessor.Write(translation.X, translation.Y, translation.Z);
-                translationInputAccessor.Write(time);
-            }
-
-            translationBufferView.StopStride();
         }
 
         if (track.Rotations.Count != 0)
         {
             var rotationInputAccessor =
                 gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Scalar, true);
+            foreach (var (time, _) in track.Rotations)
+            {
+                rotationInputAccessor.Write(time);
+            }
+
             var rotationOutputAccessor =
                 gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Vec4);
+            foreach (var (_, rotation) in track.Rotations)
+            {
+                rotationOutputAccessor.Write(rotation.X, rotation.Y, rotation.Z, rotation.W);
+            }
+
             var rotationSampler =
                 gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
             var rotationTarget = new AnimationChannelTarget(AnimationPath.Rotation) { Node = jointNode };
             gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
-            foreach (var (time, rotation) in track.Rotations)
-            {
-                rotationOutputAccessor.Write(rotation.X, rotation.Y, rotation.Z, rotation.W);
-                rotationInputAccessor.Write(time);
-            }
-
-            rotationBufferView.StopStride();
         }
 
         if (track.Scales.Count != 0)
         {
             var scaleInputAccessor =
                 gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Scalar, true);
-            var scaleOutputAccessor = gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Vec3);
-            var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
-            var scaleTarget = new AnimationChannelTarget(AnimationPath.Scale) { Node = jointNode };
-            gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
-            foreach (var (time, scale) in track.Scales)
+            foreach (var (time, _) in track.Scales)
             {
-                scaleOutputAccessor.Write(scale.X, scale.Y, scale.Z);
                 scaleInputAccessor.Write(time);
             }
 
-            scaleBufferView.StopStride();
+            var scaleOutputAccessor = gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Vec3);
+            foreach (var (_, scale) in track.Scales)
+            {
+                scaleOutputAccessor.Write(scale.X, scale.Y, scale.Z);
+            }
+
+            var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
+            var scaleTarget = new AnimationChannelTarget(AnimationPath.Scale) { Node = jointNode };
+            gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
         }
     }
 }
