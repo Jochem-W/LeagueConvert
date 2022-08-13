@@ -194,29 +194,35 @@ internal static class Program
             keepHiddenSubMeshesOption
         };
 
-        command.SetHandler(async (string path, string outputDirectory, bool skeletons, bool animations, bool recurse,
-                string gameHashFile, string binHashesHashFile, bool forceScale, bool keepHiddenSubMeshes) =>
+        command.SetHandler(async context =>
+        {
+            if (!await TryLoadHashes(context.ParseResult.GetValueForOption(gameHashOption),
+                    context.ParseResult.GetValueForOption(binHashesHashOption)))
+                return;
+            if (!TryCreateOutputDirectory(context.ParseResult.GetValueForOption(outputOption)))
+                return;
+            if (!TryGetSkinMode(context.ParseResult.GetValueForOption(skeletonsOption),
+                    context.ParseResult.GetValueForOption(animationsOption), out var mode) || !mode.HasValue)
+                return;
+            var searchOption = context.ParseResult.GetValueForOption(recurseOption)
+                ? SearchOption.AllDirectories
+                : SearchOption.TopDirectoryOnly;
+            foreach (var filePath in Directory
+                         .EnumerateFiles(context.ParseResult.GetValueForArgument(pathArgument), "*.wad.gitHubClient",
+                             searchOption).Where(filePath =>
+                             Path.GetFileName(filePath).Count(character => character == '.') == 2))
             {
-                if (!await TryLoadHashes(gameHashFile, binHashesHashFile))
-                    return;
-                if (!TryCreateOutputDirectory(outputDirectory))
-                    return;
-                if (!TryGetSkinMode(skeletons, animations, out var mode) || !mode.HasValue)
-                    return;
-                var searchOption = recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-                foreach (var filePath in Directory.EnumerateFiles(path, "*.wad.gitHubClient", searchOption)
-                             .Where(filePath => Path.GetFileName(filePath).Count(character => character == '.') == 2))
-                {
-                    if (!TryLoadWad(filePath, out var wad))
-                        continue;
-                    await TryConvertWad(wad, mode.Value, outputDirectory, forceScale, keepHiddenSubMeshes);
-                    wad.Dispose();
-                }
+                if (!TryLoadWad(filePath, out var wad))
+                    continue;
+                await TryConvertWad(wad, mode.Value, context.ParseResult.GetValueForOption(outputOption),
+                    context.ParseResult.GetValueForOption(forceScaleOption),
+                    context.ParseResult.GetValueForOption(keepHiddenSubMeshesOption));
+                wad.Dispose();
+            }
 
-                Logger.Information("Finished!");
-            }, pathArgument, outputOption, skeletonsOption, animationsOption, recurseOption, gameHashOption,
-            binHashesHashOption, forceScaleOption, keepHiddenSubMeshesOption);
-
+            Logger.Information("Finished!");
+        });
+        
         return command;
     }
 
