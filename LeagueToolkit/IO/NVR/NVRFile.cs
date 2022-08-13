@@ -16,7 +16,11 @@ public class NVRFile
         {
             //Reading magic and version
             var magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-            if (magic != "NVR\0") throw new InvalidFileSignatureException();
+            if (magic != "NVR\0")
+            {
+                throw new InvalidFileSignatureException();
+            }
+
             MajorVersion = br.ReadInt16();
             MinorVersion = br.ReadInt16();
 
@@ -30,13 +34,30 @@ public class NVRFile
             //Parse content
             var buffers = new NVRBuffers();
             for (var i = 0; i < materialsCount; i++)
+            {
                 buffers.Materials.Add(new NVRMaterial(br, MajorVersion == 8 && MinorVersion == 1 ? true : false));
-            for (var i = 0; i < vertexBufferCount; i++) buffers.VertexBuffers.Add(new NVRVertexBuffer(br));
-            for (var i = 0; i < indexBufferCount; i++) buffers.IndexBuffers.Add(new NVRIndexBuffer(br));
+            }
+
+            for (var i = 0; i < vertexBufferCount; i++)
+            {
+                buffers.VertexBuffers.Add(new NVRVertexBuffer(br));
+            }
+
+            for (var i = 0; i < indexBufferCount; i++)
+            {
+                buffers.IndexBuffers.Add(new NVRIndexBuffer(br));
+            }
+
             for (var i = 0; i < meshesCount; i++)
+            {
                 buffers.Meshes.Add(new NVRMesh(br, buffers, MajorVersion == 8 && MinorVersion == 1 ? true : false));
+            }
+
             // Unused
-            for (var i = 0; i < nodesCount; i++) buffers.Nodes.Add(new NVRNode(br, buffers));
+            for (var i = 0; i < nodesCount; i++)
+            {
+                buffers.Nodes.Add(new NVRNode(br, buffers));
+            }
 
             Meshes = buffers.Meshes;
         }
@@ -64,11 +85,30 @@ public class NVRFile
             bw.Write(buffers.IndexBuffers.Count);
             bw.Write(buffers.Meshes.Count);
             bw.Write(buffers.Nodes.Count);
-            foreach (var material in buffers.Materials) material.Write(bw);
-            foreach (var vertBuffer in buffers.VertexBuffers) vertBuffer.Write(bw);
-            foreach (var indBuffer in buffers.IndexBuffers) indBuffer.Write(bw);
-            foreach (var mesh in buffers.Meshes) mesh.Write(bw);
-            foreach (var node in buffers.Nodes) node.Write(bw);
+            foreach (var material in buffers.Materials)
+            {
+                material.Write(bw);
+            }
+
+            foreach (var vertBuffer in buffers.VertexBuffers)
+            {
+                vertBuffer.Write(bw);
+            }
+
+            foreach (var indBuffer in buffers.IndexBuffers)
+            {
+                indBuffer.Write(bw);
+            }
+
+            foreach (var mesh in buffers.Meshes)
+            {
+                mesh.Write(bw);
+            }
+
+            foreach (var node in buffers.Nodes)
+            {
+                node.Write(bw);
+            }
         }
     }
 
@@ -86,8 +126,12 @@ public class NVRFile
         var buffers = new NVRBuffers();
         // Material buffer
         foreach (var mesh in Meshes)
+        {
             if (!buffers.Materials.Contains(mesh.Material))
+            {
                 buffers.Materials.Add(mesh.Material);
+            }
+        }
 
         // Creating complex buffers first
         foreach (var mesh in Meshes)
@@ -107,7 +151,10 @@ public class NVRFile
 
             vertBuffer.Vertices.AddRange(complexMesh.Vertices);
             var indBufferMax = indBuffer.CurrentMax + 1;
-            foreach (var index in complexMesh.Indices) indBuffer.AddIndex(index + indBufferMax);
+            foreach (var index in complexMesh.Indices)
+            {
+                indBuffer.AddIndex(index + indBufferMax);
+            }
         }
 
         // Then do simple ones
@@ -128,22 +175,35 @@ public class NVRFile
 
             vertBuffer.Vertices.AddRange(simpleMesh.Vertices);
             var indBufferMax = indBuffer.CurrentMax + 1;
-            foreach (var index in simpleMesh.Indices) indBuffer.AddIndex(index + indBufferMax);
+            foreach (var index in simpleMesh.Indices)
+            {
+                indBuffer.AddIndex(index + indBufferMax);
+            }
         }
 
         var parentNode = CreateRootNode();
         // Making mesh buffer
         buffers.GenerateMeshBuffer(parentNode);
-        foreach (var mesh in buffers.Meshes) mesh.MaterialIndex = buffers.Materials.IndexOf(mesh.Material);
+        foreach (var mesh in buffers.Meshes)
+        {
+            mesh.MaterialIndex = buffers.Materials.IndexOf(mesh.Material);
+        }
 
         // Making node buffer
         buffers.Nodes.Add(parentNode);
         buffers.GenerateNodeBuffer(parentNode);
         foreach (var node in buffers.Nodes)
+        {
             if (node.Children.Count > 0)
+            {
                 node.FirstChildNode = buffers.Nodes.IndexOf(node.Children[0]);
+            }
             else
+            {
                 node.FirstChildNode = -1;
+            }
+        }
+
         return buffers;
     }
 
@@ -153,7 +213,10 @@ public class NVRFile
         var rootNode = new NVRNode(Meshes);
         // Create children for root node and all of its children and children and children
         if (Meshes.Count > 1)
+        {
             rootNode.Split();
+        }
+
         return rootNode;
     }
 }
@@ -169,7 +232,10 @@ public class NVRBuffers
     // Find index buffer with its position (for a given model, it has to be the same as its vertex buffer position)
     public NVRIndexBuffer GetIndexBuffer(int position)
     {
-        if (IndexBuffers.Count > position) return IndexBuffers[position];
+        if (IndexBuffers.Count > position)
+        {
+            return IndexBuffers[position];
+        }
 
         var newBuffer = new NVRIndexBuffer(D3DFORMAT.D3DFMT_INDEX16);
         IndexBuffers.Add(newBuffer);
@@ -180,8 +246,13 @@ public class NVRBuffers
     public NVRVertexBuffer GetVertexBuffer(int vertexToAddCount, NVRVertexType type)
     {
         foreach (var buffer in VertexBuffers)
+        {
             if (buffer.Type == type && buffer.Vertices.Count < ushort.MaxValue - vertexToAddCount)
+            {
                 return buffer;
+            }
+        }
+
         var created = new NVRVertexBuffer(type);
         VertexBuffers.Add(created);
         return created;
@@ -193,10 +264,16 @@ public class NVRBuffers
         node.FirstMesh = Meshes.Count;
         node.MeshCount = node.Meshes.Count;
         if (node.Children.Count == 0)
+        {
             Meshes.AddRange(node.Meshes);
+        }
         else
+        {
             foreach (var child in node.Children)
+            {
                 GenerateMeshBuffer(child);
+            }
+        }
     }
 
     // Generate a node buffer
@@ -204,7 +281,10 @@ public class NVRBuffers
     {
         node.ChildNodeCount = node.Children.Count;
         Nodes.InsertRange(0, node.Children);
-        for (var i = node.Children.Count - 1; i >= 0; i--) GenerateNodeBuffer(node.Children[i]);
+        for (var i = node.Children.Count - 1; i >= 0; i--)
+        {
+            GenerateNodeBuffer(node.Children[i]);
+        }
     }
 }
 

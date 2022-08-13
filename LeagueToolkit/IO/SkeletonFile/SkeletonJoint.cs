@@ -63,7 +63,7 @@ public class SkeletonJoint
     {
         Id = id;
         Name = br.ReadPaddedString(32);
-        ParentId = (short) br.ReadInt32();
+        ParentId = (short)br.ReadInt32();
         var scale = br.ReadSingle();
 
         var transform = new float[4, 4];
@@ -73,7 +73,9 @@ public class SkeletonJoint
         transform[3, 3] = 1;
         for (var i = 0; i < 3; i++)
         for (var j = 0; j < 4; j++)
+        {
             transform[j, i] = br.ReadSingle();
+        }
 
         GlobalTransform = new Matrix4x4
         {
@@ -145,12 +147,12 @@ public class SkeletonJoint
         bw.Write(Flags);
         bw.Write(Id);
         bw.Write(ParentId);
-        bw.Write((ushort) 0); // Padding
+        bw.Write((ushort)0); // Padding
         bw.Write(Hash);
         bw.Write(Radius);
         WriteLocalTransform(bw);
         WriteInverseGlobalTransform(bw);
-        bw.Write((int) (nameOffset - bw.BaseStream.Position));
+        bw.Write((int)(nameOffset - bw.BaseStream.Position));
     }
 
     private void WriteLocalTransform(BinaryWriter bw)

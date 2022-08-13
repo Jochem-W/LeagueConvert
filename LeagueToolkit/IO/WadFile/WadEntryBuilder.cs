@@ -92,7 +92,7 @@ public class WadEntryBuilder
     {
         EntryType = WadEntryType.Uncompressed;
         DataStream = stream;
-        CompressedSize = UncompressedSize = (int) stream.Length;
+        CompressedSize = UncompressedSize = (int)stream.Length;
 
         ComputeChecksum();
 

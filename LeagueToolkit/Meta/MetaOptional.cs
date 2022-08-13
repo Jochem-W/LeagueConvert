@@ -24,7 +24,11 @@ public struct MetaOptional<T> : IMetaOptional
 
     object IMetaOptional.GetValue()
     {
-        if (IsSome) return _value;
+        if (IsSome)
+        {
+            return _value;
+        }
+
         return null;
     }
 

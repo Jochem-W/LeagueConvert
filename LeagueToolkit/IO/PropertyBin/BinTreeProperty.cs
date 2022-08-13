@@ -30,7 +30,7 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
         if (type is null)
         {
             nameHash = br.ReadUInt32();
-            packedType = (BinPropertyType) br.ReadByte();
+            packedType = (BinPropertyType)br.ReadByte();
             type = BinUtilities.UnpackType(packedType);
         }
 
@@ -69,14 +69,18 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
 
     internal virtual void Write(BinaryWriter bw, bool writeHeader)
     {
-        if (writeHeader) WriteHeader(bw);
+        if (writeHeader)
+        {
+            WriteHeader(bw);
+        }
+
         WriteContent(bw);
     }
 
     protected void WriteHeader(BinaryWriter bw)
     {
         bw.Write(NameHash);
-        bw.Write((byte) BinUtilities.PackType(Type));
+        bw.Write((byte)BinUtilities.PackType(Type));
     }
 
     protected abstract void WriteContent(BinaryWriter bw);

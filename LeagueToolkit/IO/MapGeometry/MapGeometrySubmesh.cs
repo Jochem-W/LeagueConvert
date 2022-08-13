@@ -23,7 +23,10 @@ public class MapGeometrySubmesh
         StartVertex = br.ReadUInt32(); //MinVertex
         VertexCount = br.ReadUInt32() + 1; //MaxVertex
 
-        if (StartVertex != 0) StartVertex--;
+        if (StartVertex != 0)
+        {
+            StartVertex--;
+        }
     }
 
     public MapGeometryModel Parent { get; internal set; }
@@ -41,7 +44,7 @@ public class MapGeometrySubmesh
 
     public List<ushort> GetIndices(bool normalize = true)
     {
-        var indices = Parent.Indices.GetRange((int) StartIndex, (int) IndexCount);
+        var indices = Parent.Indices.GetRange((int)StartIndex, (int)IndexCount);
 
         if (normalize)
         {
@@ -55,7 +58,7 @@ public class MapGeometrySubmesh
 
     public List<MapGeometryVertex> GetVertices()
     {
-        return Parent.Vertices.GetRange((int) StartVertex, (int) (VertexCount - StartVertex));
+        return Parent.Vertices.GetRange((int)StartVertex, (int)(VertexCount - StartVertex));
     }
 
     public void Write(BinaryWriter bw)

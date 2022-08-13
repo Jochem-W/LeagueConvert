@@ -25,8 +25,8 @@ public class SimpleSkin
         var indexOffset = 0;
         foreach (var subMesh in staticObject.Submeshes)
         {
-            Primitives.Add(new SimpleSkinPrimitive(subMesh.Name, (uint) indexOffset, (uint) subMesh.Indices.Count,
-                (uint) vertexOffset, (uint) subMesh.Vertices.Count));
+            Primitives.Add(new SimpleSkinPrimitive(subMesh.Name, (uint)indexOffset, (uint)subMesh.Indices.Count,
+                (uint)vertexOffset, (uint)subMesh.Vertices.Count));
 
             for (var i = 0; i < subMesh.Vertices.Count; i++)
             {
@@ -36,7 +36,10 @@ public class SimpleSkin
                     Vector3.Zero, vertex.UV));
             }
 
-            foreach (var index in subMesh.Indices) Indices.Add((ushort) index);
+            foreach (var index in subMesh.Indices)
+            {
+                Indices.Add((ushort)index);
+            }
 
             vertexOffset += subMesh.Vertices.Count;
             indexOffset += subMesh.Indices.Count;
@@ -51,7 +54,10 @@ public class SimpleSkin
     {
         using var br = new BinaryReader(stream, Encoding.ASCII, leaveOpen);
         var magic = br.ReadUInt32();
-        if (magic != Magic) throw new InvalidFileSignatureException();
+        if (magic != Magic)
+        {
+            throw new InvalidFileSignatureException();
+        }
 
         var major = br.ReadUInt16();
         var minor = br.ReadUInt16();
@@ -76,7 +82,10 @@ public class SimpleSkin
     private void Read(BinaryReader br, int major)
     {
         var primitiveCount = br.ReadUInt32();
-        for (var i = 0; i < primitiveCount; i++) Primitives.Add(new SimpleSkinPrimitive(br));
+        for (var i = 0; i < primitiveCount; i++)
+        {
+            Primitives.Add(new SimpleSkinPrimitive(br));
+        }
 
         if (major == 4)
         {
@@ -89,15 +98,25 @@ public class SimpleSkin
         if (major == 4)
         {
             var vertexSize = br.ReadUInt32();
-            VertexType = (SimpleSkinVertexType) br.ReadUInt32();
+            VertexType = (SimpleSkinVertexType)br.ReadUInt32();
             if (!VertexType.IsDefinedFast())
+            {
                 throw new InvalidDataException($"Vertex type {VertexType} is not supported");
+            }
+
             var boundingBox = new R3DBox(br);
             var boundingSphere = new R3DSphere(br);
         }
 
-        for (var i = 0; i < indexCount; i++) Indices.Add(br.ReadUInt16());
-        for (var i = 0; i < vertexCount; i++) Vertices.Add(new SimpleSkinVertex(br, VertexType));
+        for (var i = 0; i < indexCount; i++)
+        {
+            Indices.Add(br.ReadUInt16());
+        }
+
+        for (var i = 0; i < vertexCount; i++)
+        {
+            Vertices.Add(new SimpleSkinVertex(br, VertexType));
+        }
     }
 
     private void ReadLegacy(BinaryReader br)
@@ -107,8 +126,15 @@ public class SimpleSkin
 
         Primitives.Add(new SimpleSkinPrimitive("Base", 0, indexCount, 0, vertexCount));
 
-        for (var i = 0; i < indexCount; i++) Indices.Add(br.ReadUInt16());
-        for (var i = 0; i < vertexCount; i++) Vertices.Add(new SimpleSkinVertex(br, VertexType));
+        for (var i = 0; i < indexCount; i++)
+        {
+            Indices.Add(br.ReadUInt16());
+        }
+
+        for (var i = 0; i < vertexCount; i++)
+        {
+            Vertices.Add(new SimpleSkinVertex(br, VertexType));
+        }
     }
 
     public void Write(string fileLocation)
@@ -121,14 +147,17 @@ public class SimpleSkin
         using var bw = new BinaryWriter(stream, Encoding.ASCII, leaveOpen);
         bw.Write(Magic);
 
-        bw.Write((ushort) 4); // Major version
-        bw.Write((ushort) 1); // Minor version
+        bw.Write((ushort)4); // Major version
+        bw.Write((ushort)1); // Minor version
 
         bw.Write(Primitives.Count);
 
-        foreach (var primitive in Primitives) primitive.Write(bw);
+        foreach (var primitive in Primitives)
+        {
+            primitive.Write(bw);
+        }
 
-        bw.Write((uint) 0); // Flags
+        bw.Write((uint)0); // Flags
 
         bw.Write(Indices.Count);
         bw.Write(Vertices.Count);
@@ -136,23 +165,30 @@ public class SimpleSkin
         switch (VertexType)
         {
             case SimpleSkinVertexType.Basic:
-                bw.Write((uint) (12 * sizeof(float) + 4 * sizeof(byte)));
+                bw.Write((uint)(12 * sizeof(float) + 4 * sizeof(byte)));
                 break;
             case SimpleSkinVertexType.Color:
-                bw.Write((uint) (12 * sizeof(float) + 8 * sizeof(byte)));
+                bw.Write((uint)(12 * sizeof(float) + 8 * sizeof(byte)));
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        bw.Write((uint) VertexType);
+        bw.Write((uint)VertexType);
 
         var box = GetBoundingBox();
         box.Write(bw);
         box.GetBoundingSphere().Write(bw);
 
-        foreach (var index in Indices) bw.Write(index);
-        foreach (var vertex in Vertices) vertex.Write(bw, VertexType);
+        foreach (var index in Indices)
+        {
+            bw.Write(index);
+        }
+
+        foreach (var vertex in Vertices)
+        {
+            vertex.Write(bw, VertexType);
+        }
 
         bw.Pad(16, true);
     }
@@ -164,12 +200,35 @@ public class SimpleSkin
 
         foreach (var vertex in Vertices)
         {
-            if (min.X > vertex.Position.X) min.X = vertex.Position.X;
-            if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
-            if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
-            if (max.X < vertex.Position.X) max.X = vertex.Position.X;
-            if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
-            if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
+            if (min.X > vertex.Position.X)
+            {
+                min.X = vertex.Position.X;
+            }
+
+            if (min.Y > vertex.Position.Y)
+            {
+                min.Y = vertex.Position.Y;
+            }
+
+            if (min.Z > vertex.Position.Z)
+            {
+                min.Z = vertex.Position.Z;
+            }
+
+            if (max.X < vertex.Position.X)
+            {
+                max.X = vertex.Position.X;
+            }
+
+            if (max.Y < vertex.Position.Y)
+            {
+                max.Y = vertex.Position.Y;
+            }
+
+            if (max.Z < vertex.Position.Z)
+            {
+                max.Z = vertex.Position.Z;
+            }
         }
 
         return new R3DBox(min, max);

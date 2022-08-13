@@ -21,7 +21,7 @@ public struct MetaHash
 
     public override int GetHashCode()
     {
-        return (int) Hash;
+        return (int)Hash;
     }
 
     public override bool Equals(object obj)

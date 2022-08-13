@@ -59,7 +59,10 @@ public class BinTreeObject : IBinTreeParent, IEquatable<BinTreeObject>
         PathHash = br.ReadUInt32();
 
         var propertyCount = br.ReadUInt16();
-        for (var i = 0; i < propertyCount; i++) _properties.Add(BinTreeProperty.Read(br, this));
+        for (var i = 0; i < propertyCount; i++)
+        {
+            _properties.Add(BinTreeProperty.Read(br, this));
+        }
     }
 
     internal void WriteHeader(BinaryWriter bw)
@@ -72,14 +75,19 @@ public class BinTreeObject : IBinTreeParent, IEquatable<BinTreeObject>
         bw.Write(GetSize());
         bw.Write(PathHash);
 
-        bw.Write((ushort) _properties.Count);
-        foreach (var property in _properties) property.Write(bw, true);
+        bw.Write((ushort)_properties.Count);
+        foreach (var property in _properties)
+        {
+            property.Write(bw, true);
+        }
     }
 
     public void AddProperty(BinTreeProperty property)
     {
         if (_properties.Any(x => x.NameHash == property.NameHash))
+        {
             throw new InvalidOperationException("A property with the same name already exists");
+        }
 
         property.Parent = this;
         _properties.Add(property);
@@ -88,14 +96,22 @@ public class BinTreeObject : IBinTreeParent, IEquatable<BinTreeObject>
     public void RemoveProperty(uint nameHash)
     {
         if (_properties.FirstOrDefault(x => x.NameHash == nameHash) is BinTreeProperty property)
+        {
             _properties.Remove(property);
-        else throw new ArgumentException("Failed to find a property with the specified name hash", nameof(nameHash));
+        }
+        else
+        {
+            throw new ArgumentException("Failed to find a property with the specified name hash", nameof(nameHash));
+        }
     }
 
     private int GetSize()
     {
         var size = 4 + 2;
-        foreach (var property in _properties) size += property.GetSize(true);
+        foreach (var property in _properties)
+        {
+            size += property.GetSize(true);
+        }
 
         return size;
     }

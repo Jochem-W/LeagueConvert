@@ -29,7 +29,7 @@ public class WorldDescriptionObject
     /// <param name="sr">The <see cref="StreamReader" /> to read from</param>
     public WorldDescriptionObject(StreamReader sr)
     {
-        var line = sr.ReadLine().Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+        var line = sr.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
         Name = line[0];
         WorldQuality = int.Parse(line[1]);

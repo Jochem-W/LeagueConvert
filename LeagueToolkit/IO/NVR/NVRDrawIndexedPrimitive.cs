@@ -71,11 +71,16 @@ public class NVRDrawIndexedPrimitive
         IndexCount = br.ReadInt32();
 
         for (var i = FirstIndex; i < FirstIndex + IndexCount; i++)
+        {
             Indices.Add(buffers.IndexBuffers[IndexBuffer].Indices[i]);
+        }
 
         // Fix indices
         var indicesMin = FindMin(Indices);
-        for (var i = 0; i < Indices.Count; i++) Indices[i] -= indicesMin;
+        for (var i = 0; i < Indices.Count; i++)
+        {
+            Indices[i] -= indicesMin;
+        }
     }
 
     public NVRDrawIndexedPrimitive(NVRMesh mesh, List<NVRVertex> vertices, List<int> indices, bool complex)
@@ -89,14 +94,20 @@ public class NVRDrawIndexedPrimitive
             {
                 VertexType = vertices[0].GetVertexType();
                 var expectedType = NVRVertex.GetVertexTypeFromMaterial(mesh.Material);
-                if (expectedType != VertexType) throw new InvalidVertexTypeException(mesh.Material.Type, expectedType);
+                if (expectedType != VertexType)
+                {
+                    throw new InvalidVertexTypeException(mesh.Material.Type, expectedType);
+                }
             }
         }
         else
         {
             VertexType = NVRVertexType.NVRVERTEX;
             // Conversion to simple vertex
-            foreach (var vertex in vertices) Vertices.Add(new NVRVertex(vertex.Position));
+            foreach (var vertex in vertices)
+            {
+                Vertices.Add(new NVRVertex(vertex.Position));
+            }
         }
     }
 
@@ -108,8 +119,13 @@ public class NVRDrawIndexedPrimitive
     {
         var min = list[0];
         for (var i = 1; i < list.Count; i++)
+        {
             if (list[i] < min)
+            {
                 min = list[i];
+            }
+        }
+
         return min;
     }
 

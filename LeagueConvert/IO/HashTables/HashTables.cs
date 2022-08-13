@@ -16,7 +16,10 @@ public static class HashTables
     public static async Task<bool> TryLoadFile(string filePath, HashTable hashTable, ILogger logger = null)
     {
         if (!File.Exists(filePath))
+        {
             return false;
+        }
+
         try
         {
             switch (hashTable)
@@ -47,9 +50,15 @@ public static class HashTables
         logger?.Information("Loading latest hash tables");
         var path = Path.Combine(Path.GetTempPath(), "LeagueConvert");
         if (!Directory.Exists(path))
+        {
             Directory.CreateDirectory(path);
+        }
+
         if (await TryLoadFromGitHub(path, logger))
+        {
             return true;
+        }
+
         logger?.Warning("Trying to load (possibly outdated) existing hash tables");
         return await TryLoadExisting(path, logger);
     }
@@ -71,6 +80,7 @@ public static class HashTables
         }
 
         foreach (var repositoryContent in contents)
+        {
             switch (repositoryContent.Name)
             {
                 case "hashes.game.txt":
@@ -84,6 +94,7 @@ public static class HashTables
                     LoadBinHashes(GetUintHashPairs(content), logger);
                     break;
             }
+        }
 
         return true;
     }
@@ -93,7 +104,11 @@ public static class HashTables
         var gameHashFile = Path.Combine(path, "hashes.game.txt");
         var binHashesFile = Path.Combine(path, "hashes.binhashes.txt");
         if (await TryLoadFile(gameHashFile, HashTable.Game, logger) &&
-            await TryLoadFile(binHashesFile, HashTable.BinHashes, logger)) return true;
+            await TryLoadFile(binHashesFile, HashTable.BinHashes, logger))
+        {
+            return true;
+        }
+
         logger?.Error("Couldn't load existing hash tables");
         return false;
     }
@@ -105,7 +120,10 @@ public static class HashTables
         var shaFilePath = $"{filePath}.sha";
         if (File.Exists(shaFilePath) && await File.ReadAllTextAsync(shaFilePath) == content.Sha &&
             File.Exists(filePath))
+        {
             return await File.ReadAllTextAsync(filePath);
+        }
+
         var tmpFilePath = $"{filePath}.tmp";
         logger?.Information("Downloading {FileName}", content.Name);
         var contents = await _httpClient.GetStringAsync(content.DownloadUrl);
@@ -137,14 +155,18 @@ public static class HashTables
     {
         Game ??= new Dictionary<ulong, string>();
         foreach (var (hash, value) in hashPairs)
+        {
             TryLoadHash(hash, value, Game, logger);
+        }
     }
 
     private static void LoadBinHashes(IEnumerable<KeyValuePair<uint, string>> hashPairs, ILogger logger = null)
     {
         BinHashes ??= new Dictionary<uint, string>();
         foreach (var (hash, value) in hashPairs)
+        {
             TryLoadHash(hash, value, BinHashes, logger);
+        }
     }
 
     private static void TryLoadHash(uint hash, string value, IDictionary<uint, string> hashTable,

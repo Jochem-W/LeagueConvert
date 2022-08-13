@@ -11,7 +11,11 @@ public struct Color : IEquatable<Color>
         get => _r;
         set
         {
-            if (value < 0 || value > 1) throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+            if (value < 0 || value > 1)
+            {
+                throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+            }
+
             _r = value;
         }
     }
@@ -21,7 +25,11 @@ public struct Color : IEquatable<Color>
         get => _g;
         set
         {
-            if (value < 0 || value > 1) throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+            if (value < 0 || value > 1)
+            {
+                throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+            }
+
             _g = value;
         }
     }
@@ -31,7 +39,11 @@ public struct Color : IEquatable<Color>
         get => _b;
         set
         {
-            if (value < 0 || value > 1) throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+            if (value < 0 || value > 1)
+            {
+                throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+            }
+
             _b = value;
         }
     }
@@ -41,7 +53,11 @@ public struct Color : IEquatable<Color>
         get => _a;
         set
         {
-            if (value < 0 || value > 1) throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+            if (value < 0 || value > 1)
+            {
+                throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+            }
+
             _a = value;
         }
     }
@@ -69,10 +85,25 @@ public struct Color : IEquatable<Color>
 
     public Color(float r, float g, float b, float a)
     {
-        if (r < 0 || r > 1) Math.Clamp(r, 0, 1);
-        if (g < 0 || g > 1) Math.Clamp(g, 0, 1);
-        if (b < 0 || b > 1) Math.Clamp(b, 0, 1);
-        if (a < 0 || a > 1) Math.Clamp(a, 0, 1);
+        if (r < 0 || r > 1)
+        {
+            Math.Clamp(r, 0, 1);
+        }
+
+        if (g < 0 || g > 1)
+        {
+            Math.Clamp(g, 0, 1);
+        }
+
+        if (b < 0 || b > 1)
+        {
+            Math.Clamp(b, 0, 1);
+        }
+
+        if (a < 0 || a > 1)
+        {
+            Math.Clamp(a, 0, 1);
+        }
 
         _r = r;
         _g = g;
@@ -108,29 +139,29 @@ public struct Color : IEquatable<Color>
 
         if (format == ColorFormat.RgbU8)
         {
-            colorBuffer[0] = (byte) (R * 255);
-            colorBuffer[1] = (byte) (G * 255);
-            colorBuffer[2] = (byte) (B * 255);
+            colorBuffer[0] = (byte)(R * 255);
+            colorBuffer[1] = (byte)(G * 255);
+            colorBuffer[2] = (byte)(B * 255);
         }
         else if (format == ColorFormat.RgbaU8)
         {
-            colorBuffer[0] = (byte) (R * 255);
-            colorBuffer[1] = (byte) (G * 255);
-            colorBuffer[2] = (byte) (B * 255);
-            colorBuffer[3] = (byte) (A * 255);
+            colorBuffer[0] = (byte)(R * 255);
+            colorBuffer[1] = (byte)(G * 255);
+            colorBuffer[2] = (byte)(B * 255);
+            colorBuffer[3] = (byte)(A * 255);
         }
         else if (format == ColorFormat.BgrU8)
         {
-            colorBuffer[0] = (byte) (B * 255);
-            colorBuffer[1] = (byte) (G * 255);
-            colorBuffer[2] = (byte) (R * 255);
+            colorBuffer[0] = (byte)(B * 255);
+            colorBuffer[1] = (byte)(G * 255);
+            colorBuffer[2] = (byte)(R * 255);
         }
         else if (format == ColorFormat.BgraU8)
         {
-            colorBuffer[0] = (byte) (B * 255);
-            colorBuffer[1] = (byte) (G * 255);
-            colorBuffer[2] = (byte) (R * 255);
-            colorBuffer[3] = (byte) (A * 255);
+            colorBuffer[0] = (byte)(B * 255);
+            colorBuffer[1] = (byte)(G * 255);
+            colorBuffer[2] = (byte)(R * 255);
+            colorBuffer[3] = (byte)(A * 255);
         }
         else if (format == ColorFormat.RgbF32)
         {
@@ -165,24 +196,48 @@ public struct Color : IEquatable<Color>
     public string ToString(ColorFormat format)
     {
         if (format == ColorFormat.RgbU8)
-            return string.Format("{0} {1} {2}", (byte) (R * 255), (byte) (G * 255), (byte) (B * 255));
+        {
+            return string.Format("{0} {1} {2}", (byte)(R * 255), (byte)(G * 255), (byte)(B * 255));
+        }
+
         if (format == ColorFormat.RgbaU8)
-            return string.Format("{0} {1} {2} {3}", (byte) (R * 255), (byte) (G * 255), (byte) (B * 255),
-                (byte) (B * 255));
+        {
+            return string.Format("{0} {1} {2} {3}", (byte)(R * 255), (byte)(G * 255), (byte)(B * 255),
+                (byte)(B * 255));
+        }
+
         if (format == ColorFormat.BgrU8)
-            return string.Format("{0} {1} {2} {3}", (byte) (B * 255), (byte) (G * 255), (byte) (R * 255),
-                (byte) (B * 255));
+        {
+            return string.Format("{0} {1} {2} {3}", (byte)(B * 255), (byte)(G * 255), (byte)(R * 255),
+                (byte)(B * 255));
+        }
+
         if (format == ColorFormat.BgraU8)
-            return string.Format("{0} {1} {2} {3}", (byte) (B * 255), (byte) (G * 255), (byte) (R * 255),
-                (byte) (B * 255));
+        {
+            return string.Format("{0} {1} {2} {3}", (byte)(B * 255), (byte)(G * 255), (byte)(R * 255),
+                (byte)(B * 255));
+        }
+
         if (format == ColorFormat.RgbF32)
+        {
             return string.Format("{0} {1} {2}", R, G, B);
+        }
+
         if (format == ColorFormat.RgbaF32)
+        {
             return string.Format("{0} {1} {2} {3}", R, G, B, A);
+        }
+
         if (format == ColorFormat.BgrF32)
+        {
             return string.Format("{0} {1} {2}", B, G, R);
+        }
+
         if (format == ColorFormat.BgraF32)
+        {
             return string.Format("{0} {1} {2} {3}", B, G, R, A);
+        }
+
         throw new ArgumentException("Unsupported format", nameof(format));
     }
 

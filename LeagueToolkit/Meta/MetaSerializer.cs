@@ -19,9 +19,14 @@ public static class MetaSerializer
 
         // Verify attribute
         if (metaClassAttribute is null)
+        {
             throw new InvalidOperationException("The provided MetaClass does not have a MetaClass Attribute");
+        }
+
         if (metaClassAttribute.NameHash != treeObject.MetaClassHash)
+        {
             throw new InvalidOperationException("Meta Class name does not match class name of treeObject");
+        }
 
         // Create an instance of T and get its runtime type
         var metaClassObject = Activator.CreateInstance<T>();
@@ -49,7 +54,9 @@ public static class MetaSerializer
         var metaClassAttribute = metaClassType.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
 
         if (metaClassAttribute is null)
+        {
             throw new InvalidOperationException("The provided MetaClass does not have a MetaClass Attribute");
+        }
 
         // Create Tree Properties for meta properties
         List<BinTreeProperty> properties = new();
@@ -57,7 +64,10 @@ public static class MetaSerializer
         {
             var treeProperty = ConvertPropertyToTreeProperty(environment, metaClass, propertyInfo);
 
-            if (treeProperty is not null) properties.Add(treeProperty);
+            if (treeProperty is not null)
+            {
+                properties.Add(treeProperty);
+            }
         }
 
         var treeObject = new BinTreeObject(metaClassAttribute.NameHash, pathHash, properties);
@@ -77,13 +87,18 @@ public static class MetaSerializer
                 propertyInfo.GetCustomAttribute(typeof(MetaPropertyAttribute)) as MetaPropertyAttribute;
 
             // Ignore non-meta properties
-            if (metaPropertyAttribute is null) continue;
+            if (metaPropertyAttribute is null)
+            {
+                continue;
+            }
 
             // Find matching tree property
             var treeProperty = treeProperties.FirstOrDefault(x => x.NameHash == metaPropertyAttribute.NameHash);
             if (treeProperty is not null) // Ignore missing properties
                 // Assign values to properties
+            {
                 AssignMetaProperty(environment, metaClassObject, propertyInfo, treeProperty);
+            }
         }
     }
 
@@ -101,17 +116,34 @@ public static class MetaSerializer
         var treePropertyType = treeProperty.Type;
 
         if (IsPrimitivePropertyType(treePropertyType))
+        {
             return FetchPrimitivePropertyValue(treeProperty);
+        }
+
         if (treePropertyType == BinPropertyType.Container || treePropertyType == BinPropertyType.UnorderedContainer)
+        {
             return DeserializeContainer(environment, propertyType, treeProperty as BinTreeContainer);
+        }
+
         if (treePropertyType == BinPropertyType.Structure)
+        {
             return DeserializeStructure(environment, treeProperty as BinTreeStructure);
+        }
+
         if (treePropertyType == BinPropertyType.Embedded)
+        {
             return DeserializeEmbedded(environment, treeProperty as BinTreeEmbedded);
+        }
+
         if (treePropertyType == BinPropertyType.Map)
+        {
             return DeserializeMap(environment, propertyType, treeProperty as BinTreeMap);
+        }
+
         if (treePropertyType == BinPropertyType.Optional)
+        {
             return DeserializeOptional(environment, propertyType, treeProperty as BinTreeOptional);
+        }
 
         return null;
     }
@@ -119,7 +151,10 @@ public static class MetaSerializer
     private static object DeserializeStructure(MetaEnvironment environment, BinTreeStructure structure)
     {
         var metaClassType = environment.FindMetaClass(structure.MetaClassHash);
-        if (metaClassType is null) return null; // Couldn't deserialize structure
+        if (metaClassType is null)
+        {
+            return null; // Couldn't deserialize structure
+        }
 
         var metaClassObject = Activator.CreateInstance(metaClassType);
 
@@ -131,7 +166,10 @@ public static class MetaSerializer
     private static object DeserializeEmbedded(MetaEnvironment environment, BinTreeEmbedded embedded)
     {
         var metaClassType = environment.FindMetaClass(embedded.MetaClassHash);
-        if (metaClassType is null) return null; // Couldn't deserialize structure
+        if (metaClassType is null)
+        {
+            return null; // Couldn't deserialize structure
+        }
 
         var embeddedWrapperType = typeof(MetaEmbedded<>).MakeGenericType(metaClassType);
 
@@ -150,7 +188,9 @@ public static class MetaSerializer
         var addMethod = containerListType.GetMethod("Add");
 
         foreach (var containerItem in container.Properties)
-            addMethod.Invoke(containerList, new[] {DeserializeTreeProperty(environment, containerItem)});
+        {
+            addMethod.Invoke(containerList, new[] { DeserializeTreeProperty(environment, containerItem) });
+        }
 
         return containerList;
     }
@@ -158,7 +198,10 @@ public static class MetaSerializer
     private static object DeserializeMap(MetaEnvironment environment, Type propertyType, BinTreeMap map)
     {
         // Invalid key type
-        if (IsValidMapKey(map.KeyType) is false) return null;
+        if (IsValidMapKey(map.KeyType) is false)
+        {
+            return null;
+        }
 
         var mapDictionary = Activator.CreateInstance(propertyType);
         var mapDictionaryType = mapDictionary.GetType();
@@ -170,7 +213,7 @@ public static class MetaSerializer
             var keyValue = FetchPrimitivePropertyValue(propertyPair.Key);
             var valueValue = DeserializeTreeProperty(environment, propertyPair.Value);
 
-            addMethod.Invoke(mapDictionary, new[] {keyValue, valueValue});
+            addMethod.Invoke(mapDictionary, new[] { keyValue, valueValue });
         }
 
         return mapDictionary;
@@ -192,7 +235,9 @@ public static class MetaSerializer
         var metaPropertyAttribute =
             propertyInfo.GetCustomAttribute(typeof(MetaPropertyAttribute)) as MetaPropertyAttribute;
         if (metaPropertyAttribute is null)
+        {
             throw new InvalidOperationException("The specified property does not have a MetaProperty Attribute");
+        }
 
         var value = propertyInfo.GetValue(metaClassObject);
 
@@ -203,48 +248,110 @@ public static class MetaSerializer
         Type valueType)
     {
         // Handle primitives
-        if (value is null) return null;
+        if (value is null)
+        {
+            return null;
+        }
 
-        if (valueType == typeof(bool?)) return new BinTreeBool(null, nameHash, (bool) value);
+        if (valueType == typeof(bool?))
+        {
+            return new BinTreeBool(null, nameHash, (bool)value);
+        }
 
-        if (valueType == typeof(sbyte?)) return new BinTreeSByte(null, nameHash, (sbyte) value);
+        if (valueType == typeof(sbyte?))
+        {
+            return new BinTreeSByte(null, nameHash, (sbyte)value);
+        }
 
-        if (valueType == typeof(byte?)) return new BinTreeByte(null, nameHash, (byte) value);
+        if (valueType == typeof(byte?))
+        {
+            return new BinTreeByte(null, nameHash, (byte)value);
+        }
 
-        if (valueType == typeof(short?)) return new BinTreeInt16(null, nameHash, (short) value);
+        if (valueType == typeof(short?))
+        {
+            return new BinTreeInt16(null, nameHash, (short)value);
+        }
 
-        if (valueType == typeof(ushort?)) return new BinTreeUInt16(null, nameHash, (ushort) value);
+        if (valueType == typeof(ushort?))
+        {
+            return new BinTreeUInt16(null, nameHash, (ushort)value);
+        }
 
-        if (valueType == typeof(int?)) return new BinTreeInt32(null, nameHash, (int) value);
+        if (valueType == typeof(int?))
+        {
+            return new BinTreeInt32(null, nameHash, (int)value);
+        }
 
-        if (valueType == typeof(uint?)) return new BinTreeUInt32(null, nameHash, (uint) value);
+        if (valueType == typeof(uint?))
+        {
+            return new BinTreeUInt32(null, nameHash, (uint)value);
+        }
 
-        if (valueType == typeof(long?)) return new BinTreeInt64(null, nameHash, (long) value);
+        if (valueType == typeof(long?))
+        {
+            return new BinTreeInt64(null, nameHash, (long)value);
+        }
 
-        if (valueType == typeof(ulong?)) return new BinTreeUInt64(null, nameHash, (ulong) value);
+        if (valueType == typeof(ulong?))
+        {
+            return new BinTreeUInt64(null, nameHash, (ulong)value);
+        }
 
-        if (valueType == typeof(float?)) return new BinTreeFloat(null, nameHash, (float) value);
+        if (valueType == typeof(float?))
+        {
+            return new BinTreeFloat(null, nameHash, (float)value);
+        }
 
-        if (valueType == typeof(Vector2?)) return new BinTreeVector2(null, nameHash, (Vector2) value);
+        if (valueType == typeof(Vector2?))
+        {
+            return new BinTreeVector2(null, nameHash, (Vector2)value);
+        }
 
-        if (valueType == typeof(Vector3?)) return new BinTreeVector3(null, nameHash, (Vector3) value);
+        if (valueType == typeof(Vector3?))
+        {
+            return new BinTreeVector3(null, nameHash, (Vector3)value);
+        }
 
-        if (valueType == typeof(Vector4?)) return new BinTreeVector4(null, nameHash, (Vector4) value);
+        if (valueType == typeof(Vector4?))
+        {
+            return new BinTreeVector4(null, nameHash, (Vector4)value);
+        }
 
-        if (valueType == typeof(Matrix4x4?)) return new BinTreeMatrix44(null, nameHash, (Matrix4x4) value);
+        if (valueType == typeof(Matrix4x4?))
+        {
+            return new BinTreeMatrix44(null, nameHash, (Matrix4x4)value);
+        }
 
-        if (valueType == typeof(Color?)) return new BinTreeColor(null, nameHash, (Color) value);
+        if (valueType == typeof(Color?))
+        {
+            return new BinTreeColor(null, nameHash, (Color)value);
+        }
 
-        if (valueType == typeof(string)) return new BinTreeString(null, nameHash, (string) value);
+        if (valueType == typeof(string))
+        {
+            return new BinTreeString(null, nameHash, (string)value);
+        }
 
-        if (valueType == typeof(MetaHash?)) return new BinTreeHash(null, nameHash, (MetaHash) value);
+        if (valueType == typeof(MetaHash?))
+        {
+            return new BinTreeHash(null, nameHash, (MetaHash)value);
+        }
 
         if (valueType == typeof(MetaWadEntryLink?))
-            return new BinTreeWadEntryLink(null, nameHash, (MetaWadEntryLink) value);
+        {
+            return new BinTreeWadEntryLink(null, nameHash, (MetaWadEntryLink)value);
+        }
 
-        if (valueType == typeof(MetaObjectLink?)) return new BinTreeObjectLink(null, nameHash, (MetaObjectLink) value);
+        if (valueType == typeof(MetaObjectLink?))
+        {
+            return new BinTreeObjectLink(null, nameHash, (MetaObjectLink)value);
+        }
 
-        if (valueType == typeof(MetaBitBool?)) return new BinTreeBitBool(null, nameHash, (MetaBitBool) value);
+        if (valueType == typeof(MetaBitBool?))
+        {
+            return new BinTreeBitBool(null, nameHash, (MetaBitBool)value);
+        }
 
         // Handle complex types
         if (valueType.IsGenericType)
@@ -252,26 +359,44 @@ public static class MetaSerializer
             var genericTypeDefinition = valueType.GetGenericTypeDefinition();
 
             if (genericTypeDefinition == typeof(Dictionary<,>))
+            {
                 return CreateMapProperty(environment, nameHash, valueType.GenericTypeArguments[0],
                     valueType.GenericTypeArguments[1], value as IDictionary);
+            }
+
             if (genericTypeDefinition == typeof(MetaUnorderedContainer<>))
+            {
                 return CreateUnorderedContainerProperty(environment, nameHash, valueType.GenericTypeArguments[0],
                     value as IEnumerable);
+            }
+
             if (genericTypeDefinition == typeof(MetaContainer<>))
+            {
                 return CreateContainerProperty(environment, nameHash, valueType.GenericTypeArguments[0],
                     value as IEnumerable);
+            }
+
             if (genericTypeDefinition == typeof(MetaOptional<>))
+            {
                 return CreateOptionalProperty(environment, nameHash, valueType.GenericTypeArguments[0],
                     value as IMetaOptional);
+            }
+
             if (genericTypeDefinition == typeof(MetaEmbedded<>))
+            {
                 return CreateEmbeddedProperty(environment, nameHash, valueType.GenericTypeArguments[0],
                     value as IMetaEmbedded);
+            }
+
             return null;
         }
 
         // Check if we're dealing with a Structure type
         if (valueType.IsValueType is false && valueType.GetInterface(nameof(IMetaClass)) is not null)
+        {
             return CreateStructureProperty(environment, value, nameHash);
+        }
+
         return null;
     }
 
@@ -281,14 +406,19 @@ public static class MetaSerializer
         var structureType = structureObject.GetType();
         var metaClassAttribute = structureType.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
         if (metaClassAttribute is null)
+        {
             throw new InvalidOperationException("The specified property does not have a MetaClass Attribute");
+        }
 
         // Create properties
         List<BinTreeProperty> properties = new();
         foreach (var propertyInfo in structureType.GetProperties())
         {
             var property = ConvertPropertyToTreeProperty(environment, structureObject, propertyInfo);
-            if (property is not null) properties.Add(property);
+            if (property is not null)
+            {
+                properties.Add(property);
+            }
         }
 
         return new BinTreeStructure(null, nameHash, metaClassAttribute.NameHash, properties);
@@ -308,7 +438,10 @@ public static class MetaSerializer
             var key = ConvertObjectToProperty(environment, 0, entry.Key, keyType);
             var value = ConvertObjectToProperty(environment, 0, entry.Value, valueType);
 
-            if (key is not null && value is not null) convertedMap.Add(key, value);
+            if (key is not null && value is not null)
+            {
+                convertedMap.Add(key, value);
+            }
         }
 
         var treeMap = new BinTreeMap(null, nameHash, keyPropertyType, valuePropertyType, convertedMap);
@@ -325,7 +458,10 @@ public static class MetaSerializer
         foreach (var item in unorderedContainer)
         {
             var property = ConvertObjectToProperty(environment, 0, item, itemType);
-            if (property is not null) properties.Add(property);
+            if (property is not null)
+            {
+                properties.Add(property);
+            }
         }
 
         var treeContainer = new BinTreeUnorderedContainer(null, nameHash, itemPropertyType, properties);
@@ -342,7 +478,10 @@ public static class MetaSerializer
         foreach (var item in container)
         {
             var property = ConvertObjectToProperty(environment, 0, item, itemType);
-            if (property is not null) properties.Add(property);
+            if (property is not null)
+            {
+                properties.Add(property);
+            }
         }
 
         var treeContainer = new BinTreeContainer(null, nameHash, itemPropertyType, properties);
@@ -356,7 +495,11 @@ public static class MetaSerializer
         var value = optional.GetValue();
         var optionalValue = ConvertObjectToProperty(environment, 0, value, valueType);
 
-        if (optionalValue is null) return null;
+        if (optionalValue is null)
+        {
+            return null;
+        }
+
         return new BinTreeOptional(null, nameHash, propertyType, optionalValue);
     }
 
@@ -365,7 +508,9 @@ public static class MetaSerializer
     {
         var metaClassAttribute = valueType.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
         if (metaClassAttribute is null)
+        {
             throw new InvalidOperationException("The specified property does not have a MetaClass Attribute");
+        }
 
         var embdeddedValue = embeddedObject.GetValue();
 
@@ -375,7 +520,10 @@ public static class MetaSerializer
         {
             var property = ConvertPropertyToTreeProperty(environment, embdeddedValue, propertyInfo);
 
-            if (property is not null) properties.Add(property);
+            if (property is not null)
+            {
+                properties.Add(property);
+            }
         }
 
         return new BinTreeEmbedded(null, nameHash, metaClassAttribute.NameHash, properties);
@@ -493,60 +641,143 @@ public static class MetaSerializer
     private static BinPropertyType GetPropertyTypeFromType(Type type)
     {
         // Primitive types
-        if (type == typeof(bool)) return BinPropertyType.Bool;
+        if (type == typeof(bool))
+        {
+            return BinPropertyType.Bool;
+        }
 
-        if (type == typeof(sbyte)) return BinPropertyType.SByte;
+        if (type == typeof(sbyte))
+        {
+            return BinPropertyType.SByte;
+        }
 
-        if (type == typeof(byte)) return BinPropertyType.Byte;
+        if (type == typeof(byte))
+        {
+            return BinPropertyType.Byte;
+        }
 
-        if (type == typeof(short)) return BinPropertyType.Int16;
+        if (type == typeof(short))
+        {
+            return BinPropertyType.Int16;
+        }
 
-        if (type == typeof(ushort)) return BinPropertyType.UInt16;
+        if (type == typeof(ushort))
+        {
+            return BinPropertyType.UInt16;
+        }
 
-        if (type == typeof(int)) return BinPropertyType.Int32;
+        if (type == typeof(int))
+        {
+            return BinPropertyType.Int32;
+        }
 
-        if (type == typeof(uint)) return BinPropertyType.UInt32;
+        if (type == typeof(uint))
+        {
+            return BinPropertyType.UInt32;
+        }
 
-        if (type == typeof(long)) return BinPropertyType.Int64;
+        if (type == typeof(long))
+        {
+            return BinPropertyType.Int64;
+        }
 
-        if (type == typeof(ulong)) return BinPropertyType.UInt64;
+        if (type == typeof(ulong))
+        {
+            return BinPropertyType.UInt64;
+        }
 
-        if (type == typeof(float)) return BinPropertyType.Float;
+        if (type == typeof(float))
+        {
+            return BinPropertyType.Float;
+        }
 
-        if (type == typeof(Vector2)) return BinPropertyType.Vector2;
+        if (type == typeof(Vector2))
+        {
+            return BinPropertyType.Vector2;
+        }
 
-        if (type == typeof(Vector3)) return BinPropertyType.Vector3;
+        if (type == typeof(Vector3))
+        {
+            return BinPropertyType.Vector3;
+        }
 
-        if (type == typeof(Vector4)) return BinPropertyType.Vector4;
+        if (type == typeof(Vector4))
+        {
+            return BinPropertyType.Vector4;
+        }
 
-        if (type == typeof(Matrix4x4)) return BinPropertyType.Matrix44;
+        if (type == typeof(Matrix4x4))
+        {
+            return BinPropertyType.Matrix44;
+        }
 
-        if (type == typeof(Color)) return BinPropertyType.Color;
+        if (type == typeof(Color))
+        {
+            return BinPropertyType.Color;
+        }
 
-        if (type == typeof(string)) return BinPropertyType.String;
+        if (type == typeof(string))
+        {
+            return BinPropertyType.String;
+        }
 
-        if (type == typeof(MetaHash)) return BinPropertyType.Hash;
+        if (type == typeof(MetaHash))
+        {
+            return BinPropertyType.Hash;
+        }
 
-        if (type == typeof(MetaWadEntryLink)) return BinPropertyType.WadEntryLink;
+        if (type == typeof(MetaWadEntryLink))
+        {
+            return BinPropertyType.WadEntryLink;
+        }
 
-        if (type == typeof(MetaObjectLink)) return BinPropertyType.ObjectLink;
+        if (type == typeof(MetaObjectLink))
+        {
+            return BinPropertyType.ObjectLink;
+        }
 
-        if (type == typeof(MetaBitBool)) return BinPropertyType.BitBool;
+        if (type == typeof(MetaBitBool))
+        {
+            return BinPropertyType.BitBool;
+        }
 
         if (type.IsGenericType)
         {
             var genericTypeDefinition = type.GetGenericTypeDefinition();
 
-            if (genericTypeDefinition == typeof(Dictionary<,>)) return BinPropertyType.Map;
-            if (genericTypeDefinition == typeof(MetaUnorderedContainer<>)) return BinPropertyType.UnorderedContainer;
-            if (genericTypeDefinition == typeof(MetaContainer<>)) return BinPropertyType.Container;
-            if (genericTypeDefinition == typeof(MetaOptional<>)) return BinPropertyType.Optional;
-            if (genericTypeDefinition == typeof(MetaEmbedded<>)) return BinPropertyType.Embedded;
+            if (genericTypeDefinition == typeof(Dictionary<,>))
+            {
+                return BinPropertyType.Map;
+            }
+
+            if (genericTypeDefinition == typeof(MetaUnorderedContainer<>))
+            {
+                return BinPropertyType.UnorderedContainer;
+            }
+
+            if (genericTypeDefinition == typeof(MetaContainer<>))
+            {
+                return BinPropertyType.Container;
+            }
+
+            if (genericTypeDefinition == typeof(MetaOptional<>))
+            {
+                return BinPropertyType.Optional;
+            }
+
+            if (genericTypeDefinition == typeof(MetaEmbedded<>))
+            {
+                return BinPropertyType.Embedded;
+            }
+
             throw new ArgumentException(nameof(type), "Failed to match with a valid property type");
         }
 
         if (type.IsValueType is false && type.GetInterface(nameof(IMetaClass)) is not null)
+        {
             return BinPropertyType.Structure;
+        }
+
         throw new ArgumentException(nameof(type), "Failed to match with a valid property type");
     }
 }

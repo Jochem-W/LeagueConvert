@@ -47,14 +47,25 @@ public class WorldGeometryModel
 
         var vertexCount = br.ReadUInt32();
         var indexCount = br.ReadUInt32();
-        for (var i = 0; i < vertexCount; i++) Vertices.Add(new WorldGeometryVertex(br));
+        for (var i = 0; i < vertexCount; i++)
+        {
+            Vertices.Add(new WorldGeometryVertex(br));
+        }
 
         if (indexCount <= 65536)
+        {
             for (var i = 0; i < indexCount; i++)
+            {
                 Indices.Add(br.ReadUInt16());
+            }
+        }
         else
+        {
             for (var i = 0; i < indexCount; i++)
+            {
                 Indices.Add(br.ReadUInt32());
+            }
+        }
     }
 
     /// <summary>
@@ -102,14 +113,25 @@ public class WorldGeometryModel
 
         bw.Write(Vertices.Count);
         bw.Write(Indices.Count);
-        foreach (var vertex in Vertices) vertex.Write(bw);
+        foreach (var vertex in Vertices)
+        {
+            vertex.Write(bw);
+        }
 
         if (Indices.Count <= 65536)
+        {
             foreach (ushort index in Indices)
+            {
                 bw.Write(index);
+            }
+        }
         else
+        {
             foreach (var index in Indices)
+            {
                 bw.Write(index);
+            }
+        }
     }
 
     public Tuple<R3DSphere, R3DBox> CalculateBoundingGeometry()
@@ -124,19 +146,45 @@ public class WorldGeometryModel
     /// </summary>
     public R3DBox CalculateBoundingBox()
     {
-        if (Vertices == null || Vertices.Count == 0) return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+        if (Vertices == null || Vertices.Count == 0)
+        {
+            return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+        }
 
         var min = Vertices[0].Position;
         var max = Vertices[0].Position;
 
         foreach (var vertex in Vertices)
         {
-            if (min.X > vertex.Position.X) min.X = vertex.Position.X;
-            if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
-            if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
-            if (max.X < vertex.Position.X) max.X = vertex.Position.X;
-            if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
-            if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
+            if (min.X > vertex.Position.X)
+            {
+                min.X = vertex.Position.X;
+            }
+
+            if (min.Y > vertex.Position.Y)
+            {
+                min.Y = vertex.Position.Y;
+            }
+
+            if (min.Z > vertex.Position.Z)
+            {
+                min.Z = vertex.Position.Z;
+            }
+
+            if (max.X < vertex.Position.X)
+            {
+                max.X = vertex.Position.X;
+            }
+
+            if (max.Y < vertex.Position.Y)
+            {
+                max.Y = vertex.Position.Y;
+            }
+
+            if (max.Z < vertex.Position.Z)
+            {
+                max.Z = vertex.Position.Z;
+            }
         }
 
         return new R3DBox(min, max);

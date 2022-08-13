@@ -18,9 +18,14 @@ public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent
         foreach (var pair in map)
         {
             if (pair.Key.Type != keyType)
+            {
                 throw new ArgumentException("Found a key that does not match the specified key type", nameof(map));
+            }
+
             if (pair.Value.Type != valueType)
+            {
                 throw new ArgumentException("Found a value that does not match the specified value type", nameof(map));
+            }
 
             pair.Key.Parent = this;
             pair.Value.Parent = this;
@@ -32,12 +37,15 @@ public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent
 
     internal BinTreeMap(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
     {
-        KeyType = BinUtilities.UnpackType((BinPropertyType) br.ReadByte());
-        ValueType = BinUtilities.UnpackType((BinPropertyType) br.ReadByte());
+        KeyType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
+        ValueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
         var size = br.ReadUInt32();
         var valueCount = br.ReadUInt32();
 
-        for (var i = 0; i < valueCount; i++) _map.Add(Read(br, this, KeyType), Read(br, this, ValueType));
+        for (var i = 0; i < valueCount; i++)
+        {
+            _map.Add(Read(br, this, KeyType), Read(br, this, ValueType));
+        }
 
         Map = new ReadOnlyDictionary<BinTreeProperty, BinTreeProperty>(_map);
     }
@@ -50,8 +58,8 @@ public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent
 
     protected override void WriteContent(BinaryWriter bw)
     {
-        bw.Write((byte) KeyType);
-        bw.Write((byte) BinUtilities.PackType(ValueType));
+        bw.Write((byte)KeyType);
+        bw.Write((byte)BinUtilities.PackType(ValueType));
         bw.Write(GetContentSize());
         bw.Write(_map.Count);
 
@@ -70,52 +78,84 @@ public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent
     private int GetContentSize()
     {
         var size = 4;
-        foreach (var pair in _map) size += pair.Key.GetSize(false) + pair.Value.GetSize(false);
+        foreach (var pair in _map)
+        {
+            size += pair.Key.GetSize(false) + pair.Value.GetSize(false);
+        }
+
         return size;
     }
 
     public void Add(BinTreeProperty key, BinTreeProperty value)
     {
         if (key.Type != KeyType)
+        {
             throw new ArgumentException($"Key type ({key.Type}) does not match dictionary key type ({KeyType})",
                 nameof(key));
+        }
+
         if (value.Type != ValueType)
+        {
             throw new ArgumentException($"Value type ({value.Type}) does not match dictionary value type ({ValueType})",
                 nameof(value));
+        }
 
         if (_map.TryAdd(key, value) is false)
+        {
             throw new InvalidOperationException(
                 "Failed to add the specified key-value pair because the specified key already exists");
+        }
     }
 
     public bool Remove(BinTreeProperty key)
     {
         if (key.Type != KeyType)
+        {
             throw new ArgumentException($"Key type ({key.Type}) does not match dictionary key type ({KeyType})",
                 nameof(key));
+        }
 
         return _map.Remove(key);
     }
 
     public override bool Equals(BinTreeProperty other)
     {
-        if (NameHash != other.NameHash) return false;
+        if (NameHash != other.NameHash)
+        {
+            return false;
+        }
 
         if (other is BinTreeMap otherProperty)
         {
-            if (KeyType != otherProperty.KeyType) return false;
-            if (ValueType != otherProperty.ValueType) return false;
-            if (_map.Count != otherProperty._map.Count) return false;
+            if (KeyType != otherProperty.KeyType)
+            {
+                return false;
+            }
+
+            if (ValueType != otherProperty.ValueType)
+            {
+                return false;
+            }
+
+            if (_map.Count != otherProperty._map.Count)
+            {
+                return false;
+            }
 
             foreach (var entry in _map)
+            {
                 if (otherProperty._map.TryGetValue(entry.Key, out var value))
                 {
-                    if (!entry.Value.Equals(value)) return false;
+                    if (!entry.Value.Equals(value))
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
                     return false;
                 }
+            }
         }
 
         return true;

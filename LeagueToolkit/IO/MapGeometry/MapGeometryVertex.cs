@@ -27,18 +27,32 @@ public class MapGeometryVertex
     public MapGeometryVertex(BinaryReader br, List<MapGeometryVertexElement> elements)
     {
         foreach (var element in elements)
+        {
             if (element.Name == MapGeometryVertexElementName.Position)
+            {
                 Position = br.ReadVector3();
+            }
             else if (element.Name == MapGeometryVertexElementName.Normal)
+            {
                 Normal = br.ReadVector3();
+            }
             else if (element.Name == MapGeometryVertexElementName.DiffuseUV)
+            {
                 DiffuseUV = br.ReadVector2();
+            }
             else if (element.Name == MapGeometryVertexElementName.LightmapUV)
+            {
                 LightmapUV = br.ReadVector2();
+            }
             else if (element.Name == MapGeometryVertexElementName.SecondaryColor)
+            {
                 SecondaryColor = br.ReadColor(ColorFormat.BgraU8);
+            }
             else
+            {
                 throw new Exception("Unknown Element Type: " + element.Name);
+            }
+        }
     }
 
     public Vector3? Position { get; set; }
@@ -90,11 +104,30 @@ public class MapGeometryVertex
     {
         var size = 0;
 
-        if (Position != null) size += Position.Value.RawSize();
-        if (Normal != null) size += Normal.Value.RawSize();
-        if (DiffuseUV != null) size += DiffuseUV.Value.RawSize();
-        if (LightmapUV != null) size += LightmapUV.Value.RawSize();
-        if (SecondaryColor != null) size += Color.FormatSize(ColorFormat.BgraU8);
+        if (Position != null)
+        {
+            size += Position.Value.RawSize();
+        }
+
+        if (Normal != null)
+        {
+            size += Normal.Value.RawSize();
+        }
+
+        if (DiffuseUV != null)
+        {
+            size += DiffuseUV.Value.RawSize();
+        }
+
+        if (LightmapUV != null)
+        {
+            size += LightmapUV.Value.RawSize();
+        }
+
+        if (SecondaryColor != null)
+        {
+            size += Color.FormatSize(ColorFormat.BgraU8);
+        }
 
         return size;
     }
@@ -113,10 +146,29 @@ public class MapGeometryVertex
 
     public void Write(BinaryWriter bw)
     {
-        if (Position is Vector3 position) bw.WriteVector3(position);
-        if (Normal is Vector3 normal) bw.WriteVector3(normal);
-        if (DiffuseUV is Vector2 diffuseUv) bw.WriteVector2(diffuseUv);
-        if (LightmapUV is Vector2 lightmapUv) bw.WriteVector2(lightmapUv);
-        if (SecondaryColor is Color color) bw.WriteColor(color, ColorFormat.BgraU8);
+        if (Position is Vector3 position)
+        {
+            bw.WriteVector3(position);
+        }
+
+        if (Normal is Vector3 normal)
+        {
+            bw.WriteVector3(normal);
+        }
+
+        if (DiffuseUV is Vector2 diffuseUv)
+        {
+            bw.WriteVector2(diffuseUv);
+        }
+
+        if (LightmapUV is Vector2 lightmapUv)
+        {
+            bw.WriteVector2(lightmapUv);
+        }
+
+        if (SecondaryColor is Color color)
+        {
+            bw.WriteColor(color, ColorFormat.BgraU8);
+        }
     }
 }

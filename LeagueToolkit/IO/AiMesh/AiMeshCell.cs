@@ -14,8 +14,8 @@ public class AiMeshCell
     /// <param name="br">The <see cref="BinaryReader" /> to read from</param>
     public AiMeshCell(BinaryReader br)
     {
-        Vertices = new[] {br.ReadVector3(), br.ReadVector3(), br.ReadVector3()};
-        Links = new[] {br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()};
+        Vertices = new[] { br.ReadVector3(), br.ReadVector3(), br.ReadVector3() };
+        Links = new[] { br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16() };
     }
 
     /// <summary>
@@ -35,7 +35,14 @@ public class AiMeshCell
     /// <param name="bw">The <see cref="BinaryWriter" /> to write to</param>
     public void Write(BinaryWriter bw)
     {
-        for (var i = 0; i < 3; i++) bw.WriteVector3(Vertices[i]);
-        for (var i = 0; i < 3; i++) bw.Write(Links[i]);
+        for (var i = 0; i < 3; i++)
+        {
+            bw.WriteVector3(Vertices[i]);
+        }
+
+        for (var i = 0; i < 3; i++)
+        {
+            bw.Write(Links[i]);
+        }
     }
 }

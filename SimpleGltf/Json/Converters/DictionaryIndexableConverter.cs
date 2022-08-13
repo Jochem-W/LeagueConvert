@@ -16,10 +16,16 @@ internal class DictionaryIndexableConverter<T> : JsonConverter<IEnumerable<KeyVa
         JsonSerializerOptions options)
     {
         if (pairs == null)
+        {
             return;
+        }
+
         writer.WriteStartObject();
         foreach (var (name, value) in pairs)
+        {
             writer.WriteNumber(name, value.Index);
+        }
+
         writer.WriteEndObject();
     }
 }

@@ -13,10 +13,16 @@ public class NavigationGridOverlay
         using (var br = new BinaryReader(stream))
         {
             var version = br.ReadByte();
-            if (version != 1) throw new UnsupportedFileVersionException();
+            if (version != 1)
+            {
+                throw new UnsupportedFileVersionException();
+            }
 
             var regionCount = br.ReadByte();
-            for (var i = 0; i < regionCount; i++) Regions.Add(new NavigationGridOverlayRegion(br));
+            for (var i = 0; i < regionCount; i++)
+            {
+                Regions.Add(new NavigationGridOverlayRegion(br));
+            }
         }
     }
 

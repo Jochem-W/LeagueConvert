@@ -10,8 +10,12 @@ public class NVRMesh
 
     public NVRMesh(BinaryReader br, NVRBuffers buffers, bool readOld)
     {
-        QualityLevel = (NVRMeshQuality) br.ReadInt32();
-        if (!readOld) Flag = br.ReadInt32();
+        QualityLevel = (NVRMeshQuality)br.ReadInt32();
+        if (!readOld)
+        {
+            Flag = br.ReadInt32();
+        }
+
         BoundingSphere = new R3DSphere(br);
         BoundingBox = new R3DBox(br);
         Material = buffers.Materials[br.ReadInt32()];
@@ -28,24 +32,55 @@ public class NVRMesh
         IndexedPrimitives[0] = new NVRDrawIndexedPrimitive(this, vertices, indices, true);
         IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(this, vertices, indices, false);
 
-        var min = new float[3] {vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z};
-        var max = new float[3] {vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z};
+        var min = new float[3] { vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z };
+        var max = new float[3] { vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z };
         for (var i = 1; i < vertices.Count; i++)
         {
             var position = vertices[i].Position;
-            if (position.X < min[0]) min[0] = position.X;
-            if (position.Y < min[1]) min[1] = position.Y;
-            if (position.Z < min[2]) min[2] = position.Z;
-            if (position.X > max[0]) max[0] = position.X;
-            if (position.Y > max[1]) max[1] = position.Y;
-            if (position.Z > max[2]) max[2] = position.Z;
+            if (position.X < min[0])
+            {
+                min[0] = position.X;
+            }
+
+            if (position.Y < min[1])
+            {
+                min[1] = position.Y;
+            }
+
+            if (position.Z < min[2])
+            {
+                min[2] = position.Z;
+            }
+
+            if (position.X > max[0])
+            {
+                max[0] = position.X;
+            }
+
+            if (position.Y > max[1])
+            {
+                max[1] = position.Y;
+            }
+
+            if (position.Z > max[2])
+            {
+                max[2] = position.Z;
+            }
         }
 
         BoundingBox = new R3DBox(new Vector3(min[0], min[1], min[2]), new Vector3(max[0], max[1], max[2]));
 
         var radius = max[0] - min[0];
-        if (max[1] - min[1] > radius) radius = max[1] - min[1];
-        if (max[2] - min[2] > radius) radius = max[2] - min[2];
+        if (max[1] - min[1] > radius)
+        {
+            radius = max[1] - min[1];
+        }
+
+        if (max[2] - min[2] > radius)
+        {
+            radius = max[2] - min[2];
+        }
+
         BoundingSphere = new R3DSphere(new Vector3((min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2),
             radius / 2);
     }
@@ -59,7 +94,7 @@ public class NVRMesh
 
     public void Write(BinaryWriter bw)
     {
-        bw.Write((int) QualityLevel);
+        bw.Write((int)QualityLevel);
         bw.Write(Flag);
         BoundingSphere.Write(bw);
         BoundingBox.Write(bw);

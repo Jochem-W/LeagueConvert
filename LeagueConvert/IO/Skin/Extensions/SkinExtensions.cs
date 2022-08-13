@@ -18,7 +18,10 @@ public static class SkinExtensions
     public static async Task<GltfAsset> GetGltfAsset(this Skin skin, bool forceScale, bool keepHiddenSubMeshes,
         ILogger logger = null)
     {
-        if (!skin.State.HasFlagFast(SkinState.MeshLoaded)) return null;
+        if (!skin.State.HasFlagFast(SkinState.MeshLoaded))
+        {
+            return null;
+        }
 
         var gltfAsset = new GltfAsset();
         gltfAsset.Scene = gltfAsset.CreateScene();
@@ -30,7 +33,11 @@ public static class SkinExtensions
         foreach (var primitive in skin.SimpleSkin.Primitives)
         {
             if (!keepHiddenSubMeshes &&
-                skin.HiddenPrimitives.Contains(primitive.Name, StringComparer.InvariantCultureIgnoreCase)) continue;
+                skin.HiddenPrimitives.Contains(primitive.Name, StringComparer.InvariantCultureIgnoreCase))
+            {
+                continue;
+            }
+
             await skin.CreateMeshAsync(gltfAsset, buffer, rootNode, keepHiddenSubMeshes);
             break;
         }
@@ -41,12 +48,22 @@ public static class SkinExtensions
             return gltfAsset;
         }
 
-        if (rootNode.Mesh == null) return gltfAsset;
+        if (rootNode.Mesh == null)
+        {
+            return gltfAsset;
+        }
+
         var joints = skin.BuildSkeleton(gltfAsset, buffer, rootNode, forceScale);
 
-        if (rootNode.Skin == null) return gltfAsset;
+        if (rootNode.Skin == null)
+        {
+            return gltfAsset;
+        }
 
-        if (skin.State.HasFlagFast(SkinState.AnimationsLoaded)) skin.CreateAnimations(gltfAsset, buffer, joints);
+        if (skin.State.HasFlagFast(SkinState.AnimationsLoaded))
+        {
+            skin.CreateAnimations(gltfAsset, buffer, joints);
+        }
 
         return gltfAsset;
     }
@@ -60,7 +77,10 @@ public static class SkinExtensions
         var indicesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ElementArrayBuffer);
         indicesBufferView.StopStride();
         var indicesAccessor = gltfAsset.CreateUShortAccessor(indicesBufferView, AccessorType.Scalar);
-        foreach (var index in skin.SimpleSkin.Indices) indicesAccessor.Write(index);
+        foreach (var index in skin.SimpleSkin.Indices)
+        {
+            indicesAccessor.Write(index);
+        }
 
         // Vertices, this might write unused data if keepHiddenSubMeshes is true
         var attributesBufferView = gltfAsset.CreateBufferView(buffer, BufferViewTarget.ArrayBuffer);
@@ -76,7 +96,9 @@ public static class SkinExtensions
 
         FloatAccessor tangentAccessor = null;
         if (skin.SimpleSkin.VertexType == SimpleSkinVertexType.ColorAndTangent)
+        {
             tangentAccessor = gltfAsset.CreateFloatAccessor(attributesBufferView, AccessorType.Vec4, true);
+        }
 
         UShortAccessor jointsAccessor = null;
         FloatAccessor weightsAccessor = null;
@@ -108,7 +130,7 @@ public static class SkinExtensions
                         continue;
                     }
 
-                    joints.Add((ushort) skin.Skeleton.Influences[vertex.BoneIndices[i]]);
+                    joints.Add((ushort)skin.Skeleton.Influences[vertex.BoneIndices[i]]);
                 }
 
                 jointsAccessor.Write(joints.ToArray());
@@ -129,14 +151,16 @@ public static class SkinExtensions
         {
             if (!keepHiddenSubMeshes &&
                 skin.HiddenPrimitives.Contains(primitive.Name, StringComparer.InvariantCultureIgnoreCase))
+            {
                 continue;
+            }
 
             var gltfPrimitive = rootNode.Mesh.CreatePrimitive();
 
             // Create a new index accessor if necessary
             indicesAccessor ??= gltfAsset.CreateUShortAccessor(indicesBufferView, AccessorType.Scalar);
-            indicesAccessor.Count = (int) primitive.IndexCount;
-            indicesAccessor.SetOffset((int) primitive.IndexOffset);
+            indicesAccessor.Count = (int)primitive.IndexCount;
+            indicesAccessor.SetOffset((int)primitive.IndexOffset);
             gltfPrimitive.Indices = indicesAccessor;
             indicesAccessor = null;
 
@@ -149,8 +173,15 @@ public static class SkinExtensions
             gltfPrimitive.SetAttribute("WEIGHTS_0", weightsAccessor);
 
             // Materials
-            if (!skin.State.HasFlagFast(SkinState.TexturesLoaded)) continue;
-            if (!skin.Textures.TryGetValue(primitive.Name, out var magickImage)) continue;
+            if (!skin.State.HasFlagFast(SkinState.TexturesLoaded))
+            {
+                continue;
+            }
+
+            if (!skin.Textures.TryGetValue(primitive.Name, out var magickImage))
+            {
+                continue;
+            }
 
             var material = gltfAsset.CreateMaterial(primitive.Name);
             gltfPrimitive.Material = material;
@@ -198,9 +229,14 @@ public static class SkinExtensions
             var jointNode = gltfAsset.CreateNode(skeletonJoint.LocalTransform.Transpose(), skeletonJoint.Name);
             jointNodes[skeletonJoint.Id] = jointNode;
             if (skeletonJoint.ParentId == -1)
+            {
                 skeletonRootNode.AddChild(jointNode);
+            }
             else
+            {
                 jointNodes[skeletonJoint.ParentId].AddChild(jointNode);
+            }
+
             gltfSkin.AddJoint(jointNode);
         }
 
@@ -223,9 +259,11 @@ public static class SkinExtensions
             var mapping = skin.Skeleton.MapTracksToJoints(animation);
 
             foreach (var (track, skeletonJoint) in mapping)
+            {
                 WriteAnimationChannel(gltfAsset, translationBufferView, rotationBufferView, scaleBufferView,
                     gltfAnimation, track,
                     joints[skeletonJoint.Id]);
+            }
         }
     }
 
@@ -241,7 +279,7 @@ public static class SkinExtensions
                 gltfAsset.CreateFloatAccessor(translationBufferView, AccessorType.Vec3);
             var translationSampler =
                 gltfAnimation.CreateSampler(translationInputAccessor, translationOutputAccessor);
-            var translationTarget = new AnimationChannelTarget(AnimationPath.Translation) {Node = jointNode};
+            var translationTarget = new AnimationChannelTarget(AnimationPath.Translation) { Node = jointNode };
             gltfAnimation.CreateChannel(translationSampler, translationTarget);
             foreach (var (time, translation) in track.Translations)
             {
@@ -260,7 +298,7 @@ public static class SkinExtensions
                 gltfAsset.CreateFloatAccessor(rotationBufferView, AccessorType.Vec4);
             var rotationSampler =
                 gltfAnimation.CreateSampler(rotationInputAccessor, rotationOutputAccessor);
-            var rotationTarget = new AnimationChannelTarget(AnimationPath.Rotation) {Node = jointNode};
+            var rotationTarget = new AnimationChannelTarget(AnimationPath.Rotation) { Node = jointNode };
             gltfAnimation.CreateChannel(rotationSampler, rotationTarget);
             foreach (var (time, rotation) in track.Rotations)
             {
@@ -277,7 +315,7 @@ public static class SkinExtensions
                 gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Scalar, true);
             var scaleOutputAccessor = gltfAsset.CreateFloatAccessor(scaleBufferView, AccessorType.Vec3);
             var scaleSampler = gltfAnimation.CreateSampler(scaleInputAccessor, scaleOutputAccessor);
-            var scaleTarget = new AnimationChannelTarget(AnimationPath.Scale) {Node = jointNode};
+            var scaleTarget = new AnimationChannelTarget(AnimationPath.Scale) { Node = jointNode };
             gltfAnimation.CreateChannel(scaleSampler, scaleTarget);
             foreach (var (time, scale) in track.Scales)
             {

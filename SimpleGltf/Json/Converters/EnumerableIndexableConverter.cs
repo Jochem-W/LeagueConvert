@@ -13,10 +13,16 @@ internal class EnumerableIndexableConverter<T> : JsonConverter<IEnumerable<T>> w
     public override void Write(Utf8JsonWriter writer, IEnumerable<T> values, JsonSerializerOptions options)
     {
         if (values == null)
+        {
             return;
+        }
+
         writer.WriteStartArray();
         foreach (var value in values)
+        {
             writer.WriteNumberValue(value.Index);
+        }
+
         writer.WriteEndArray();
     }
 }

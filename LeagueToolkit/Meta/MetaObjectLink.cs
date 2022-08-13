@@ -11,7 +11,7 @@ public struct MetaObjectLink
 
     public override int GetHashCode()
     {
-        return (int) ObjectPathHash;
+        return (int)ObjectPathHash;
     }
 
     public override bool Equals(object obj)

@@ -24,7 +24,10 @@ public class MapGeometryModel
         Indices = indices;
         Submeshes = submeshes;
 
-        foreach (var submesh in submeshes) submesh.Parent = this;
+        foreach (var submesh in submeshes)
+        {
+            submesh.Parent = this;
+        }
 
         BoundingBox = GetBoundingBox();
     }
@@ -67,7 +70,10 @@ public class MapGeometryModel
         var vertexBufferCount = br.ReadUInt32();
         var vertexElementGroup = br.ReadInt32();
 
-        for (var i = 0; i < vertexCount; i++) Vertices.Add(new MapGeometryVertex());
+        for (var i = 0; i < vertexCount; i++)
+        {
+            Vertices.Add(new MapGeometryVertex());
+        }
 
         for (int i = 0, currentVertexElementGroup = vertexElementGroup;
              i < vertexBufferCount;
@@ -78,8 +84,10 @@ public class MapGeometryModel
             br.BaseStream.Seek(vertexBufferOffsets[vertexBufferID], SeekOrigin.Begin);
 
             for (var j = 0; j < vertexCount; j++)
+            {
                 Vertices[j] = MapGeometryVertex.Combine(Vertices[j],
                     new MapGeometryVertex(br, vertexElementGroups[currentVertexElementGroup].VertexElements));
+            }
 
             br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
         }
@@ -89,26 +97,41 @@ public class MapGeometryModel
         Indices.AddRange(indexBuffers[indexBuffer]);
 
         var submeshCount = br.ReadUInt32();
-        for (var i = 0; i < submeshCount; i++) Submeshes.Add(new MapGeometrySubmesh(br, this));
+        for (var i = 0; i < submeshCount; i++)
+        {
+            Submeshes.Add(new MapGeometrySubmesh(br, this));
+        }
 
-        if (version != 5) FlipNormals = br.ReadBoolean();
+        if (version != 5)
+        {
+            FlipNormals = br.ReadBoolean();
+        }
 
         BoundingBox = new R3DBox(br);
         Transformation = new R3DMatrix44(br);
-        Flags = (MapGeometryModelFlags) br.ReadByte();
+        Flags = (MapGeometryModelFlags)br.ReadByte();
 
         if (version >= 7)
         {
-            Layer = (MapGeometryLayer) br.ReadByte();
+            Layer = (MapGeometryLayer)br.ReadByte();
 
-            if (version >= 11) UnknownByte = br.ReadByte();
+            if (version >= 11)
+            {
+                UnknownByte = br.ReadByte();
+            }
         }
 
-        if (useSeparatePointLights && version < 7) SeparatePointLight = br.ReadVector3();
+        if (useSeparatePointLights && version < 7)
+        {
+            SeparatePointLight = br.ReadVector3();
+        }
 
         if (version < 9)
         {
-            for (var i = 0; i < 9; i++) UnknownFloats.Add(br.ReadVector3());
+            for (var i = 0; i < 9; i++)
+            {
+                UnknownFloats.Add(br.ReadVector3());
+            }
 
             Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             Color = br.ReadColor(ColorFormat.RgbaF32);
@@ -146,7 +169,7 @@ public class MapGeometryModel
         bw.Write(Encoding.ASCII.GetBytes(Name));
 
         bw.Write(Vertices.Count);
-        bw.Write((uint) 1);
+        bw.Write((uint)1);
         bw.Write(_vertexElementGroupID);
         bw.Write(_vertexBufferID); //we only have one vertex buffer
 
@@ -154,19 +177,28 @@ public class MapGeometryModel
         bw.Write(_indexBufferID);
 
         bw.Write(Submeshes.Count);
-        foreach (var submesh in Submeshes) submesh.Write(bw);
+        foreach (var submesh in Submeshes)
+        {
+            submesh.Write(bw);
+        }
 
-        if (version != 5) bw.Write(FlipNormals);
+        if (version != 5)
+        {
+            bw.Write(FlipNormals);
+        }
 
         BoundingBox.Write(bw);
         Transformation.Write(bw);
-        bw.Write((byte) Flags);
+        bw.Write((byte)Flags);
 
         if (version >= 7)
         {
-            bw.Write((byte) Layer);
+            bw.Write((byte)Layer);
 
-            if (version >= 11) bw.Write(UnknownByte);
+            if (version >= 11)
+            {
+                bw.Write(UnknownByte);
+            }
         }
 
         if (version < 9)
@@ -174,13 +206,24 @@ public class MapGeometryModel
             if (useSeparatePointLights)
             {
                 if (SeparatePointLight is Vector3 separatePointLight)
+                {
                     bw.WriteVector3(separatePointLight);
+                }
                 else
+                {
                     bw.WriteVector3(Vector3.Zero);
+                }
             }
 
-            foreach (var pointLight in UnknownFloats) bw.WriteVector3(pointLight);
-            for (var i = 0; i < 9 - UnknownFloats.Count; i++) bw.WriteVector3(Vector3.Zero);
+            foreach (var pointLight in UnknownFloats)
+            {
+                bw.WriteVector3(pointLight);
+            }
+
+            for (var i = 0; i < 9 - UnknownFloats.Count; i++)
+            {
+                bw.WriteVector3(Vector3.Zero);
+            }
 
             bw.Write(Lightmap.Length);
             bw.Write(Encoding.ASCII.GetBytes(Lightmap));
@@ -189,11 +232,19 @@ public class MapGeometryModel
         else if (version >= 9)
         {
             bw.Write(Lightmap.Length);
-            if (Lightmap.Length != 0) bw.Write(Encoding.ASCII.GetBytes(Lightmap));
+            if (Lightmap.Length != 0)
+            {
+                bw.Write(Encoding.ASCII.GetBytes(Lightmap));
+            }
+
             bw.WriteColor(Color, ColorFormat.RgbaF32);
 
             bw.Write(BakedPaintTexture.Length);
-            if (BakedPaintTexture.Length != 0) bw.Write(Encoding.ASCII.GetBytes(BakedPaintTexture));
+            if (BakedPaintTexture.Length != 0)
+            {
+                bw.Write(Encoding.ASCII.GetBytes(BakedPaintTexture));
+            }
+
             bw.WriteColor(BakedPaintColor, ColorFormat.RgbaF32);
         }
     }
@@ -206,19 +257,45 @@ public class MapGeometryModel
 
     public R3DBox GetBoundingBox()
     {
-        if (Vertices == null || Vertices.Count == 0) return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+        if (Vertices == null || Vertices.Count == 0)
+        {
+            return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+        }
 
         var min = Vertices[0].Position.Value;
         var max = Vertices[0].Position.Value;
 
         foreach (var vertex in Vertices)
         {
-            if (min.X > vertex.Position.Value.X) min.X = vertex.Position.Value.X;
-            if (min.Y > vertex.Position.Value.Y) min.Y = vertex.Position.Value.Y;
-            if (min.Z > vertex.Position.Value.Z) min.Z = vertex.Position.Value.Z;
-            if (max.X < vertex.Position.Value.X) max.X = vertex.Position.Value.X;
-            if (max.Y < vertex.Position.Value.Y) max.Y = vertex.Position.Value.Y;
-            if (max.Z < vertex.Position.Value.Z) max.Z = vertex.Position.Value.Z;
+            if (min.X > vertex.Position.Value.X)
+            {
+                min.X = vertex.Position.Value.X;
+            }
+
+            if (min.Y > vertex.Position.Value.Y)
+            {
+                min.Y = vertex.Position.Value.Y;
+            }
+
+            if (min.Z > vertex.Position.Value.Z)
+            {
+                min.Z = vertex.Position.Value.Z;
+            }
+
+            if (max.X < vertex.Position.Value.X)
+            {
+                max.X = vertex.Position.Value.X;
+            }
+
+            if (max.Y < vertex.Position.Value.Y)
+            {
+                max.Y = vertex.Position.Value.Y;
+            }
+
+            if (max.Z < vertex.Position.Value.Z)
+            {
+                max.Z = vertex.Position.Value.Z;
+            }
         }
 
         return new R3DBox(min, max);

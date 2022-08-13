@@ -80,16 +80,26 @@ public class ObjectConfigObject
             if (isSet)
             {
                 if (attribute.SerializationType == typeof(uint))
+                {
                     property.SetValue(this, uint.Parse(objectDefinition[attribute.Name]), null);
+                }
                 else if (attribute.SerializationType == typeof(float))
+                {
                     property.SetValue(this,
                         float.Parse(objectDefinition[attribute.Name], CultureInfo.InvariantCulture));
+                }
                 else if (attribute.SerializationType == typeof(Vector2))
+                {
                     property.SetValue(this, TextStructureProcessor.ParseVector2(objectDefinition[attribute.Name]));
+                }
                 else if (attribute.SerializationType == typeof(Vector3))
+                {
                     property.SetValue(this, TextStructureProcessor.ParseVector3(objectDefinition[attribute.Name]));
+                }
                 else if (attribute.SerializationType == typeof(string))
+                {
                     property.SetValue(this, objectDefinition[attribute.Name]);
+                }
             }
         }
     }
@@ -169,27 +179,27 @@ public class ObjectConfigObject
             {
                 if (attribute.SerializationType == typeof(uint))
                 {
-                    var value = (uint) property.GetValue(this);
+                    var value = (uint)property.GetValue(this);
                     properties.Add(attribute.Name, value.ToString());
                 }
                 else if (attribute.SerializationType == typeof(float))
                 {
-                    var value = (float) property.GetValue(this);
+                    var value = (float)property.GetValue(this);
                     properties.Add(attribute.Name, value.ToString("0.0000", CultureInfo.InvariantCulture));
                 }
                 else if (attribute.SerializationType == typeof(Vector2))
                 {
-                    var value = (Vector2) property.GetValue(this);
+                    var value = (Vector2)property.GetValue(this);
                     properties.Add(attribute.Name, TextStructureProcessor.ConvertVector2(value, "0.0000"));
                 }
                 else if (attribute.SerializationType == typeof(Vector3))
                 {
-                    var value = (Vector3) property.GetValue(this);
+                    var value = (Vector3)property.GetValue(this);
                     properties.Add(attribute.Name, TextStructureProcessor.ConvertVector3(value, "0.0000"));
                 }
                 else if (attribute.SerializationType == typeof(string))
                 {
-                    properties.Add(attribute.Name, (string) property.GetValue(this));
+                    properties.Add(attribute.Name, (string)property.GetValue(this));
                 }
             }
         }

@@ -18,7 +18,10 @@ public class LightDatFile
     {
         using (var sr = new StreamReader(stream))
         {
-            while (!sr.EndOfStream) Lights.Add(new LightDatLight(sr));
+            while (!sr.EndOfStream)
+            {
+                Lights.Add(new LightDatLight(sr));
+            }
         }
     }
 
@@ -33,7 +36,10 @@ public class LightDatFile
     {
         using (var sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
         {
-            foreach (var light in Lights) light.Write(sw);
+            foreach (var light in Lights)
+            {
+                light.Write(sw);
+            }
         }
     }
 }

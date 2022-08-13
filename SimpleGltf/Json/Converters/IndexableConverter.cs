@@ -13,7 +13,10 @@ internal class IndexableConverter<T> : JsonConverter<T> where T : IIndexable
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
     {
         if (value == null)
+        {
             return;
+        }
+
         writer.WriteNumberValue(value.Index);
     }
 }

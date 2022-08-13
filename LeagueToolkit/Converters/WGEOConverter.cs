@@ -20,9 +20,10 @@ public static class WGEOConverter
         foreach (var mesh in nvr.Meshes)
         {
             var vertices = new List<WorldGeometryVertex>();
-            var indices = mesh.IndexedPrimitives[0].Indices.Select(x => (uint) x).ToList();
+            var indices = mesh.IndexedPrimitives[0].Indices.Select(x => (uint)x).ToList();
 
             foreach (var vertex in mesh.IndexedPrimitives[0].Vertices)
+            {
                 if (mesh.IndexedPrimitives[0].VertexType == NVRVertexType.NVRVERTEX_4)
                 {
                     var vertex4 = vertex as NVRVertex4;
@@ -40,6 +41,7 @@ public static class WGEOConverter
                     var vertex12 = vertex as NVRVertex12;
                     vertices.Add(new WorldGeometryVertex(vertex12.Position, vertex12.UV));
                 }
+            }
 
             models.Add(new WorldGeometryModel(mesh.Material.Channels[0].Name, mesh.Material.Name, vertices, indices));
         }

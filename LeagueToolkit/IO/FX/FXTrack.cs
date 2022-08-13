@@ -9,7 +9,7 @@ public class FXTrack
     public FXTrack(BinaryReader br)
     {
         Flag = br.ReadUInt32();
-        Type = (TrackType) br.ReadUInt32();
+        Type = (TrackType)br.ReadUInt32();
         StartFrame = br.ReadSingle();
         EndFrame = br.ReadSingle();
 
@@ -35,7 +35,7 @@ public class FXTrack
     public void Write(BinaryWriter bw)
     {
         bw.Write(Flag);
-        bw.Write((uint) Type);
+        bw.Write((uint)Type);
         bw.Write(StartFrame);
         bw.Write(EndFrame);
         bw.Write(Particle.PadRight(64, '\u0000').ToCharArray());

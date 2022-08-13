@@ -9,7 +9,7 @@ public class NVRMaterial
     public NVRMaterial(BinaryReader br, bool readOld)
     {
         Name = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
-        Type = (NVRMaterialType) br.ReadInt32();
+        Type = (NVRMaterialType)br.ReadInt32();
         if (readOld)
         {
             var diffuseColor = br.ReadColor(ColorFormat.RgbaF32);
@@ -21,12 +21,17 @@ public class NVRMaterial
             Channels.Add(new NVRChannel(emissiveName, emmisiveColor, R3DMatrix44.IdentityR3DMatrix44()));
 
             for (var i = 0; i < 6; i++)
+            {
                 Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), R3DMatrix44.IdentityR3DMatrix44()));
+            }
         }
         else
         {
-            Flags = (NVRMaterialFlags) br.ReadUInt32();
-            for (var i = 0; i < 8; i++) Channels.Add(new NVRChannel(br));
+            Flags = (NVRMaterialFlags)br.ReadUInt32();
+            for (var i = 0; i < 8; i++)
+            {
+                Channels.Add(new NVRChannel(br));
+            }
         }
     }
 
@@ -35,7 +40,11 @@ public class NVRMaterial
         Name = name;
         Type = type;
         Flags = flag;
-        if (channels.Count != 8) throw new MaterialInvalidChannelCountException(channels.Count);
+        if (channels.Count != 8)
+        {
+            throw new MaterialInvalidChannelCountException(channels.Count);
+        }
+
         Channels.AddRange(channels);
     }
 
@@ -58,7 +67,10 @@ public class NVRMaterial
         var channels = new List<NVRChannel>();
         channels.Add(new NVRChannel(textureName, color, R3DMatrix44.IdentityR3DMatrix44()));
         for (var i = 0; i < 7; i++)
+        {
             channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), R3DMatrix44.IdentityR3DMatrix44()));
+        }
+
         var newMat = new NVRMaterial(materialName, matType, matFlags, channels);
         return newMat;
     }
@@ -66,9 +78,12 @@ public class NVRMaterial
     public void Write(BinaryWriter bw)
     {
         bw.Write(Name.PadRight(260, '\u0000').ToCharArray());
-        bw.Write((int) Type);
-        bw.Write((uint) Flags);
-        foreach (var channel in Channels) channel.Write(bw);
+        bw.Write((int)Type);
+        bw.Write((uint)Flags);
+        foreach (var channel in Channels)
+        {
+            channel.Write(bw);
+        }
     }
 }
 

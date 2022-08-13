@@ -40,7 +40,10 @@ public class MapParticlesFile
         Particles = new List<MapParticlesParticle>();
         using (var sr = new StreamReader(stream))
         {
-            while (!sr.EndOfStream) Particles.Add(new MapParticlesParticle(sr));
+            while (!sr.EndOfStream)
+            {
+                Particles.Add(new MapParticlesParticle(sr));
+            }
         }
     }
 
@@ -66,7 +69,10 @@ public class MapParticlesFile
     {
         using (var sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
         {
-            foreach (var particle in Particles) particle.Write(sw);
+            foreach (var particle in Particles)
+            {
+                particle.Write(sw);
+            }
         }
     }
 }

@@ -18,7 +18,10 @@ public class WadBuilder : IDisposable
 
     public WadBuilder(Wad wad) : this()
     {
-        foreach (var entry in wad.Entries) WithEntry(new WadEntryBuilder(entry.Value));
+        foreach (var entry in wad.Entries)
+        {
+            WithEntry(new WadEntryBuilder(entry.Value));
+        }
     }
 
     public ReadOnlyDictionary<ulong, WadEntryBuilder> Entries { get; }
@@ -31,10 +34,18 @@ public class WadBuilder : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (_disposedValue) return;
+        if (_disposedValue)
+        {
+            return;
+        }
+
         if (disposing)
+        {
             foreach (var entry in _entries)
+            {
                 entry.Value.DataStream.Dispose();
+            }
+        }
 
         _disposedValue = true;
     }
@@ -42,8 +53,11 @@ public class WadBuilder : IDisposable
     public WadBuilder WithEntry(WadEntryBuilder entryBuilder)
     {
         if (_entries.ContainsKey(entryBuilder.PathXXHash))
+        {
             throw new InvalidOperationException("An entry with the same XXHash has already been added: " +
                                                 entryBuilder.PathXXHash);
+        }
+
         _entries.Add(entryBuilder.PathXXHash, entryBuilder);
 
         return this;
@@ -64,9 +78,13 @@ public class WadBuilder : IDisposable
         stream.Seek(Wad.HEADER_SIZE_V3 + _entries.Count * WadEntry.TOC_SIZE_V3, SeekOrigin.Current);
 
         // Write data streams into the stream and save offsets
-        foreach (var entryBuilder in _entries.Values) WriteEntryData(stream, entryBuilder);
+        foreach (var entryBuilder in _entries.Values)
+        {
+            WriteEntryData(stream, entryBuilder);
+        }
 
         foreach (var entryBuilder in _entries.Values)
+        {
             wad.AddEntry(new WadEntry(
                 wad,
                 entryBuilder.PathXXHash,
@@ -78,6 +96,7 @@ public class WadBuilder : IDisposable
                 entryBuilder.FileRedirection,
                 entryBuilder._dataOffset)
             );
+        }
 
         // Seek to start
         stream.Seek(headerStartOffset, SeekOrigin.Begin);
@@ -90,7 +109,7 @@ public class WadBuilder : IDisposable
         // If we're writing a File Stream then we need to compress it first
         if (entryBuilder._isGenericDataStream)
         {
-            var uncompressedSize = (int) entryBuilder.DataStream.Length;
+            var uncompressedSize = (int)entryBuilder.DataStream.Length;
             var compressedStream = new MemoryStream();
             if (entryBuilder.EntryType == WadEntryType.GZipCompressed)
             {
@@ -101,7 +120,7 @@ public class WadBuilder : IDisposable
 
                 entryBuilder.DataStream = compressedStream;
                 entryBuilder.UncompressedSize = uncompressedSize;
-                entryBuilder.CompressedSize = (int) compressedStream.Length;
+                entryBuilder.CompressedSize = (int)compressedStream.Length;
             }
             else if (entryBuilder.EntryType == WadEntryType.ZStandardCompressed)
             {
@@ -113,11 +132,11 @@ public class WadBuilder : IDisposable
 
                 entryBuilder.DataStream = compressedStream;
                 entryBuilder.UncompressedSize = uncompressedSize;
-                entryBuilder.CompressedSize = (int) compressedStream.Length;
+                entryBuilder.CompressedSize = (int)compressedStream.Length;
             }
             else if (entryBuilder.EntryType == WadEntryType.Uncompressed)
             {
-                entryBuilder.CompressedSize = entryBuilder.UncompressedSize = (int) entryBuilder.DataStream.Length;
+                entryBuilder.CompressedSize = entryBuilder.UncompressedSize = (int)entryBuilder.DataStream.Length;
             }
             else
             {
@@ -127,7 +146,7 @@ public class WadBuilder : IDisposable
             entryBuilder.ComputeChecksum();
         }
 
-        entryBuilder._dataOffset = (uint) wadStream.Position;
+        entryBuilder._dataOffset = (uint)wadStream.Position;
 
         // Write data
         if (entryBuilder.EntryType == WadEntryType.FileRedirection)

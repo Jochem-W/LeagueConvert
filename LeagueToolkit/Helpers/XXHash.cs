@@ -115,7 +115,9 @@ public static class XXHash
     public static uint XXH32(byte[] input, uint seed)
     {
         if (input == null)
+        {
             throw new ArgumentNullException("input");
+        }
 
         return XXH32(input, 0, input.Length, seed);
     }
@@ -141,7 +143,9 @@ public static class XXHash
     public static ulong XXH64(byte[] input, ulong seed)
     {
         if (input == null)
+        {
             throw new ArgumentNullException("input");
+        }
 
         return XXH64(input, 0, input.Length, seed);
     }
@@ -178,18 +182,35 @@ public static class XXHash
     public static uint XXH32(byte[] input, int offset, int length, uint seed)
     {
         if (input == null)
+        {
             throw new ArgumentNullException("input");
+        }
+
         if (input.Rank != 1)
+        {
             ThrowArrayMultiRank("input");
+        }
+
         if (input.GetLowerBound(0) != 0)
+        {
             ThrowArrayNonZeroLowerBound("input");
+        }
+
         if (offset < 0)
+        {
             ThrowArgumentNonNegativeNumber("offset");
+        }
+
         ;
         if (length < 0)
+        {
             ThrowArgumentNonNegativeNumber("length");
+        }
+
         if (input.Length < offset + length)
+        {
             ThrowArrayInvalidOffsetAndLength();
+        }
 
 #if EnableSimpleVersion
             /* Simple version, good for code maintenance, but unfortunately slow for small inputs */
@@ -236,7 +257,7 @@ public static class XXHash
             h32 = seed + PRIME32_5;
         }
 
-        h32 += (uint) length;
+        h32 += (uint)length;
 
         while (p.Position + 4 <= bEnd)
         {
@@ -263,17 +284,34 @@ public static class XXHash
     public static ulong XXH64(byte[] input, int offset, int length, ulong seed)
     {
         if (input == null)
+        {
             throw new ArgumentNullException("input");
+        }
+
         if (input.Rank != 1)
+        {
             ThrowArrayMultiRank("input");
+        }
+
         if (input.GetLowerBound(0) != 0)
+        {
             ThrowArrayNonZeroLowerBound("input");
+        }
+
         if (offset < 0)
+        {
             ThrowArgumentNonNegativeNumber("offset");
+        }
+
         if (length < 0)
+        {
             ThrowArgumentNonNegativeNumber("length");
+        }
+
         if (input.Length < offset + length)
+        {
             ThrowArrayInvalidOffsetAndLength();
+        }
 
 #if EnableSimpleVersion
             /* Simple version, good for code maintenance, but unfortunately slow for small inputs */
@@ -344,7 +382,7 @@ public static class XXHash
             h64 = seed + PRIME64_5;
         }
 
-        h64 += (ulong) length;
+        h64 += (ulong)length;
 
         while (p.Position + 8 <= bEnd)
         {
@@ -448,7 +486,9 @@ public static class XXHash
     public static void ResetState32(State32 state, uint seed)
     {
         if (state == null)
+        {
             throw new ArgumentNullException("state");
+        }
 
         InternalResetState32(state, seed);
     }
@@ -456,15 +496,29 @@ public static class XXHash
     public static bool UpdateState32(State32 state, byte[] input)
     {
         if (state == null)
+        {
             throw new ArgumentNullException("state");
+        }
+
         if (!state.IsInitialized)
+        {
             ThrowStateUninitialized("state");
+        }
+
         if (input == null)
+        {
             throw new ArgumentNullException("input");
+        }
+
         if (input.Rank != 1)
+        {
             ThrowArrayMultiRank("input");
+        }
+
         if (input.GetLowerBound(0) != 0)
+        {
             ThrowArrayNonZeroLowerBound("input");
+        }
 
         return ErrorCode.XXH_OK == InternalUpdateState32(state, input, 0, input.Length);
     }
@@ -472,21 +526,44 @@ public static class XXHash
     public static bool UpdateState32(State32 state, byte[] input, int offset, int length)
     {
         if (state == null)
+        {
             throw new ArgumentNullException("state");
+        }
+
         if (!state.IsInitialized)
+        {
             ThrowStateUninitialized("state");
+        }
+
         if (input == null)
+        {
             throw new ArgumentNullException("input");
+        }
+
         if (input.Rank != 1)
+        {
             ThrowArrayMultiRank("input");
+        }
+
         if (input.GetLowerBound(0) != 0)
+        {
             ThrowArrayNonZeroLowerBound("input");
+        }
+
         if (offset < 0)
+        {
             ThrowArgumentNonNegativeNumber("offset");
+        }
+
         if (length < 0)
+        {
             ThrowArgumentNonNegativeNumber("length");
+        }
+
         if (input.Length < offset + length)
+        {
             ThrowArrayInvalidOffsetAndLength();
+        }
 
         return ErrorCode.XXH_OK == InternalUpdateState32(state, input, offset, length);
     }
@@ -494,7 +571,9 @@ public static class XXHash
     public static bool UpdateState32(State32 state, Stream inputStream)
     {
         if (inputStream == null)
+        {
             throw new ArgumentNullException("inputStream");
+        }
 
         var buffer = new byte[0x2000];
         int size;
@@ -502,8 +581,12 @@ public static class XXHash
         {
             size = inputStream.Read(buffer, 0, 0x2000);
             if (size > 0)
+            {
                 if (InternalUpdateState32(state, buffer, 0, size) != ErrorCode.XXH_OK)
+                {
                     return false;
+                }
+            }
         } while (size > 0);
 
         return true;
@@ -512,9 +595,14 @@ public static class XXHash
     public static uint DigestState32(State32 state)
     {
         if (state == null)
+        {
             throw new ArgumentNullException("state");
+        }
+
         if (!state.IsInitialized)
+        {
             ThrowStateUninitialized("state");
+        }
 
         return InternalDigestState32(state);
     }
@@ -522,7 +610,9 @@ public static class XXHash
     public static void ResetState64(State64 state, ulong seed)
     {
         if (state == null)
+        {
             throw new ArgumentNullException("state");
+        }
 
         InternalResetState64(state, seed);
     }
@@ -530,15 +620,29 @@ public static class XXHash
     public static bool UpdateState64(State64 state, byte[] input)
     {
         if (state == null)
+        {
             throw new ArgumentNullException("state");
+        }
+
         if (!state.IsInitialized)
+        {
             ThrowStateUninitialized("state");
+        }
+
         if (input == null)
+        {
             throw new ArgumentNullException("input");
+        }
+
         if (input.Rank != 1)
+        {
             ThrowArrayMultiRank("input");
+        }
+
         if (input.GetLowerBound(0) != 0)
+        {
             ThrowArrayNonZeroLowerBound("input");
+        }
 
         return ErrorCode.XXH_OK == InternalUpdateState64(state, input, 0, input.Length);
     }
@@ -546,21 +650,44 @@ public static class XXHash
     public static bool UpdateState64(State64 state, byte[] input, int offset, int length)
     {
         if (state == null)
+        {
             throw new ArgumentNullException("state");
+        }
+
         if (!state.IsInitialized)
+        {
             ThrowStateUninitialized("state");
+        }
+
         if (input == null)
+        {
             throw new ArgumentNullException("input");
+        }
+
         if (input.Rank != 1)
+        {
             ThrowArrayMultiRank("input");
+        }
+
         if (input.GetLowerBound(0) != 0)
+        {
             ThrowArrayNonZeroLowerBound("input");
+        }
+
         if (offset < 0)
+        {
             ThrowArgumentNonNegativeNumber("offset");
+        }
+
         if (length < 0)
+        {
             ThrowArgumentNonNegativeNumber("length");
+        }
+
         if (input.Length < offset + length)
+        {
             ThrowArrayInvalidOffsetAndLength();
+        }
 
         return ErrorCode.XXH_OK == InternalUpdateState64(state, input, offset, length);
     }
@@ -568,7 +695,9 @@ public static class XXHash
     public static bool UpdateState64(State64 state, Stream inputStream)
     {
         if (inputStream == null)
+        {
             throw new ArgumentNullException("inputStream");
+        }
 
         var buffer = new byte[0x2000];
         int size;
@@ -576,8 +705,12 @@ public static class XXHash
         {
             size = inputStream.Read(buffer, 0, 0x2000);
             if (size > 0)
+            {
                 if (InternalUpdateState64(state, buffer, 0, size) != ErrorCode.XXH_OK)
+                {
                     return false;
+                }
+            }
         } while (size > 0);
 
         return true;
@@ -586,9 +719,14 @@ public static class XXHash
     public static ulong DigestState64(State64 state)
     {
         if (state == null)
+        {
             throw new ArgumentNullException("state");
+        }
+
         if (!state.IsInitialized)
+        {
             ThrowStateUninitialized("state");
+        }
 
         return InternalDigestState64(state);
     }
@@ -610,12 +748,12 @@ public static class XXHash
         var p = new InputTextStream(input, offset);
         long bEnd = p.Position + length;
 
-        state.total_len += (ulong) length;
+        state.total_len += (ulong)length;
 
         if (state.memsize + length < 16) /* fill in tmp buffer */
         {
             Array.Copy(input, offset, state.mem32, state.memsize, length);
-            state.memsize += (uint) length;
+            state.memsize += (uint)length;
             return ErrorCode.XXH_OK;
         }
 
@@ -623,13 +761,13 @@ public static class XXHash
         {
             Array.Copy(input, offset, state.mem32, state.memsize, 16 - state.memsize);
             {
-                var p32 = new InputTextStream(state.mem32, (int) state.memsize);
+                var p32 = new InputTextStream(state.mem32, (int)state.memsize);
                 state.v1 = XXH32_round(state.v1, p32.ReadUInt32());
                 state.v2 = XXH32_round(state.v2, p32.ReadUInt32());
                 state.v3 = XXH32_round(state.v3, p32.ReadUInt32());
                 state.v4 = XXH32_round(state.v4, p32.ReadUInt32());
             }
-            p.Skip(16 - (int) state.memsize);
+            p.Skip(16 - (int)state.memsize);
             state.memsize = 0;
         }
 
@@ -658,7 +796,7 @@ public static class XXHash
         if (p.Position < bEnd)
         {
             Array.Copy(input, p.Position, state.mem32, 0, bEnd - p.Position);
-            state.memsize = (uint) (bEnd - p.Position);
+            state.memsize = (uint)(bEnd - p.Position);
         }
 
         return ErrorCode.XXH_OK;
@@ -671,12 +809,16 @@ public static class XXHash
         uint h32;
 
         if (state.total_len >= 16)
+        {
             h32 = XXH_rotl32(state.v1, 1) + XXH_rotl32(state.v2, 7) + XXH_rotl32(state.v3, 12) +
                   XXH_rotl32(state.v4, 18);
+        }
         else
+        {
             h32 = state.seed + PRIME32_5;
+        }
 
-        h32 += (uint) state.total_len;
+        h32 += (uint)state.total_len;
 
         while (p.Position + 4 <= bEnd)
         {
@@ -724,12 +866,12 @@ public static class XXHash
         var p = new InputTextStream(input, offset);
         long bEnd = p.Position + length;
 
-        state.total_len += (ulong) length;
+        state.total_len += (ulong)length;
 
         if (state.memsize + length < 32) /* fill in tmp buffer */
         {
             Array.Copy(input, offset, state.mem64, state.memsize, length);
-            state.memsize += (uint) length;
+            state.memsize += (uint)length;
             return ErrorCode.XXH_OK;
         }
 
@@ -737,7 +879,7 @@ public static class XXHash
         {
             Array.Copy(input, offset, state.mem64, state.memsize, 32 - state.memsize);
             {
-                var p64 = new InputTextStream(state.mem64, (int) state.memsize);
+                var p64 = new InputTextStream(state.mem64, (int)state.memsize);
                 state.v1 += p64.ReadUInt64() * PRIME64_2;
                 state.v1 = XXH_rotl64(state.v1, 31);
                 state.v1 *= PRIME64_1;
@@ -754,7 +896,7 @@ public static class XXHash
                 state.v4 = XXH_rotl64(state.v4, 31);
                 state.v4 *= PRIME64_1;
             }
-            p.Skip(32 - (int) state.memsize);
+            p.Skip(32 - (int)state.memsize);
             state.memsize = 0;
         }
 
@@ -783,7 +925,7 @@ public static class XXHash
         if (p.Position < bEnd)
         {
             Array.Copy(input, p.Position, state.mem64, 0, bEnd - p.Position);
-            state.memsize = (uint) (bEnd - p.Position);
+            state.memsize = (uint)(bEnd - p.Position);
         }
 
         return ErrorCode.XXH_OK;
@@ -942,7 +1084,11 @@ public static class XXHash
         {
             get
             {
-                if (data != null) return data.Length;
+                if (data != null)
+                {
+                    return data.Length;
+                }
+
                 return 0;
             }
         }
@@ -956,11 +1102,19 @@ public static class XXHash
         internal InputTextStream(byte[] input)
         {
             if (input == null)
+            {
                 throw new ArgumentNullException("input");
+            }
+
             if (input.Rank != 1)
+            {
                 ThrowArrayMultiRank("input");
+            }
+
             if (input.GetLowerBound(0) != 0)
+            {
                 ThrowArrayNonZeroLowerBound("input");
+            }
 
             data = input;
             Position = 0;
@@ -969,15 +1123,29 @@ public static class XXHash
         internal InputTextStream(byte[] input, int offset)
         {
             if (input == null)
+            {
                 throw new ArgumentNullException("input");
+            }
+
             if (input.Rank != 1)
+            {
                 ThrowArrayMultiRank("input");
+            }
+
             if (input.GetLowerBound(0) != 0)
+            {
                 ThrowArrayNonZeroLowerBound("input");
+            }
+
             if (offset < 0)
+            {
                 ThrowArgumentNonNegativeNumber("offset");
+            }
+
             if (input.Length < offset)
+            {
                 ThrowArrayInvalidOffset("offset");
+            }
 
             data = input;
             Position = offset;
@@ -988,7 +1156,9 @@ public static class XXHash
         public uint ReadUInt32()
         {
             if (EndOfStream)
+            {
                 throw new InvalidOperationException();
+            }
 
             var value = BitConverter.ToUInt32(data, Position);
             Skip(4);
@@ -1000,7 +1170,9 @@ public static class XXHash
         public ulong ReadUInt64()
         {
             if (EndOfStream)
+            {
                 throw new InvalidOperationException();
+            }
 
             var value = BitConverter.ToUInt64(data, Position);
             Skip(8);
@@ -1012,7 +1184,9 @@ public static class XXHash
         public byte ReadByte()
         {
             if (EndOfStream)
+            {
                 throw new InvalidOperationException();
+            }
 
             return data[Position++];
         }
@@ -1021,14 +1195,21 @@ public static class XXHash
         public bool Skip(int skipNumBytes)
         {
             if (skipNumBytes < 0)
+            {
                 throw new ArgumentException();
+            }
 
             if (!EndOfStream)
             {
                 if (Position + skipNumBytes > data.Length)
+                {
                     Position = data.Length;
+                }
                 else
+                {
                     Position += skipNumBytes;
+                }
+
                 return true;
             }
 
@@ -1112,14 +1293,14 @@ public sealed class XXHash32CryptoServiceProvider : XXHash32
         _state = new XXHash.State32();
         unchecked
         {
-            _state.seed = (uint) seed;
+            _state.seed = (uint)seed;
         }
 
         Initialize();
     }
 
     public XXHash32CryptoServiceProvider(uint seed)
-        : this(unchecked((int) seed))
+        : this(unchecked((int)seed))
     {
     }
 
@@ -1128,7 +1309,9 @@ public sealed class XXHash32CryptoServiceProvider : XXHash32
         var errorCode = XXHash.InternalUpdateState32(_state, array, ibStart, cbSize);
 
         if (errorCode != XXHash.ErrorCode.XXH_OK)
+        {
             throw new InvalidOperationException();
+        }
     }
 
     protected override byte[] HashFinal()
@@ -1182,14 +1365,14 @@ public sealed class XXHash64CryptoServiceProvider : XXHash64
         _state = new XXHash.State64();
         unchecked
         {
-            _state.seed = (ulong) seed;
+            _state.seed = (ulong)seed;
         }
 
         Initialize();
     }
 
     public XXHash64CryptoServiceProvider(ulong seed)
-        : this(unchecked((long) seed))
+        : this(unchecked((long)seed))
     {
     }
 
@@ -1198,7 +1381,9 @@ public sealed class XXHash64CryptoServiceProvider : XXHash64
         var errorCode = XXHash.InternalUpdateState64(_state, array, ibStart, cbSize);
 
         if (errorCode != XXHash.ErrorCode.XXH_OK)
+        {
             throw new InvalidOperationException();
+        }
     }
 
     protected override byte[] HashFinal()

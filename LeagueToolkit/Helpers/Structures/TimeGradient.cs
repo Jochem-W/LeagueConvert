@@ -15,7 +15,10 @@ public class TimeGradient
     /// <param name="values">The Values of this <see cref="TimeGradient" /></param>
     public TimeGradient(int type, TimeGradientValue[] values)
     {
-        if (values.Length != 8) throw new ArgumentException("There must be 8 values");
+        if (values.Length != 8)
+        {
+            throw new ArgumentException("There must be 8 values");
+        }
 
         Type = type;
         Values = values;
@@ -28,7 +31,10 @@ public class TimeGradient
     public TimeGradient(TimeGradient timeGradient)
     {
         Type = timeGradient.Type;
-        for (var i = 0; i < timeGradient.Values.Length; i++) Values[i] = new TimeGradientValue(timeGradient.Values[i]);
+        for (var i = 0; i < timeGradient.Values.Length; i++)
+        {
+            Values[i] = new TimeGradientValue(timeGradient.Values[i]);
+        }
     }
 
     /// <summary>
@@ -39,7 +45,10 @@ public class TimeGradient
     {
         Type = br.ReadInt32();
         var usedValueCount = br.ReadUInt32();
-        for (var i = 0; i < usedValueCount; i++) Values[i] = new TimeGradientValue(br);
+        for (var i = 0; i < usedValueCount; i++)
+        {
+            Values[i] = new TimeGradientValue(br);
+        }
 
         for (var i = 0; i < 8 - usedValueCount; i++)
         {
@@ -68,8 +77,12 @@ public class TimeGradient
     {
         uint count = 0;
         for (var i = 0; i < 8; i++)
+        {
             if (Values[i] != null)
+            {
                 count++;
+            }
+        }
 
         return count;
     }
@@ -92,7 +105,10 @@ public class TimeGradient
                 for (var i = 0;; i++)
                 {
                     accValue = Values[gradientValueIndex].Value.Y;
-                    if (i >= valueCount || Values[gradientValueIndex].Time >= time) break;
+                    if (i >= valueCount || Values[gradientValueIndex].Time >= time)
+                    {
+                        break;
+                    }
 
                     gradientValueIndex++;
                 }
@@ -132,14 +148,24 @@ public class TimeGradient
         bw.Write(Type);
 
         uint usedValueCount = 0;
-        for (var i = 0; i < 8; i++) usedValueCount += Values[i] == null ? (uint) 1 : 0;
+        for (var i = 0; i < 8; i++)
+        {
+            usedValueCount += Values[i] == null ? (uint)1 : 0;
+        }
+
         bw.Write(usedValueCount);
 
         foreach (var value in Values)
+        {
             if (value != null)
+            {
                 value.Write(bw);
+            }
             else
+            {
                 new TimeGradientValue(0, new Vector4(0, 0, 0, 0)).Write(bw);
+            }
+        }
     }
 }
 
@@ -155,7 +181,10 @@ public class TimeGradientValue
     /// <param name="value">The value of this <see cref="TimeGradientValue" /></param>
     public TimeGradientValue(float time, Vector4 value)
     {
-        if (time > 1 || time < 0) throw new ArgumentException("Time must be normalized in a range from 0 - 1");
+        if (time > 1 || time < 0)
+        {
+            throw new ArgumentException("Time must be normalized in a range from 0 - 1");
+        }
 
         Time = time;
         Value = value;

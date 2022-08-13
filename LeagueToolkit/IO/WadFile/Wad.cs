@@ -39,7 +39,10 @@ public class Wad : IDisposable
     {
         if (_isDisposed is false)
         {
-            if (_leaveOpen is false) _stream?.Close();
+            if (_leaveOpen is false)
+            {
+                _stream?.Close();
+            }
 
             _isDisposed = true;
         }
@@ -60,11 +63,17 @@ public class Wad : IDisposable
         using (var br = new BinaryReader(stream, Encoding.UTF8, leaveOpen))
         {
             var magic = Encoding.ASCII.GetString(br.ReadBytes(2));
-            if (magic != "RW") throw new InvalidFileSignatureException();
+            if (magic != "RW")
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             var major = br.ReadByte();
             var minor = br.ReadByte();
-            if (major > 3) throw new UnsupportedFileVersionException();
+            if (major > 3)
+            {
+                throw new UnsupportedFileVersionException();
+            }
 
             ulong dataChecksum = 0; // probably not "dataChecksum"
 
@@ -94,9 +103,12 @@ public class Wad : IDisposable
                 var entry = new WadEntry(this, br, major, minor);
 
                 if (_entries.ContainsKey(entry.XXHash))
+                {
                     throw new InvalidOperationException(
                         "Tried to read a Wad Entry with the same path hash as an already existing entry: " +
                         entry.XXHash);
+                }
+
                 _entries.Add(entry.XXHash, entry);
             }
         }
@@ -107,13 +119,13 @@ public class Wad : IDisposable
         using (var bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
         {
             bw.Write(Encoding.ASCII.GetBytes("RW"));
-            bw.Write((byte) 3); // major
-            bw.Write((byte) 1); // minor
+            bw.Write((byte)3); // major
+            bw.Write((byte)1); // minor
 
             // Writing signature
             bw.Write(new byte[256]);
 
-            bw.Write((long) 0);
+            bw.Write((long)0);
 
             var tocSize = 32;
             var tocOffset = stream.Position + 4;
@@ -127,15 +139,21 @@ public class Wad : IDisposable
 
             // Write TOC
             stream.Seek(tocOffset, SeekOrigin.Begin);
-            foreach (var entryKey in entryKeys) _entries[entryKey].Write(bw, 3);
+            foreach (var entryKey in entryKeys)
+            {
+                _entries[entryKey].Write(bw, 3);
+            }
         }
     }
 
     internal void AddEntry(WadEntry entry)
     {
         if (_entries.ContainsKey(entry.XXHash))
+        {
             throw new InvalidOperationException(
                 "Tried to add an entry with an already existing XXHash: " + entry.XXHash);
+        }
+
         _entries.Add(entry.XXHash, entry);
     }
 }

@@ -54,7 +54,14 @@ public class WGTWeight
     /// <param name="bw">The <see cref="BinaryWriter" /> to write to</param>
     public void Write(BinaryWriter bw)
     {
-        for (var i = 0; i < 4; i++) bw.Write(BoneIndices[i]);
-        for (var i = 0; i < 4; i++) bw.Write(Weights[i]);
+        for (var i = 0; i < 4; i++)
+        {
+            bw.Write(BoneIndices[i]);
+        }
+
+        for (var i = 0; i < 4; i++)
+        {
+            bw.Write(Weights[i]);
+        }
     }
 }

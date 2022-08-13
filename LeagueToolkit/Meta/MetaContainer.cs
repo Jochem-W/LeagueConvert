@@ -19,8 +19,10 @@ public class MetaContainer<T> : IList<T>
     public MetaContainer(ICollection<T> items, int fixedSize)
     {
         if (items.Count > fixedSize)
+        {
             throw new ArgumentException(
                 $"{nameof(items.Count)}: {items.Count} is higher than {nameof(fixedSize)}: {fixedSize}");
+        }
 
         IsFixedSize = true;
         FixedSize = fixedSize;
@@ -42,7 +44,10 @@ public class MetaContainer<T> : IList<T>
     {
         // List is full
         if (IsFixedSize && _list.Count == FixedSize)
+        {
             throw new InvalidOperationException("maximum list size reached: " + FixedSize);
+        }
+
         _list.Add(item);
     }
 
@@ -69,7 +74,10 @@ public class MetaContainer<T> : IList<T>
     public void Insert(int index, T item)
     {
         if (IsFixedSize && index >= FixedSize)
+        {
             throw new ArgumentOutOfRangeException(nameof(index), $"must be within bounds of {FixedSize}");
+        }
+
         _list.Add(item);
     }
 

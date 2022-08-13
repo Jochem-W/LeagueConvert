@@ -31,9 +31,15 @@ public class WGTFile
     /// <param name="boneIndices">Bone Index data of this <see cref="WGTFile" /></param>
     public WGTFile(List<float[]> weights, List<byte[]> boneIndices)
     {
-        if (weights.Count != boneIndices.Count) throw new Exception("Weights and Bone Indices have to be synchronized");
+        if (weights.Count != boneIndices.Count)
+        {
+            throw new Exception("Weights and Bone Indices have to be synchronized");
+        }
 
-        for (var i = 0; i < weights.Count; i++) Weights.Add(new WGTWeight(weights[i], boneIndices[i]));
+        for (var i = 0; i < weights.Count; i++)
+        {
+            Weights.Add(new WGTWeight(weights[i], boneIndices[i]));
+        }
     }
 
     /// <summary>
@@ -53,15 +59,24 @@ public class WGTFile
         using (var br = new BinaryReader(stream))
         {
             var magic = Encoding.ASCII.GetString(br.ReadBytes(8));
-            if (magic != "r3d2wght") throw new InvalidFileSignatureException();
+            if (magic != "r3d2wght")
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             var version = br.ReadUInt32();
-            if (version != 1) throw new UnsupportedFileVersionException();
+            if (version != 1)
+            {
+                throw new UnsupportedFileVersionException();
+            }
 
             var skeletonId = br.ReadUInt32();
             var weightCount = br.ReadUInt32();
 
-            for (var i = 0; i < weightCount; i++) Weights.Add(new WGTWeight(br));
+            for (var i = 0; i < weightCount; i++)
+            {
+                Weights.Add(new WGTWeight(br));
+            }
         }
     }
 
@@ -92,7 +107,10 @@ public class WGTFile
             bw.Write(0);
             bw.Write(Weights.Count);
 
-            foreach (var weight in Weights) weight.Write(bw);
+            foreach (var weight in Weights)
+            {
+                weight.Write(bw);
+            }
         }
     }
 }

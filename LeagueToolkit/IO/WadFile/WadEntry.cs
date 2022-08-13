@@ -32,15 +32,21 @@ public class WadEntry : IComparable<WadEntry>
         _dataOffset = br.ReadUInt32();
         CompressedSize = br.ReadInt32();
         UncompressedSize = br.ReadInt32();
-        Type = (WadEntryType) br.ReadByte();
+        Type = (WadEntryType)br.ReadByte();
         _isDuplicated = br.ReadBoolean();
         br.ReadUInt16(); // pad 
         if (major >= 2)
         {
             Checksum = br.ReadBytes(8);
 
-            if (major == 3 && minor == 1) ChecksumType = WadEntryChecksumType.XXHash3;
-            else ChecksumType = WadEntryChecksumType.SHA256;
+            if (major == 3 && minor == 1)
+            {
+                ChecksumType = WadEntryChecksumType.XXHash3;
+            }
+            else
+            {
+                ChecksumType = WadEntryChecksumType.SHA256;
+            }
         }
 
         if (Type == WadEntryType.FileRedirection)
@@ -75,10 +81,13 @@ public class WadEntry : IComparable<WadEntry>
         bw.Write(_dataOffset);
         bw.Write(CompressedSize);
         bw.Write(UncompressedSize);
-        bw.Write((byte) Type);
+        bw.Write((byte)Type);
         bw.Write(_isDuplicated);
-        bw.Write((ushort) 0); // pad
-        if (major >= 2) bw.Write(Checksum);
+        bw.Write((ushort)0); // pad
+        if (major >= 2)
+        {
+            bw.Write(Checksum);
+        }
     }
 
     public WadEntryDataHandle GetDataHandle()

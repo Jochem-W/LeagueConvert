@@ -10,18 +10,24 @@ public class NVRIndexBuffer
     public NVRIndexBuffer(BinaryReader br)
     {
         var length = br.ReadInt32();
-        Format = (D3DFORMAT) br.ReadInt32();
+        Format = (D3DFORMAT)br.ReadInt32();
         if (Format == D3DFORMAT.D3DFMT_INDEX16)
         {
             // 16-bit indices, all tested NVRs use this
             var indicesCount = length / 2;
-            for (var i = 0; i < indicesCount; i++) Indices.Add(br.ReadUInt16());
+            for (var i = 0; i < indicesCount; i++)
+            {
+                Indices.Add(br.ReadUInt16());
+            }
         }
         else if (Format == D3DFORMAT.D3DFMT_INDEX32)
         {
             // 32-bit indices, never seen a NVR using this yet
             var indicesCount = length / 4;
-            for (var i = 0; i < indicesCount; i++) Indices.Add(br.ReadInt32());
+            for (var i = 0; i < indicesCount; i++)
+            {
+                Indices.Add(br.ReadInt32());
+            }
         }
         else
         {
@@ -36,7 +42,10 @@ public class NVRIndexBuffer
     public void AddIndex(int indexToAdd)
     {
         Indices.Add(indexToAdd);
-        if (CurrentMax < indexToAdd) CurrentMax = indexToAdd;
+        if (CurrentMax < indexToAdd)
+        {
+            CurrentMax = indexToAdd;
+        }
     }
 
     public void Write(BinaryWriter bw)
@@ -44,12 +53,18 @@ public class NVRIndexBuffer
         // Calculate length
         var indexLength = Format == D3DFORMAT.D3DFMT_INDEX16 ? 2 : 4;
         bw.Write(indexLength * Indices.Count);
-        bw.Write((int) Format);
+        bw.Write((int)Format);
         foreach (var index in Indices)
+        {
             if (indexLength == 2)
-                bw.Write((ushort) index);
+            {
+                bw.Write((ushort)index);
+            }
             else
+            {
                 bw.Write(index);
+            }
+        }
     }
 }
 

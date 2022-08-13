@@ -41,7 +41,7 @@ public class MOBObject
     public MOBObject(BinaryReader br)
     {
         Name = Encoding.ASCII.GetString(br.ReadBytes(62)).Replace("\0", "");
-        Type = (MOBObjectType) br.ReadByte();
+        Type = (MOBObjectType)br.ReadByte();
         IgnoreCollisionOnPlacement = br.ReadBoolean();
         Position = br.ReadVector3();
         Rotation = br.ReadVector3();
@@ -97,7 +97,7 @@ public class MOBObject
     public void Write(BinaryWriter bw)
     {
         bw.Write(Encoding.ASCII.GetBytes(Name.PadRight(62, '\u0000')));
-        bw.Write((byte) Type);
+        bw.Write((byte)Type);
         bw.Write(IgnoreCollisionOnPlacement);
         bw.WriteVector3(Position);
         bw.WriteVector3(Rotation);

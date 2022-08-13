@@ -25,7 +25,7 @@ public class BufferView : IIndexable
 
     public int? ByteOffset => ActualByteOffset != 0 ? ActualByteOffset : null;
 
-    public int ByteLength => (int) BinaryWriter.BaseStream.Length;
+    public int ByteLength => (int)BinaryWriter.BaseStream.Length;
 
     public int? ByteStride => ActualByteStride != 0 ? ActualByteStride : null;
 

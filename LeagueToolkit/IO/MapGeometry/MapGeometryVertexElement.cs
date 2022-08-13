@@ -10,8 +10,8 @@ public class MapGeometryVertexElement : IEquatable<MapGeometryVertexElement>
 
     public MapGeometryVertexElement(BinaryReader br)
     {
-        Name = (MapGeometryVertexElementName) br.ReadUInt32();
-        Format = (MapGeometryVertexElementFormat) br.ReadUInt32();
+        Name = (MapGeometryVertexElementName)br.ReadUInt32();
+        Format = (MapGeometryVertexElementFormat)br.ReadUInt32();
     }
 
     public MapGeometryVertexElementName Name { get; set; }
@@ -24,8 +24,8 @@ public class MapGeometryVertexElement : IEquatable<MapGeometryVertexElement>
 
     public void Write(BinaryWriter bw)
     {
-        bw.Write((uint) Name);
-        bw.Write((uint) Format);
+        bw.Write((uint)Name);
+        bw.Write((uint)Format);
     }
 
     public int GetElementSize()
@@ -33,10 +33,17 @@ public class MapGeometryVertexElement : IEquatable<MapGeometryVertexElement>
         var size = 0;
 
         if (Format == MapGeometryVertexElementFormat.XYZ_Float32)
+        {
             size = 12;
+        }
         else if (Format == MapGeometryVertexElementFormat.XY_Float32)
+        {
             size = 8;
-        else if (Format == MapGeometryVertexElementFormat.BGRA_Packed8888) size = 4;
+        }
+        else if (Format == MapGeometryVertexElementFormat.BGRA_Packed8888)
+        {
+            size = 4;
+        }
 
         return size;
     }

@@ -23,7 +23,10 @@ public class BinTree
         using (var br = new BinaryReader(stream))
         {
             var magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-            if (magic != "PROP" && magic != "PTCH") throw new InvalidFileSignatureException();
+            if (magic != "PROP" && magic != "PTCH")
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             if (magic == "PTCH")
             {
@@ -32,17 +35,24 @@ public class BinTree
                 var unknown = br.ReadUInt64();
                 magic = Encoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "PROP")
+                {
                     throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
+                }
             }
 
             var version = br.ReadUInt32();
-            if (version != 1 && version != 2 && version != 3) throw new UnsupportedFileVersionException();
+            if (version != 1 && version != 2 && version != 3)
+            {
+                throw new UnsupportedFileVersionException();
+            }
 
             if (version >= 2)
             {
                 var dependencyCount = br.ReadUInt32();
                 for (var i = 0; i < dependencyCount; i++)
+                {
                     Dependencies.Add(Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16())));
+                }
             }
 
             var objectCount = br.ReadUInt32();
@@ -52,7 +62,10 @@ public class BinTree
                 _objects.Add(new BinTreeObject(objectMetaClass));
             }
 
-            foreach (var treeObject in _objects) treeObject.ReadData(br);
+            foreach (var treeObject in _objects)
+            {
+                treeObject.ReadData(br);
+            }
         }
     }
 
@@ -79,29 +92,44 @@ public class BinTree
                 bw.Write(Dependencies.Count);
                 foreach (var dependency in Dependencies)
                 {
-                    bw.Write((ushort) dependency.Length);
+                    bw.Write((ushort)dependency.Length);
                     bw.Write(Encoding.UTF8.GetBytes(dependency));
                 }
             }
 
             bw.Write(_objects.Count);
-            foreach (var treeObject in _objects) bw.Write(treeObject.MetaClassHash);
-            foreach (var treeObject in _objects) treeObject.WriteContent(bw);
+            foreach (var treeObject in _objects)
+            {
+                bw.Write(treeObject.MetaClassHash);
+            }
+
+            foreach (var treeObject in _objects)
+            {
+                treeObject.WriteContent(bw);
+            }
         }
     }
 
     public void AddObject(BinTreeObject treeObject)
     {
         if (_objects.Any(x => x.PathHash == treeObject.PathHash))
+        {
             throw new InvalidOperationException("An object with the same path already exists");
+        }
+
         _objects.Add(treeObject);
     }
 
     public void RemoveObject(uint pathHash)
     {
         if (_objects.FirstOrDefault(x => x.PathHash == pathHash) is BinTreeObject treeObject)
+        {
             _objects.Remove(treeObject);
-        else throw new ArgumentException("Failed to find an object with the specified path hash", nameof(pathHash));
+        }
+        else
+        {
+            throw new ArgumentException("Failed to find an object with the specified path hash", nameof(pathHash));
+        }
     }
 }
 

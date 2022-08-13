@@ -54,6 +54,7 @@ public class InibinSet
 
         byte boolean = 0;
         for (var i = 0; i < valueCount; i++)
+        {
             if (Type == InibinFlags.Int32List)
             {
                 Properties[hashes[i]] = br.ReadInt32();
@@ -76,33 +77,34 @@ public class InibinSet
             }
             else if (Type == InibinFlags.BitList)
             {
-                boolean = i % 8 == 0 ? br.ReadByte() : (byte) (boolean >> 1);
+                boolean = i % 8 == 0 ? br.ReadByte() : (byte)(boolean >> 1);
                 Properties[hashes[i]] = Convert.ToBoolean(0x1 & boolean);
             }
             else if (Type == InibinFlags.FixedPointFloatListVec3)
             {
-                Properties[hashes[i]] = new[] {br.ReadByte(), br.ReadByte(), br.ReadByte()};
+                Properties[hashes[i]] = new[] { br.ReadByte(), br.ReadByte(), br.ReadByte() };
             }
             else if (Type == InibinFlags.Float32ListVec3)
             {
-                Properties[hashes[i]] = new[] {br.ReadSingle(), br.ReadSingle(), br.ReadSingle()};
+                Properties[hashes[i]] = new[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
             }
             else if (Type == InibinFlags.FixedPointFloatListVec2)
             {
-                Properties[hashes[i]] = new[] {br.ReadByte(), br.ReadByte()};
+                Properties[hashes[i]] = new[] { br.ReadByte(), br.ReadByte() };
             }
             else if (Type == InibinFlags.Float32ListVec2)
             {
-                Properties[hashes[i]] = new[] {br.ReadSingle(), br.ReadSingle()};
+                Properties[hashes[i]] = new[] { br.ReadSingle(), br.ReadSingle() };
             }
             else if (Type == InibinFlags.FixedPointFloatListVec4)
             {
-                Properties[hashes[i]] = new[] {br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte()};
+                Properties[hashes[i]] = new[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
             }
             else if (Type == InibinFlags.Float32ListVec4)
             {
-                Properties[hashes[i]] = new[] {br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()};
+                Properties[hashes[i]] = new[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
             }
+        }
     }
 
     /// <summary>
@@ -136,7 +138,10 @@ public class InibinSet
 
             var s = "";
             char c;
-            while ((c = br.ReadChar()) != '\u0000') s += c;
+            while ((c = br.ReadChar()) != '\u0000')
+            {
+                s += c;
+            }
 
             Properties[hashes[i]] = s;
             br.BaseStream.Seek(oldPos, SeekOrigin.Begin);
@@ -159,20 +164,30 @@ public class InibinSet
     /// <param name="bw">The <see cref="BinaryWriter" /> to write to</param>
     public void Write(BinaryWriter bw)
     {
-        bw.Write((ushort) Properties.Count);
+        bw.Write((ushort)Properties.Count);
 
-        foreach (var hash in Properties.Keys) bw.Write(hash);
+        foreach (var hash in Properties.Keys)
+        {
+            bw.Write(hash);
+        }
 
         if (Type == InibinFlags.BitList)
         {
             var booleans = Properties.Values.Cast<bool>().ToList();
             byte value = 0;
 
-            while (booleans.Count % 8 != 0) booleans.Add(false);
+            while (booleans.Count % 8 != 0)
+            {
+                booleans.Add(false);
+            }
 
             for (int i = 0, j = 0; i < Properties.Count; i++)
             {
-                if (booleans[i]) value |= (byte) (1 << j);
+                if (booleans[i])
+                {
+                    value |= (byte)(1 << j);
+                }
+
                 j++;
 
                 if (j == 8 || i == Properties.Count - 1)
@@ -188,41 +203,42 @@ public class InibinSet
             foreach (string value in Properties.Values)
             {
                 bw.Write(offset);
-                offset += (ushort) (value.Length + 1);
+                offset += (ushort)(value.Length + 1);
             }
 
             foreach (string value in Properties.Values)
             {
                 bw.Write(Encoding.ASCII.GetBytes(value));
-                bw.Write((byte) 0);
+                bw.Write((byte)0);
             }
         }
         else
         {
             foreach (var value in Properties.Values)
+            {
                 if (Type == InibinFlags.Int32List)
                 {
-                    bw.Write((int) value);
+                    bw.Write((int)value);
                 }
                 else if (Type == InibinFlags.Float32List)
                 {
-                    bw.Write((float) value);
+                    bw.Write((float)value);
                 }
                 else if (Type == InibinFlags.FixedPointFloatList)
                 {
-                    bw.Write(Convert.ToByte((double) value * 10));
+                    bw.Write(Convert.ToByte((double)value * 10));
                 }
                 else if (Type == InibinFlags.Int16List)
                 {
-                    bw.Write((short) value);
+                    bw.Write((short)value);
                 }
                 else if (Type == InibinFlags.Int8List)
                 {
-                    bw.Write((byte) value);
+                    bw.Write((byte)value);
                 }
                 else if (Type == InibinFlags.FixedPointFloatListVec3)
                 {
-                    var valueList = (byte[]) value;
+                    var valueList = (byte[])value;
 
                     bw.Write(valueList[0]);
                     bw.Write(valueList[1]);
@@ -230,7 +246,7 @@ public class InibinSet
                 }
                 else if (Type == InibinFlags.Float32ListVec3)
                 {
-                    var valueList = (float[]) value;
+                    var valueList = (float[])value;
 
                     bw.Write(valueList[0]);
                     bw.Write(valueList[1]);
@@ -238,21 +254,21 @@ public class InibinSet
                 }
                 else if (Type == InibinFlags.FixedPointFloatListVec2)
                 {
-                    var valueList = (byte[]) value;
+                    var valueList = (byte[])value;
 
                     bw.Write(valueList[0]);
                     bw.Write(valueList[1]);
                 }
                 else if (Type == InibinFlags.Float32ListVec2)
                 {
-                    var valueList = (float[]) value;
+                    var valueList = (float[])value;
 
                     bw.Write(valueList[0]);
                     bw.Write(valueList[1]);
                 }
                 else if (Type == InibinFlags.FixedPointFloatListVec4)
                 {
-                    var valueList = (byte[]) value;
+                    var valueList = (byte[])value;
 
                     bw.Write(valueList[0]);
                     bw.Write(valueList[1]);
@@ -261,13 +277,14 @@ public class InibinSet
                 }
                 else if (Type == InibinFlags.Float32ListVec4)
                 {
-                    var valueList = (float[]) value;
+                    var valueList = (float[])value;
 
                     bw.Write(valueList[0]);
                     bw.Write(valueList[1]);
                     bw.Write(valueList[2]);
                     bw.Write(valueList[3]);
                 }
+            }
         }
     }
 }

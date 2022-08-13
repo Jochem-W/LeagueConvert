@@ -36,7 +36,10 @@ public class StringWad : IDisposable
     public ParentedWadEntry GetEntryByName(string name)
     {
         if (name == null)
+        {
             throw new ArgumentException("Name cannot be null", nameof(name));
+        }
+
         var lower = name.ToLower();
         return Entries.FirstOrDefault(pair => pair.Key == lower).Value;
     }
@@ -51,10 +54,16 @@ public class StringWad : IDisposable
                 split[1] != "characters" ||
                 split[3] != "skins" ||
                 split.Length != 5) // TODO: this check prevents things like MF skin16 weapons from converting
+            {
                 continue;
+            }
+
             var fileName = Path.GetFileNameWithoutExtension(path);
             if (string.IsNullOrWhiteSpace(fileName) || fileName == "root")
+            {
                 continue;
+            }
+
             skinEntries[new KeyValuePair<string, string>(split[2], fileName)] = entry;
         }
 

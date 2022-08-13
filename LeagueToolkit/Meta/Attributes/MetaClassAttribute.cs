@@ -26,7 +26,10 @@ public sealed class MetaClassAttribute : Attribute
         get => _name;
         set
         {
-            if (value is null) throw new ArgumentNullException(nameof(value));
+            if (value is null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
 
             _name = value;
             _nameHash = Fnv1a.HashLower(value);
@@ -48,7 +51,10 @@ public sealed class MetaClassAttribute : Attribute
         get => _path;
         set
         {
-            if (value is null) throw new ArgumentNullException(nameof(value));
+            if (value is null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
 
             _path = value;
             _pathHash = Fnv1a.HashLower(value);

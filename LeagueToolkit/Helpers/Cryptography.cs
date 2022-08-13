@@ -14,9 +14,17 @@ public static class Cryptography
         uint hash = 0;
         section = section.ToLower();
         property = property.ToLower();
-        for (var i = 0; i < section.Length; i++) hash = section[i] + 65599 * hash;
+        for (var i = 0; i < section.Length; i++)
+        {
+            hash = section[i] + 65599 * hash;
+        }
+
         hash = 65599 * hash + 42;
-        for (var i = 0; i < property.Length; i++) hash = property[i] + 65599 * hash;
+        for (var i = 0; i < property.Length; i++)
+        {
+            hash = property[i] + 65599 * hash;
+        }
+
         return hash;
     }
 
@@ -34,9 +42,12 @@ public static class Cryptography
         uint high = 0;
         for (var i = 0; i < toHash.Length; i++)
         {
-            hash = (hash << 4) + (byte) toHash[i];
+            hash = (hash << 4) + (byte)toHash[i];
 
-            if ((high = hash & 0xF0000000) != 0) hash ^= high >> 24;
+            if ((high = hash & 0xF0000000) != 0)
+            {
+                hash ^= high >> 24;
+            }
 
             hash &= ~high;
         }

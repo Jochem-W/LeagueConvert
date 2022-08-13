@@ -6,7 +6,11 @@ public class MetaEmbedded<T> : IMetaEmbedded where T : IMetaClass
 
     public MetaEmbedded(T value)
     {
-        if (value is null) throw new ArgumentNullException(nameof(value));
+        if (value is null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+
         _value = value;
     }
 
@@ -15,7 +19,11 @@ public class MetaEmbedded<T> : IMetaEmbedded where T : IMetaClass
         get => _value;
         set
         {
-            if (value is null) throw new ArgumentNullException(nameof(value));
+            if (value is null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             _value = value;
         }
     }

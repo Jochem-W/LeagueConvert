@@ -43,7 +43,10 @@ public class Node : IIndexable
         get
         {
             if (_matrix == Matrix4x4.Identity || Animated)
+            {
                 return null;
+            }
+
             return _matrix;
         }
         set

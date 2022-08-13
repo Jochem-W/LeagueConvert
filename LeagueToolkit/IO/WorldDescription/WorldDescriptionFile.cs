@@ -29,7 +29,10 @@ public class WorldDescriptionFile
     {
         using (var sr = new StreamReader(stream))
         {
-            while (!sr.EndOfStream) Objects.Add(new WorldDescriptionObject(sr));
+            while (!sr.EndOfStream)
+            {
+                Objects.Add(new WorldDescriptionObject(sr));
+            }
         }
     }
 
@@ -55,7 +58,10 @@ public class WorldDescriptionFile
     {
         using (var sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
         {
-            foreach (var worldObject in Objects) worldObject.Write(sw);
+            foreach (var worldObject in Objects)
+            {
+                worldObject.Write(sw);
+            }
         }
     }
 }

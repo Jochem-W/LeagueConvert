@@ -18,16 +18,25 @@ public class ReleaseManifest
         using (var br = new BinaryReader(stream))
         {
             var magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-            if (magic != "RMAN") throw new InvalidFileSignatureException();
+            if (magic != "RMAN")
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             var major = br.ReadByte();
             var minor = br.ReadByte();
             // NOTE: only check major because minor version are compatabile forwards-backwards
-            if (major != 2) throw new UnsupportedFileVersionException();
+            if (major != 2)
+            {
+                throw new UnsupportedFileVersionException();
+            }
 
             //Could possibly be Compression Type
             var unknown = br.ReadByte();
-            if (unknown != 0) throw new Exception("Unknown: " + unknown);
+            if (unknown != 0)
+            {
+                throw new Exception("Unknown: " + unknown);
+            }
 
             var signatureType = br.ReadByte();
             var contentOffset = br.ReadUInt32();
@@ -36,7 +45,7 @@ public class ReleaseManifest
             var uncompressedContentSize = br.ReadUInt32();
 
             br.BaseStream.Seek(contentOffset, SeekOrigin.Begin);
-            var compressedFile = br.ReadBytes((int) compressedContentSize);
+            var compressedFile = br.ReadBytes((int)compressedContentSize);
 
             if (signatureType != 0)
             {
@@ -96,7 +105,7 @@ public class ReleaseManifest
             bw.Write(unknown);
             bw.Write(signatureType);
             bw.Write(contentOffset);
-            bw.Write((int) compressed.Length);
+            bw.Write((int)compressed.Length);
             bw.Write(ID);
             bw.Write(uncompressedContentSize);
             compressed.Seek(0, SeekOrigin.Begin);

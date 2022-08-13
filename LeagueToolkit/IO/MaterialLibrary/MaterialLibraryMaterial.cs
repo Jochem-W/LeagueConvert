@@ -39,19 +39,39 @@ public class MaterialLibraryMaterial
     public MaterialLibraryMaterial(StreamReader sr)
     {
         string[] line;
-        while ((line = sr.ReadLine().Split(new[] {' ', '='}, StringSplitOptions.RemoveEmptyEntries))[0] !=
+        while ((line = sr.ReadLine().Split(new[] { ' ', '=' }, StringSplitOptions.RemoveEmptyEntries))[0] !=
                "[MaterialEnd]")
+        {
             if (line[0] == "Name")
             {
                 Name = line[1];
             }
             else if (line[0] == "Flags")
             {
-                if (line.Contains("addop")) Flags |= MaterialFlags.AddOp;
-                if (line.Contains("subop")) Flags |= MaterialFlags.SubOp;
-                if (line.Contains("alphaop")) Flags |= MaterialFlags.AlphaOp;
-                if (line.Contains("uvclamp")) Flags |= MaterialFlags.UVClamp;
-                if (line.Contains("texture_gouraud_")) Flags |= MaterialFlags.GroundTexture;
+                if (line.Contains("addop"))
+                {
+                    Flags |= MaterialFlags.AddOp;
+                }
+
+                if (line.Contains("subop"))
+                {
+                    Flags |= MaterialFlags.SubOp;
+                }
+
+                if (line.Contains("alphaop"))
+                {
+                    Flags |= MaterialFlags.AlphaOp;
+                }
+
+                if (line.Contains("uvclamp"))
+                {
+                    Flags |= MaterialFlags.UVClamp;
+                }
+
+                if (line.Contains("texture_gouraud_"))
+                {
+                    Flags |= MaterialFlags.GroundTexture;
+                }
             }
             else if (line[0] == "EmissiveColor")
             {
@@ -60,9 +80,9 @@ public class MaterialLibraryMaterial
                 var b = int.Parse(line[3]);
                 EmissiveColor = new Color
                 (
-                    r == int.MinValue ? (byte) ~r : (byte) r,
-                    g == int.MinValue ? (byte) ~g : (byte) g,
-                    b == int.MinValue ? (byte) ~b : (byte) b
+                    r == int.MinValue ? (byte)~r : (byte)r,
+                    g == int.MinValue ? (byte)~g : (byte)g,
+                    b == int.MinValue ? (byte)~b : (byte)b
                 );
             }
             else if (line[0] == "UVScroll")
@@ -100,11 +120,12 @@ public class MaterialLibraryMaterial
                 var b = int.Parse(line[3]);
                 Color = new Color
                 (
-                    r == int.MinValue ? (byte) ~r : (byte) r,
-                    g == int.MinValue ? (byte) ~g : (byte) g,
-                    b == int.MinValue ? (byte) ~b : (byte) b
+                    r == int.MinValue ? (byte)~r : (byte)r,
+                    g == int.MinValue ? (byte)~g : (byte)g,
+                    b == int.MinValue ? (byte)~b : (byte)b
                 );
             }
+        }
     }
 
     public string Name { get; }
@@ -121,11 +142,30 @@ public class MaterialLibraryMaterial
     public void Write(StreamWriter sw)
     {
         var flags = "";
-        if (Flags.HasFlag(MaterialFlags.GroundTexture)) flags += "texture_gouraud_ ";
-        if (Flags.HasFlag(MaterialFlags.AddOp)) flags += "addop ";
-        if (Flags.HasFlag(MaterialFlags.SubOp)) flags += "subop";
-        if (Flags.HasFlag(MaterialFlags.AlphaOp)) flags += "alphaop";
-        if (Flags.HasFlag(MaterialFlags.UVClamp)) flags += "uvclamp";
+        if (Flags.HasFlag(MaterialFlags.GroundTexture))
+        {
+            flags += "texture_gouraud_ ";
+        }
+
+        if (Flags.HasFlag(MaterialFlags.AddOp))
+        {
+            flags += "addop ";
+        }
+
+        if (Flags.HasFlag(MaterialFlags.SubOp))
+        {
+            flags += "subop";
+        }
+
+        if (Flags.HasFlag(MaterialFlags.AlphaOp))
+        {
+            flags += "alphaop";
+        }
+
+        if (Flags.HasFlag(MaterialFlags.UVClamp))
+        {
+            flags += "uvclamp";
+        }
 
         sw.WriteLine("[MaterialBegin]");
         sw.WriteLine("Name= " + Name);
@@ -136,7 +176,11 @@ public class MaterialLibraryMaterial
         sw.WriteLine("ShaderName = " + ShaderName);
         sw.WriteLine("SimpleShader = " + (IsSimpleShader ? "1" : "0"));
         sw.WriteLine("Opacity= " + Opacity);
-        if (Texture != null) sw.WriteLine("Texture= " + Texture);
+        if (Texture != null)
+        {
+            sw.WriteLine("Texture= " + Texture);
+        }
+
         sw.WriteLine("Color24= {0}", Color.ToString(ColorFormat.RgbU8));
         sw.WriteLine("[MaterialEnd]");
     }

@@ -44,17 +44,29 @@ public class WorldGeometry
         using (var br = new BinaryReader(stream))
         {
             var magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-            if (magic != "WGEO") throw new InvalidFileSignatureException();
+            if (magic != "WGEO")
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             var version = br.ReadUInt32();
-            if (version != 5 && version != 4) throw new UnsupportedFileVersionException();
+            if (version != 5 && version != 4)
+            {
+                throw new UnsupportedFileVersionException();
+            }
 
             var modelCount = br.ReadUInt32();
             var faceCount = br.ReadUInt32();
 
-            for (var i = 0; i < modelCount; i++) Models.Add(new WorldGeometryModel(br));
+            for (var i = 0; i < modelCount; i++)
+            {
+                Models.Add(new WorldGeometryModel(br));
+            }
 
-            if (version == 5) BucketGrid = new BucketGrid(br);
+            if (version == 5)
+            {
+                BucketGrid = new BucketGrid(br);
+            }
         }
     }
 
@@ -89,10 +101,17 @@ public class WorldGeometry
             bw.Write(Encoding.ASCII.GetBytes("WGEO"));
             bw.Write(BucketGrid == null ? 4 : 5);
             bw.Write(Models.Count);
-            foreach (var model in Models) faceCount += (uint) model.Indices.Count / 3;
+            foreach (var model in Models)
+            {
+                faceCount += (uint)model.Indices.Count / 3;
+            }
+
             bw.Write(faceCount);
 
-            foreach (var model in Models) model.Write(bw);
+            foreach (var model in Models)
+            {
+                model.Write(bw);
+            }
 
             BucketGrid?.Write(bw);
         }

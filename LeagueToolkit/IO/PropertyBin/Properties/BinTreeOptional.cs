@@ -8,15 +8,21 @@ public sealed class BinTreeOptional : BinTreeProperty, IBinTreeParent
         ValueType = type;
         Value = value;
 
-        if (value is not null) value.Parent = this;
+        if (value is not null)
+        {
+            value.Parent = this;
+        }
     }
 
     internal BinTreeOptional(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
     {
-        ValueType = BinUtilities.UnpackType((BinPropertyType) br.ReadByte());
+        ValueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
         var isSome = br.ReadBoolean();
 
-        if (isSome) Value = Read(br, this, ValueType);
+        if (isSome)
+        {
+            Value = Read(br, this, ValueType);
+        }
     }
 
     public override BinPropertyType Type => BinPropertyType.Optional;
@@ -25,28 +31,41 @@ public sealed class BinTreeOptional : BinTreeProperty, IBinTreeParent
 
     protected override void WriteContent(BinaryWriter bw)
     {
-        bw.Write((byte) BinUtilities.PackType(ValueType));
+        bw.Write((byte)BinUtilities.PackType(ValueType));
         bw.Write(Value is not null);
 
-        if (Value is not null) Value.Write(bw, false);
+        if (Value is not null)
+        {
+            Value.Write(bw, false);
+        }
     }
 
     internal override int GetSize(bool includeHeader)
     {
         var size = 2 + (includeHeader ? 5 : 0);
 
-        if (Value is not null) size += Value.GetSize(false);
+        if (Value is not null)
+        {
+            size += Value.GetSize(false);
+        }
 
         return size;
     }
 
     public override bool Equals(BinTreeProperty other)
     {
-        if (NameHash != other?.NameHash) return false;
+        if (NameHash != other?.NameHash)
+        {
+            return false;
+        }
 
         if (other is BinTreeOptional otherProperty)
         {
-            if (ValueType != otherProperty.ValueType) return false;
+            if (ValueType != otherProperty.ValueType)
+            {
+                return false;
+            }
+
             return Value is BinTreeProperty value && value.Equals(otherProperty.Value);
         }
 

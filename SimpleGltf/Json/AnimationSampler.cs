@@ -9,7 +9,10 @@ public class AnimationSampler : IIndexable
     internal AnimationSampler(Animation animation, FloatAccessor input, FloatAccessor output)
     {
         if (input.Type != AccessorType.Scalar)
+        {
             throw new ArgumentException("Input has to be a scalar accessor with floats!", nameof(input));
+        }
+
         Index = animation.SamplerList.Count;
         animation.SamplerList.Add(this);
         Input = input;

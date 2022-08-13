@@ -11,7 +11,7 @@ public struct MetaWadEntryLink
 
     public override int GetHashCode()
     {
-        return (int) EntryPathHash; // ://
+        return (int)EntryPathHash; // ://
     }
 
     public override bool Equals(object obj)

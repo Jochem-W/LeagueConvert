@@ -41,7 +41,7 @@ public class IniFile
         {
             while (!sr.EndOfStream)
             {
-                var line = sr.ReadLine().Split(new[] {'[', ']', ' ', ';'}, StringSplitOptions.RemoveEmptyEntries);
+                var line = sr.ReadLine().Split(new[] { '[', ']', ' ', ';' }, StringSplitOptions.RemoveEmptyEntries);
                 if (line.Length != 0 && line[0].Length != 0)
                 {
                     Sections.Add(line[0], new Dictionary<string, string>());
@@ -66,15 +66,19 @@ public class IniFile
         string[] line = null;
 
         while (sr.Peek() != '[')
+        {
             if (!sr.EndOfStream)
             {
-                if ((line = sr.ReadLine().Split(new[] {'='}, StringSplitOptions.RemoveEmptyEntries)).Length != 0)
+                if ((line = sr.ReadLine().Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries)).Length != 0)
+                {
                     Sections[section].Add(line[0], line[1]);
+                }
             }
             else
             {
                 break;
             }
+        }
     }
 
     /// <summary>
@@ -97,7 +101,10 @@ public class IniFile
             foreach (var entry in Sections)
             {
                 sw.WriteLine("[{0}]", entry.Key);
-                foreach (var value in entry.Value) sw.WriteLine("{0}={1}", value.Key, value.Value);
+                foreach (var value in entry.Value)
+                {
+                    sw.WriteLine("{0}={1}", value.Key, value.Value);
+                }
             }
         }
     }

@@ -5,7 +5,7 @@ namespace LeagueToolkit.IO.NVR;
 
 public class NVRNode
 {
-    public static readonly float NullCoordinate = BitConverter.ToSingle(new byte[4] {255, 255, 127, 255}, 0);
+    public static readonly float NullCoordinate = BitConverter.ToSingle(new byte[4] { 255, 255, 127, 255 }, 0);
 
     //Values used when writing
     public R3DBox CentralPointsBoundingBox;
@@ -25,8 +25,12 @@ public class NVRNode
         ChildNodeCount = br.ReadInt32();
 
         if (FirstChildNode == -1)
+        {
             for (var i = FirstMesh; i < FirstMesh + MeshCount; i++)
+            {
                 Meshes.Add(buffers.Meshes[i]);
+            }
+        }
     }
 
     public NVRNode(R3DBox centralPointsBox, NVRNode parentNode)
@@ -62,12 +66,35 @@ public class NVRNode
             for (var i = 1; i < Meshes.Count; i++)
             {
                 var box = Meshes[i].BoundingBox;
-                if (box.Min.X < min.X) min.X = box.Min.X;
-                if (box.Min.Y < min.Y) min.Y = box.Min.Y;
-                if (box.Min.Z < min.Z) min.Z = box.Min.Z;
-                if (box.Max.X > max.X) max.X = box.Max.X;
-                if (box.Max.Y > max.Y) max.Y = box.Max.Y;
-                if (box.Max.Z > max.Z) max.Z = box.Max.Z;
+                if (box.Min.X < min.X)
+                {
+                    min.X = box.Min.X;
+                }
+
+                if (box.Min.Y < min.Y)
+                {
+                    min.Y = box.Min.Y;
+                }
+
+                if (box.Min.Z < min.Z)
+                {
+                    min.Z = box.Min.Z;
+                }
+
+                if (box.Max.X > max.X)
+                {
+                    max.X = box.Max.X;
+                }
+
+                if (box.Max.Y > max.Y)
+                {
+                    max.Y = box.Max.Y;
+                }
+
+                if (box.Max.Z > max.Z)
+                {
+                    max.Z = box.Max.Z;
+                }
             }
 
             return new R3DBox(min, max);
@@ -89,12 +116,35 @@ public class NVRNode
             for (var i = 1; i < Meshes.Count; i++)
             {
                 var spherePosition = Meshes[i].BoundingSphere.Position;
-                if (spherePosition.X < min.X) min.X = spherePosition.X;
-                if (spherePosition.Y < min.Y) min.Y = spherePosition.Y;
-                if (spherePosition.Z < min.Z) min.Z = spherePosition.Z;
-                if (spherePosition.X > max.X) max.X = spherePosition.X;
-                if (spherePosition.Y > max.Y) max.Y = spherePosition.Y;
-                if (spherePosition.Z > max.Z) max.Z = spherePosition.Z;
+                if (spherePosition.X < min.X)
+                {
+                    min.X = spherePosition.X;
+                }
+
+                if (spherePosition.Y < min.Y)
+                {
+                    min.Y = spherePosition.Y;
+                }
+
+                if (spherePosition.Z < min.Z)
+                {
+                    min.Z = spherePosition.Z;
+                }
+
+                if (spherePosition.X > max.X)
+                {
+                    max.X = spherePosition.X;
+                }
+
+                if (spherePosition.Y > max.Y)
+                {
+                    max.Y = spherePosition.Y;
+                }
+
+                if (spherePosition.Z > max.Z)
+                {
+                    max.Z = spherePosition.Z;
+                }
             }
 
             return new R3DBox(min, max);
@@ -132,7 +182,10 @@ public class NVRNode
         foreach (var childNode in Children)
         {
             var proportions = childNode.CentralPointsBoundingBox.GetProportions();
-            if (childNode.Meshes.Count > 1 && (proportions.X > 100 || proportions.Z > 100)) childNode.Split();
+            if (childNode.Meshes.Count > 1 && (proportions.X > 100 || proportions.Z > 100))
+            {
+                childNode.Split();
+            }
         }
     }
 

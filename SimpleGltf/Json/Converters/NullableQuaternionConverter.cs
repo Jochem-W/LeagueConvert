@@ -14,7 +14,10 @@ internal class NullableQuaternionConverter : JsonConverter<Quaternion?>
     public override void Write(Utf8JsonWriter writer, Quaternion? value, JsonSerializerOptions options)
     {
         if (!value.HasValue)
+        {
             return;
+        }
+
         writer.WriteStartArray();
         writer.WriteNumberValue(value.Value.X);
         writer.WriteNumberValue(value.Value.Y);

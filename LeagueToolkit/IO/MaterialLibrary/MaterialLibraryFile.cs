@@ -20,8 +20,12 @@ public class MaterialLibraryFile
         using (var sr = new StreamReader(stream))
         {
             while (!sr.EndOfStream)
+            {
                 if (sr.ReadLine() == "[MaterialBegin]")
+                {
                     Materials.Add(new MaterialLibraryMaterial(sr));
+                }
+            }
         }
     }
 

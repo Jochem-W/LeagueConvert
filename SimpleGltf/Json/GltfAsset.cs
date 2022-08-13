@@ -6,7 +6,7 @@ namespace SimpleGltf.Json;
 
 public class GltfAsset : IAsyncDisposable
 {
-    private static readonly IList<string> ExtensionsUsedList = new List<string> {"KHR_materials_unlit"};
+    private static readonly IList<string> ExtensionsUsedList = new List<string> { "KHR_materials_unlit" };
     internal readonly IList<Accessor> AccessorList = new List<Accessor>();
     internal readonly IList<Animation> AnimationList = new List<Animation>();
     internal readonly IList<Buffer> BufferList = new List<Buffer>();
@@ -59,10 +59,18 @@ public class GltfAsset : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (Buffers == null)
+        {
             return;
+        }
+
         foreach (var buffer in BufferList)
+        {
             await buffer.Stream.DisposeAsync();
+        }
+
         foreach (var bufferView in BufferViewList)
+        {
             await bufferView.BinaryWriter.DisposeAsync();
+        }
     }
 }

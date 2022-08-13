@@ -15,11 +15,11 @@ internal class StaticObjectFace
 
     public StaticObjectFace(BinaryReader br)
     {
-        Indices = new[] {br.ReadUInt32(), br.ReadUInt32(), br.ReadUInt32()};
+        Indices = new[] { br.ReadUInt32(), br.ReadUInt32(), br.ReadUInt32() };
         Material = Encoding.ASCII.GetString(br.ReadBytes(64)).Replace("\0", "");
 
         float[] uvs =
-            {br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()};
+            { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
         UVs = new[]
         {
             new(uvs[0], uvs[3]),
@@ -30,9 +30,9 @@ internal class StaticObjectFace
 
     public StaticObjectFace(StreamReader sr)
     {
-        var input = sr.ReadLine().Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);
+        var input = sr.ReadLine().Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
-        Indices = new[] {uint.Parse(input[1]), uint.Parse(input[2]), uint.Parse(input[3])};
+        Indices = new[] { uint.Parse(input[1]), uint.Parse(input[2]), uint.Parse(input[3]) };
         Material = input[4];
         UVs = new[]
         {
@@ -51,12 +51,22 @@ internal class StaticObjectFace
 
     public void Write(BinaryWriter bw)
     {
-        for (var i = 0; i < 3; i++) bw.Write(Indices[i]);
+        for (var i = 0; i < 3; i++)
+        {
+            bw.Write(Indices[i]);
+        }
 
         bw.Write(Material.PadRight(64, '\u0000').ToCharArray());
 
-        for (var i = 0; i < 3; i++) bw.Write(UVs[i].X);
-        for (var i = 0; i < 3; i++) bw.Write(UVs[i].Y);
+        for (var i = 0; i < 3; i++)
+        {
+            bw.Write(UVs[i].X);
+        }
+
+        for (var i = 0; i < 3; i++)
+        {
+            bw.Write(UVs[i].Y);
+        }
     }
 
     public void Write(StreamWriter sw)

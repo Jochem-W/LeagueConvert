@@ -16,16 +16,30 @@ public sealed class BinTreeEmbedded : BinTreeStructure
 
     public override bool Equals(BinTreeProperty other)
     {
-        if (NameHash != other.NameHash) return false;
+        if (NameHash != other.NameHash)
+        {
+            return false;
+        }
 
         if (other is BinTreeEmbedded otherProperty)
         {
-            if (MetaClassHash != otherProperty.MetaClassHash) return false;
-            if (_properties.Count != otherProperty._properties.Count) return false;
+            if (MetaClassHash != otherProperty.MetaClassHash)
+            {
+                return false;
+            }
+
+            if (_properties.Count != otherProperty._properties.Count)
+            {
+                return false;
+            }
 
             for (var i = 0; i < _properties.Count; i++)
+            {
                 if (!_properties[i].Equals(otherProperty._properties[i]))
+                {
                     return false;
+                }
+            }
         }
 
         return true;

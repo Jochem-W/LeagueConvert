@@ -28,12 +28,12 @@ public static class GltfAssetExtensions
 
     public static Animation CreateAnimation(this GltfAsset gltfAsset, string name = null)
     {
-        return new Animation(gltfAsset) {Name = name};
+        return new Animation(gltfAsset) { Name = name };
     }
 
     public static Asset CreateAsset(this GltfAsset gltfAsset, string copyright = null)
     {
-        return new Asset(gltfAsset) {Copyright = copyright};
+        return new Asset(gltfAsset) { Copyright = copyright };
     }
 
     public static Buffer CreateBuffer(this GltfAsset gltfAsset)
@@ -44,23 +44,29 @@ public static class GltfAssetExtensions
     public static BufferView CreateBufferView(this GltfAsset gltfAsset, Buffer buffer,
         BufferViewTarget? target = null)
     {
-        return new BufferView(gltfAsset, buffer) {Target = target};
+        return new BufferView(gltfAsset, buffer) { Target = target };
     }
 
     public static async Task<Image> CreateImage(this GltfAsset gltfAsset, BufferView bufferView,
         IMagickImage magickImage, string name = null)
     {
         if (bufferView.Accessors.Count > 0)
+        {
             throw new ArgumentException("BufferView can't be referenced by accessors", nameof(bufferView));
+        }
+
         if (bufferView.BinaryWriter.BaseStream.Length != 0)
+        {
             throw new ArgumentException("BufferView has to be empty", nameof(bufferView));
+        }
+
         await magickImage.WriteAsync(bufferView.BinaryWriter.BaseStream, MagickFormat.Png);
-        return new Image(gltfAsset, bufferView, MimeType.Png) {Name = name};
+        return new Image(gltfAsset, bufferView, MimeType.Png) { Name = name };
     }
 
     public static Material CreateMaterial(this GltfAsset gltfAsset, string name = null)
     {
-        return new Material(gltfAsset) {Name = name};
+        return new Material(gltfAsset) { Name = name };
     }
 
     public static Mesh CreateMesh(this GltfAsset gltfAsset)
@@ -81,7 +87,7 @@ public static class GltfAssetExtensions
     public static Sampler CreateSampler(this GltfAsset gltfAsset, WrappingMode? wrapS = null,
         WrappingMode? wrapT = null)
     {
-        return new Sampler(gltfAsset) {WrapS = wrapS, WrapT = wrapT};
+        return new Sampler(gltfAsset) { WrapS = wrapS, WrapT = wrapT };
     }
 
     public static Scene CreateScene(this GltfAsset gltfAsset)
@@ -96,7 +102,7 @@ public static class GltfAssetExtensions
 
     public static Texture CreateTexture(this GltfAsset gltfAsset, Sampler sampler = null, Image image = null)
     {
-        return new Texture(gltfAsset) {Sampler = sampler, Source = image};
+        return new Texture(gltfAsset) { Sampler = sampler, Source = image };
     }
 
     public static async Task Save(this GltfAsset gltfAsset, string path)
@@ -114,20 +120,24 @@ public static class GltfAssetExtensions
     {
         var directory = Path.GetDirectoryName(filePath);
         if (!Directory.Exists(directory))
+        {
             Directory.CreateDirectory(directory);
+        }
 
         await using var binaryWriter = new BinaryWriter(new MemoryStream());
         binaryWriter.Write("glTF".ToMagic());
-        binaryWriter.Write((uint) 2);
+        binaryWriter.Write((uint)2);
         binaryWriter.Seek(4, SeekOrigin.Current);
 
         await WriteJson(binaryWriter, gltfAsset);
 
         foreach (var buffer in gltfAsset.BufferList)
+        {
             await WriteChunk(binaryWriter, "BIN", buffer.Stream);
+        }
 
         binaryWriter.Seek(8, SeekOrigin.Begin);
-        binaryWriter.Write((uint) binaryWriter.BaseStream.Length);
+        binaryWriter.Write((uint)binaryWriter.BaseStream.Length);
         binaryWriter.Seek(0, SeekOrigin.Begin);
         await using var fileStream = File.Create(filePath);
         await binaryWriter.BaseStream.CopyToAsync(fileStream);
@@ -150,15 +160,22 @@ public static class GltfAssetExtensions
         await data.CopyToAsync(binaryWriter.BaseStream);
         var offset = binaryWriter.BaseStream.Position.GetOffset(4);
         if (padding.HasValue)
+        {
             for (var i = 0; i < offset; i++)
+            {
                 binaryWriter.Write(padding.Value);
+            }
+        }
         else
+        {
             binaryWriter.Write(new byte[offset]);
+        }
+
         var end = binaryWriter.BaseStream.Position;
         var length = end - start;
-        binaryWriter.Seek((int) headerStart, SeekOrigin.Begin);
-        binaryWriter.Write((uint) length);
-        binaryWriter.Seek((int) end, SeekOrigin.Begin);
+        binaryWriter.Seek((int)headerStart, SeekOrigin.Begin);
+        binaryWriter.Write((uint)length);
+        binaryWriter.Seek((int)end, SeekOrigin.Begin);
     }
 
     public static Task SaveGltfEmbedded(this GltfAsset gltfAsset, string filePath)
@@ -176,18 +193,27 @@ public static class GltfAssetExtensions
         foreach (var buffer in gltfAsset.BufferList)
         {
             if (buffer.Stream != null)
+            {
                 await buffer.Stream.DisposeAsync();
+            }
+
             buffer.Stream = new MemoryStream();
             foreach (var bufferView in buffer.BufferViews)
             {
                 var firstAccessor = bufferView.Accessors.Count > 0 ? bufferView.Accessors[0] : null;
                 if (bufferView.Target == BufferViewTarget.ArrayBuffer ||
                     firstAccessor?.Type is AccessorType.Mat2 or AccessorType.Mat3 or AccessorType.Mat4)
+                {
                     buffer.Stream.Seek(buffer.Stream.Position.GetOffset(4), SeekOrigin.Current);
+                }
+
                 if (firstAccessor != null)
+                {
                     buffer.Stream.Seek(buffer.Stream.Position.GetOffset(firstAccessor.ComponentType.GetSize()),
                         SeekOrigin.Current);
-                bufferView.ActualByteOffset = (int) buffer.Stream.Position;
+                }
+
+                bufferView.ActualByteOffset = (int)buffer.Stream.Position;
                 bufferView.BinaryWriter.Seek(0, SeekOrigin.Begin);
                 await bufferView.BinaryWriter.BaseStream.CopyToAsync(buffer.Stream);
             }
@@ -198,11 +224,19 @@ public static class GltfAssetExtensions
     {
         // TODO: maybe check accessors too
         if (gltfAsset.BufferViews != null)
+        {
             gltfAsset.CleanBufferViews();
+        }
+
         if (gltfAsset.Animations != null)
+        {
             gltfAsset.CleanAnimations();
+        }
+
         if (gltfAsset.Buffers != null)
+        {
             gltfAsset.CleanBuffers();
+        }
     }
 
     private static void CleanBuffers(this GltfAsset gltfAsset)
@@ -229,7 +263,10 @@ public static class GltfAssetExtensions
         {
             var animation = gltfAsset.AnimationList[i];
             if (animation.ChannelList.Count != 0 && animation.SamplerList.Count != 0)
+            {
                 continue;
+            }
+
             gltfAsset.AnimationList.Remove(animation);
             i--;
         }

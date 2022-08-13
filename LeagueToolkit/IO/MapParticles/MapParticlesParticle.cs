@@ -38,7 +38,7 @@ public class MapParticlesParticle
     /// <param name="sr">The <see cref="StreamReader" /> to read from</param>
     public MapParticlesParticle(StreamReader sr)
     {
-        var input = sr.ReadLine().Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+        var input = sr.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         Name = input[0];
 
         Position = new Vector3(float.Parse(input[1], CultureInfo.InvariantCulture),
@@ -96,7 +96,10 @@ public class MapParticlesParticle
             Rotation.Z
         );
 
-        foreach (var tag in Tags) write += " " + tag;
+        foreach (var tag in Tags)
+        {
+            write += " " + tag;
+        }
 
         sw.WriteLine(write);
     }

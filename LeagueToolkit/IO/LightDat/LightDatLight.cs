@@ -15,7 +15,7 @@ public class LightDatLight
     public LightDatLight(StreamReader sr)
     {
         var line = sr.ReadLine().Split(' ');
-        Position = new[] {int.Parse(line[0]), int.Parse(line[1]), int.Parse(line[2])};
+        Position = new[] { int.Parse(line[0]), int.Parse(line[1]), int.Parse(line[2]) };
         Color = new Color(byte.Parse(line[3]), byte.Parse(line[4]), byte.Parse(line[5]));
         Radius = int.Parse(line[6]);
     }

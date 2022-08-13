@@ -10,16 +10,16 @@ internal static class BinaryWriterExtensions
     {
         if (format == ColorFormat.RgbU8)
         {
-            writer.Write((byte) (color.R * 255));
-            writer.Write((byte) (color.G * 255));
-            writer.Write((byte) (color.B * 255));
+            writer.Write((byte)(color.R * 255));
+            writer.Write((byte)(color.G * 255));
+            writer.Write((byte)(color.B * 255));
         }
         else if (format == ColorFormat.RgbaU8)
         {
-            writer.Write((byte) (color.R * 255));
-            writer.Write((byte) (color.G * 255));
-            writer.Write((byte) (color.B * 255));
-            writer.Write((byte) (color.A * 255));
+            writer.Write((byte)(color.R * 255));
+            writer.Write((byte)(color.G * 255));
+            writer.Write((byte)(color.B * 255));
+            writer.Write((byte)(color.A * 255));
         }
         else if (format == ColorFormat.RgbF32)
         {
@@ -36,16 +36,16 @@ internal static class BinaryWriterExtensions
         }
         else if (format == ColorFormat.BgrU8)
         {
-            writer.Write((byte) (color.B * 255));
-            writer.Write((byte) (color.G * 255));
-            writer.Write((byte) (color.R * 255));
+            writer.Write((byte)(color.B * 255));
+            writer.Write((byte)(color.G * 255));
+            writer.Write((byte)(color.R * 255));
         }
         else if (format == ColorFormat.BgraU8)
         {
-            writer.Write((byte) (color.B * 255));
-            writer.Write((byte) (color.G * 255));
-            writer.Write((byte) (color.R * 255));
-            writer.Write((byte) (color.A * 255));
+            writer.Write((byte)(color.B * 255));
+            writer.Write((byte)(color.G * 255));
+            writer.Write((byte)(color.R * 255));
+            writer.Write((byte)(color.A * 255));
         }
         else if (format == ColorFormat.BgrF32)
         {
@@ -117,11 +117,15 @@ internal static class BinaryWriterExtensions
 
     public static void Pad(this BinaryWriter writer, int bytes, bool write = false)
     {
-        var remainder = (int) writer.BaseStream.Position % bytes;
+        var remainder = (int)writer.BaseStream.Position % bytes;
         var count = remainder == 0 ? 0 : bytes - remainder;
         if (write)
         {
-            for (var i = 0; i < count; i++) writer.Write((byte) 0);
+            for (var i = 0; i < count; i++)
+            {
+                writer.Write((byte)0);
+            }
+
             return;
         }
 
@@ -133,7 +137,7 @@ internal static class BinaryWriterExtensions
         writer.Pad(4);
         var position = writer.BaseStream.Position;
         writer.Write(Encoding.ASCII.GetBytes(data));
-        writer.Write((byte) 0);
+        writer.Write((byte)0);
         writer.Pad(4, true);
         return position;
     }

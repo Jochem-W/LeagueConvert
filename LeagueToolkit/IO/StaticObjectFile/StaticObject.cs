@@ -38,34 +38,52 @@ public class StaticObject
         using (var br = new BinaryReader(stream))
         {
             var magic = Encoding.ASCII.GetString(br.ReadBytes(8));
-            if (magic != "r3d2Mesh") throw new InvalidFileSignatureException();
+            if (magic != "r3d2Mesh")
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             var major = br.ReadUInt16();
             var minor = br.ReadUInt16();
             if (major != 3 && major != 2 && minor != 1) //There are versions [2][1] and [1][1] aswell
+            {
                 throw new UnsupportedFileVersionException();
+            }
 
             var name = Encoding.ASCII.GetString(br.ReadBytes(128)).Replace("\0", "");
             var vertexCount = br.ReadUInt32();
             var faceCount = br.ReadUInt32();
-            var flags = (StaticObjectFlags) br.ReadUInt32();
+            var flags = (StaticObjectFlags)br.ReadUInt32();
             var boundingBox = new R3DBox(br);
 
             var hasVertexColors = false;
-            if (major == 3 && minor == 2) hasVertexColors = br.ReadUInt32() == 1;
+            if (major == 3 && minor == 2)
+            {
+                hasVertexColors = br.ReadUInt32() == 1;
+            }
 
-            var vertices = new List<Vector3>((int) vertexCount);
-            var vertexColors = new List<Color>((int) vertexCount);
-            for (var i = 0; i < vertexCount; i++) vertices.Add(br.ReadVector3());
+            var vertices = new List<Vector3>((int)vertexCount);
+            var vertexColors = new List<Color>((int)vertexCount);
+            for (var i = 0; i < vertexCount; i++)
+            {
+                vertices.Add(br.ReadVector3());
+            }
 
             if (hasVertexColors)
+            {
                 for (var i = 0; i < vertexCount; i++)
+                {
                     vertexColors.Add(br.ReadColor(ColorFormat.RgbaU8));
+                }
+            }
 
             var centralPoint = br.ReadVector3();
 
-            var faces = new List<StaticObjectFace>((int) faceCount);
-            for (var i = 0; i < faceCount; i++) faces.Add(new StaticObjectFace(br));
+            var faces = new List<StaticObjectFace>((int)faceCount);
+            for (var i = 0; i < faceCount; i++)
+            {
+                faces.Add(new StaticObjectFace(br));
+            }
 
             return new StaticObject(name, CreateSubmeshes(vertices, vertexColors, faces), centralPoint);
         }
@@ -80,10 +98,13 @@ public class StaticObject
     {
         using (var sr = new StreamReader(stream))
         {
-            char[] splittingArray = {' '};
+            char[] splittingArray = { ' ' };
             string[] input = null;
 
-            if (sr.ReadLine() != "[ObjectBegin]") throw new InvalidFileSignatureException();
+            if (sr.ReadLine() != "[ObjectBegin]")
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             input = sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries);
             var name = input.Length != 1 ? input[1] : string.Empty;
@@ -99,17 +120,26 @@ public class StaticObject
 
             input = sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries);
             if (input[0] == "PivotPoint=")
+            {
                 pivotPoint = new Vector3(
                     float.Parse(input[1], CultureInfo.InvariantCulture),
                     float.Parse(input[2], CultureInfo.InvariantCulture),
                     float.Parse(input[3], CultureInfo.InvariantCulture));
-            else if (input[0] == "VertexColors=") hasVertexColors = uint.Parse(input[1]) != 0;
+            }
+            else if (input[0] == "VertexColors=")
+            {
+                hasVertexColors = uint.Parse(input[1]) != 0;
+            }
 
             var vertexCount = 0;
             if (input[0] == "Verts=")
+            {
                 vertexCount = int.Parse(input[1]);
+            }
             else
+            {
                 vertexCount = int.Parse(sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
+            }
 
             var vertices = new List<Vector3>(vertexCount);
             var vertexColors = new List<Color>(vertexCount);
@@ -124,11 +154,14 @@ public class StaticObject
             }
 
             if (hasVertexColors)
+            {
                 for (var i = 0; i < vertexCount; i++)
                 {
-                    var colorComponents = sr.ReadLine().Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+                    var colorComponents = sr.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     if (colorComponents.Length != 4)
+                    {
                         throw new Exception("Invalid number of vertex color components: " + colorComponents.Length);
+                    }
 
                     var r = byte.Parse(colorComponents[0]);
                     var g = byte.Parse(colorComponents[1]);
@@ -137,10 +170,14 @@ public class StaticObject
 
                     vertexColors.Add(new Color(r, g, b, a));
                 }
+            }
 
             var faceCount = int.Parse(sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
             var faces = new List<StaticObjectFace>(faceCount);
-            for (var i = 0; i < faceCount; i++) faces.Add(new StaticObjectFace(sr));
+            for (var i = 0; i < faceCount; i++)
+            {
+                faces.Add(new StaticObjectFace(sr));
+            }
 
             return new StaticObject(name, CreateSubmeshes(vertices, vertexColors, faces), pivotPoint);
         }
@@ -159,14 +196,19 @@ public class StaticObject
             var indices = new List<uint>(mappedSubmesh.Value.Count * 3);
             var uvMap = new Dictionary<uint, Vector2>(mappedSubmesh.Value.Count * 3);
             foreach (var face in mappedSubmesh.Value)
+            {
                 for (var i = 0; i < 3; i++)
                 {
                     var index = face.Indices[i];
 
                     indices.Add(index);
 
-                    if (!uvMap.ContainsKey(index)) uvMap.Add(index, face.UVs[i]);
+                    if (!uvMap.ContainsKey(index))
+                    {
+                        uvMap.Add(index, face.UVs[i]);
+                    }
                 }
+            }
 
             //Get Vertex range from indices
             var minVertex = indices.Min();
@@ -174,19 +216,26 @@ public class StaticObject
 
             //Build vertex list
             var vertexCount = maxVertex - minVertex;
-            var submeshVertices = new List<StaticObjectVertex>((int) vertexCount);
+            var submeshVertices = new List<StaticObjectVertex>((int)vertexCount);
             for (var i = minVertex; i < maxVertex + 1; i++)
             {
                 var uv = uvMap[i];
 
                 if (hasVertexColors)
-                    submeshVertices.Add(new StaticObjectVertex(vertices[(int) i], uv, vertexColors[(int) i]));
+                {
+                    submeshVertices.Add(new StaticObjectVertex(vertices[(int)i], uv, vertexColors[(int)i]));
+                }
                 else
-                    submeshVertices.Add(new StaticObjectVertex(vertices[(int) i], uv));
+                {
+                    submeshVertices.Add(new StaticObjectVertex(vertices[(int)i], uv));
+                }
             }
 
             //Normalize indices
-            for (var i = 0; i < indices.Count; i++) indices[i] -= minVertex;
+            for (var i = 0; i < indices.Count; i++)
+            {
+                indices[i] -= minVertex;
+            }
 
             submeshes.Add(new StaticObjectSubmesh(mappedSubmesh.Key, submeshVertices, indices));
         }
@@ -200,7 +249,10 @@ public class StaticObject
 
         foreach (var face in faces)
         {
-            if (!submeshMap.ContainsKey(face.Material)) submeshMap.Add(face.Material, new List<StaticObjectFace>());
+            if (!submeshMap.ContainsKey(face.Material))
+            {
+                submeshMap.Add(face.Material, new List<StaticObjectFace>());
+            }
 
             submeshMap[face.Material].Add(face);
         }
@@ -222,35 +274,51 @@ public class StaticObject
             var hasVertexColors = false;
             StaticObjectFlags flags = 0;
 
-            foreach (var submesh in Submeshes) faces.AddRange(submesh.GetFaces());
+            foreach (var submesh in Submeshes)
+            {
+                faces.AddRange(submesh.GetFaces());
+            }
 
             foreach (var vertex in vertices)
+            {
                 if (vertex.Color != null)
                 {
                     hasVertexColors = true;
                     break;
                 }
+            }
 
-            if (hasVertexColors) flags |= StaticObjectFlags.VERTEX_COLORS;
+            if (hasVertexColors)
+            {
+                flags |= StaticObjectFlags.VERTEX_COLORS;
+            }
 
             bw.Write(Encoding.ASCII.GetBytes("r3d2Mesh"));
-            bw.Write((ushort) 3);
-            bw.Write((ushort) 2);
+            bw.Write((ushort)3);
+            bw.Write((ushort)2);
             bw.Write(Encoding.ASCII.GetBytes(Name.PadRight(128, '\u0000')));
             bw.Write(vertices.Count);
             bw.Write(faces.Count);
-            bw.Write((uint) flags);
+            bw.Write((uint)flags);
             GetBoundingBox().Write(bw);
-            bw.Write((uint) (flags & StaticObjectFlags.VERTEX_COLORS));
+            bw.Write((uint)(flags & StaticObjectFlags.VERTEX_COLORS));
 
             vertices.ForEach(vertex => bw.WriteVector3(vertex.Position));
 
             if (hasVertexColors)
+            {
                 foreach (var vertex in vertices)
+                {
                     if (vertex.Color.HasValue)
+                    {
                         bw.WriteColor(vertex.Color.Value, ColorFormat.RgbaU8);
+                    }
                     else
+                    {
                         bw.WriteColor(new Color(0, 0, 0, 255), ColorFormat.RgbaU8);
+                    }
+                }
+            }
 
 
             bw.WriteVector3(GetCentralPoint());
@@ -271,21 +339,33 @@ public class StaticObject
             var faces = new List<StaticObjectFace>();
             var hasVertexColors = false;
 
-            foreach (var submesh in Submeshes) faces.AddRange(submesh.GetFaces());
+            foreach (var submesh in Submeshes)
+            {
+                faces.AddRange(submesh.GetFaces());
+            }
 
             foreach (var vertex in vertices)
+            {
                 if (vertex.Color != null)
                 {
                     hasVertexColors = true;
                     break;
                 }
+            }
 
             sw.WriteLine("[ObjectBegin]");
             sw.WriteLine("Name= " + Name);
             sw.WriteLine("CentralPoint= " + GetCentralPoint());
 
-            if (PivotPoint != Vector3.Zero) sw.WriteLine("PivotPoint= " + PivotPoint);
-            if (hasVertexColors) sw.WriteLine("VertexColors= 1");
+            if (PivotPoint != Vector3.Zero)
+            {
+                sw.WriteLine("PivotPoint= " + PivotPoint);
+            }
+
+            if (hasVertexColors)
+            {
+                sw.WriteLine("VertexColors= 1");
+            }
 
             sw.WriteLine("Verts= " + vertices.Count);
             vertices.ForEach(vertex =>
@@ -294,15 +374,21 @@ public class StaticObject
             });
 
             if (hasVertexColors)
+            {
                 foreach (var vertex in vertices)
                 {
                     if (vertex.Color.HasValue)
+                    {
                         sw.WriteColor(vertex.Color.Value, ColorFormat.RgbaU8);
+                    }
                     else
+                    {
                         sw.WriteColor(new Color(0, 0, 0, 255), ColorFormat.RgbaU8);
+                    }
 
                     sw.Write('\n');
                 }
+            }
 
 
             sw.WriteLine("Faces= " + faces.Count);
@@ -316,7 +402,10 @@ public class StaticObject
     {
         var vertices = new List<StaticObjectVertex>();
 
-        foreach (var submesh in Submeshes) vertices.AddRange(submesh.Vertices);
+        foreach (var submesh in Submeshes)
+        {
+            vertices.AddRange(submesh.Vertices);
+        }
 
         return vertices;
     }
@@ -344,12 +433,35 @@ public class StaticObject
         foreach (var submesh in Submeshes)
         foreach (var vertex in submesh.Vertices)
         {
-            if (min.X > vertex.Position.X) min.X = vertex.Position.X;
-            if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
-            if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
-            if (max.X < vertex.Position.X) max.X = vertex.Position.X;
-            if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
-            if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
+            if (min.X > vertex.Position.X)
+            {
+                min.X = vertex.Position.X;
+            }
+
+            if (min.Y > vertex.Position.Y)
+            {
+                min.Y = vertex.Position.Y;
+            }
+
+            if (min.Z > vertex.Position.Z)
+            {
+                min.Z = vertex.Position.Z;
+            }
+
+            if (max.X < vertex.Position.X)
+            {
+                max.X = vertex.Position.X;
+            }
+
+            if (max.Y < vertex.Position.Y)
+            {
+                max.Y = vertex.Position.Y;
+            }
+
+            if (max.Z < vertex.Position.Z)
+            {
+                max.Z = vertex.Position.Z;
+            }
         }
 
         return new R3DBox(min, max);

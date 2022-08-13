@@ -25,6 +25,9 @@ public class NVRVertexBuffer
     {
         var bufferLength = Vertices[0].GetSize() * Vertices.Count;
         bw.Write(bufferLength);
-        foreach (var vertex in Vertices) vertex.Write(bw);
+        foreach (var vertex in Vertices)
+        {
+            vertex.Write(bw);
+        }
     }
 }

@@ -20,7 +20,7 @@ public sealed class BinTreeString : BinTreeProperty
 
     protected override void WriteContent(BinaryWriter bw)
     {
-        bw.Write((ushort) Value.Length);
+        bw.Write((ushort)Value.Length);
         bw.Write(Encoding.UTF8.GetBytes(Value));
     }
 

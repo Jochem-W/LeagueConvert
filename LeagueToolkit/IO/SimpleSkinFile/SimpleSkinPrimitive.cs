@@ -33,7 +33,11 @@ public class SimpleSkinPrimitive
         var position = bw.BaseStream.Position;
         bw.Write(Encoding.ASCII.GetBytes(Name));
         var nameLength = bw.BaseStream.Position - position;
-        if (nameLength < 64) bw.Seek((int) (64 - nameLength), SeekOrigin.Current);
+        if (nameLength < 64)
+        {
+            bw.Seek((int)(64 - nameLength), SeekOrigin.Current);
+        }
+
         bw.Write(VertexOffset);
         bw.Write(VertexCount);
         bw.Write(IndexOffset);

@@ -30,7 +30,11 @@ public static class Samplers
 
     public static SamplerType FromString(string samplerType)
     {
-        if (Diffuse.Contains(samplerType)) return SamplerType.Diffuse;
+        if (Diffuse.Contains(samplerType))
+        {
+            return SamplerType.Diffuse;
+        }
+
         return SamplerType.Unknown;
     }
 }

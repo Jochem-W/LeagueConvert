@@ -37,7 +37,10 @@ public sealed class MetaDumpClass
             interfaces.AddRange(parentInterface.GetInterfacesRecursive(classes, true));
         }
 
-        for (var i = 0; i < Implements.Count; i++) interfaces.Add(Implements.ElementAt(i).Key);
+        for (var i = 0; i < Implements.Count; i++)
+        {
+            interfaces.Add(Implements.ElementAt(i).Key);
+        }
 
         return interfaces;
     }
@@ -60,8 +63,13 @@ public sealed class MetaDumpClass
             interfaces.Add(interfaceHash);
 
             if (classes.TryGetValue(interfaceHash, out var interfaceClass) && interfaceClass.Is.Interface)
+            {
                 interfaces.AddRange(interfaceClass.GetInterfacesRecursive(classes, true));
-            else throw new InvalidOperationException("Failed to find interface: " + interfaceHash);
+            }
+            else
+            {
+                throw new InvalidOperationException("Failed to find interface: " + interfaceHash);
+            }
         }
 
         return interfaces;

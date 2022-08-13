@@ -9,6 +9,7 @@ public static class ParentedBinTreeExtensions
     {
         var dependencies = new List<ParentedBinTree>();
         foreach (var dependency in binTree.Dependencies)
+        {
             try
             {
                 var dependencyBinTree = await ParentedBinTree.FromWadEntry(stringWad.GetEntryByName(dependency));
@@ -17,8 +18,12 @@ public static class ParentedBinTreeExtensions
             }
             catch (Exception)
             {
-                if (!ignore) throw;
+                if (!ignore)
+                {
+                    throw;
+                }
             }
+        }
 
         return dependencies;
     }

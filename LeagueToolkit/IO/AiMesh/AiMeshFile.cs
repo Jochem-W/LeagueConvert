@@ -34,16 +34,25 @@ public class AiMeshFile
         using (var br = new BinaryReader(stream))
         {
             var magic = Encoding.ASCII.GetString(br.ReadBytes(8));
-            if (magic != "r3d2aims") throw new InvalidFileSignatureException();
+            if (magic != "r3d2aims")
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             var version = br.ReadUInt32();
-            if (version != 2) throw new UnsupportedFileVersionException();
+            if (version != 2)
+            {
+                throw new UnsupportedFileVersionException();
+            }
 
             var cellCount = br.ReadUInt32();
             var flags = br.ReadUInt32();
             var unknownFlagConstant = br.ReadUInt32(); // If set to [1] then Flags is [1]
 
-            for (var i = 0; i < cellCount; i++) Cells.Add(new AiMeshCell(br));
+            for (var i = 0; i < cellCount; i++)
+            {
+                Cells.Add(new AiMeshCell(br));
+            }
         }
     }
 
@@ -70,12 +79,15 @@ public class AiMeshFile
         using (var bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
         {
             bw.Write(Encoding.ASCII.GetBytes("r3d2aims"));
-            bw.Write((uint) 2);
+            bw.Write((uint)2);
             bw.Write(Cells.Count);
-            bw.Write((uint) 0);
-            bw.Write((uint) 0);
+            bw.Write((uint)0);
+            bw.Write((uint)0);
 
-            foreach (var cell in Cells) cell.Write(bw);
+            foreach (var cell in Cells)
+            {
+                cell.Write(bw);
+            }
         }
     }
 }

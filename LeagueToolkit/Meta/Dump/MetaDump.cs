@@ -31,9 +31,15 @@ public sealed class MetaDump
         Dictionary<uint, string> classNameMap = new(classNames.Count);
         Dictionary<uint, string> propertyNameMap = new(propertyNames.Count);
 
-        foreach (var className in classNames) classNameMap.Add(Fnv1a.HashLower(className), className);
+        foreach (var className in classNames)
+        {
+            classNameMap.Add(Fnv1a.HashLower(className), className);
+        }
 
-        foreach (var propertyName in propertyNames) propertyNameMap.Add(Fnv1a.HashLower(propertyName), propertyName);
+        foreach (var propertyName in propertyNames)
+        {
+            propertyNameMap.Add(Fnv1a.HashLower(propertyName), propertyName);
+        }
 
         WriteMetaClasses(stream, classNameMap, propertyNameMap);
     }
@@ -45,7 +51,9 @@ public sealed class MetaDump
         {
             // Get required types and include their namespaces
             foreach (var requiredNamespace in GetRequiredNamespaces(GetRequiredTypes()))
+            {
                 sw.WriteLine("using {0};", requiredNamespace);
+            }
 
             // Start Namespace
             sw.WriteLine("namespace LeagueToolkit.Meta.Classes");
@@ -62,16 +70,23 @@ public sealed class MetaDump
     private void WriteClasses(StreamWriter sw, Dictionary<uint, string> classNames,
         Dictionary<uint, string> propertyNames)
     {
-        foreach (var dumpClass in Classes) WriteClass(sw, dumpClass.Key, dumpClass.Value, classNames, propertyNames);
+        foreach (var dumpClass in Classes)
+        {
+            WriteClass(sw, dumpClass.Key, dumpClass.Value, classNames, propertyNames);
+        }
     }
 
     private void WriteClassAttribute(StreamWriter sw, string dumpClassHash, MetaDumpClass dumpClass,
         Dictionary<uint, string> classNames)
     {
         if (classNames.TryGetValue(Convert.ToUInt32(dumpClassHash, 16), out var className))
+        {
             sw.WriteLineIndented(1, @"[MetaClass(""{0}"")]", className);
+        }
         else
+        {
             sw.WriteLineIndented(1, "[MetaClass({0})]", Convert.ToUInt32(dumpClassHash, 16));
+        }
     }
 
     private void WriteClass(StreamWriter sw, string classHash, MetaDumpClass dumpClass,
@@ -107,7 +122,10 @@ public sealed class MetaDump
 
                 sw.Write(" {0}", interfaceName);
 
-                if (i + 1 != dumpClass.Implements.Count) sw.Write(',');
+                if (i + 1 != dumpClass.Implements.Count)
+                {
+                    sw.Write(',');
+                }
             }
         }
 
@@ -128,15 +146,25 @@ public sealed class MetaDump
     {
         // Write properties of interfaces
         if (dumpClass.Is.Interface is false)
+        {
             foreach (var interfaceHash in dumpClass.GetInterfacesRecursive(Classes, true))
+            {
                 if (Classes.TryGetValue(interfaceHash, out var interfaceClass) && interfaceClass.Is.Interface)
+                {
                     foreach (var property in interfaceClass.Properties)
+                    {
                         WriteProperty(sw, interfaceHash, dumpClass, property.Key, property.Value, true, classNames,
                             propertyNames);
+                    }
+                }
+            }
+        }
 
         foreach (var property in dumpClass.Properties)
+        {
             WriteProperty(sw, classHash, dumpClass, property.Key, property.Value, !dumpClass.Is.Interface, classNames,
                 propertyNames);
+        }
     }
 
     private void WriteProperty(StreamWriter sw,
@@ -153,7 +181,10 @@ public sealed class MetaDump
 
         // Check that property name isn't the same as the class name
         var className = GetClassNameOrDefault(classHash, classNames);
-        if (className == propertyName) propertyName = 'm' + propertyName;
+        if (className == propertyName)
+        {
+            propertyName = 'm' + propertyName;
+        }
 
         var propertyLine = $"{visibility}{typeDeclaration} {propertyName} {{ get; set; }}";
         if (dumpClass.Is.Interface is false)
@@ -187,11 +218,15 @@ public sealed class MetaDump
         var otherClass = property.OtherClass is null ? "" : GetClassNameOrDefault(property.OtherClass, classNames);
 
         if (propertyNames.TryGetValue(Convert.ToUInt32(propertyHash, 16), out var propertyName))
+        {
             sw.WriteLineIndented(2,
                 $"[MetaProperty(\"{propertyName}\", BinPropertyType.{propertyType}, \"{otherClass}\", {primaryTypeString}, {secondaryTypeString})]");
+        }
         else
+        {
             sw.WriteLineIndented(2,
                 $"[MetaProperty({Convert.ToUInt32(propertyHash, 16)}, BinPropertyType.{propertyType}, \"{otherClass}\", {primaryTypeString}, {secondaryTypeString})]");
+        }
     }
 
     private string GetPropertyTypeDeclaration(MetaDumpProperty property, Dictionary<uint, string> classNames)
@@ -383,9 +418,15 @@ public sealed class MetaDump
     private string StylizePropertyName(string propertyName)
     {
         if (propertyName[0] == 'm' && char.IsUpper(propertyName[1]))
+        {
             return propertyName.Substring(1);
+        }
+
         if (char.IsLower(propertyName[0]) && !char.IsNumber(propertyName[1]))
+        {
             return char.ToUpper(propertyName[0]) + propertyName.Substring(1);
+        }
+
         return propertyName;
     }
 

@@ -132,7 +132,10 @@ internal static class BinaryReaderColorExtensions
         while (true)
         {
             var c = reader.ReadChar();
-            if (c == '\0') break;
+            if (c == '\0')
+            {
+                break;
+            }
 
             returnString += c;
         }

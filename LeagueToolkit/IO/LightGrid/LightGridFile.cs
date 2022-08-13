@@ -17,7 +17,10 @@ public class LightGridFile
         using (var br = new BinaryReader(stream))
         {
             var version = br.ReadUInt32();
-            if (version != 3) throw new InvalidFileSignatureException();
+            if (version != 3)
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             var gridOffset = br.ReadUInt32();
             Width = br.ReadUInt32();
@@ -29,12 +32,14 @@ public class LightGridFile
             br.BaseStream.Seek(gridOffset, SeekOrigin.Begin);
             var cellCount = Width * Heigth;
             for (var i = 0; i < cellCount; i++)
+            {
                 Lights.Add(new[]
                 {
                     br.ReadColor(ColorFormat.RgbaU8), br.ReadColor(ColorFormat.RgbaU8),
                     br.ReadColor(ColorFormat.RgbaU8),
                     br.ReadColor(ColorFormat.RgbaU8), br.ReadColor(ColorFormat.RgbaU8), br.ReadColor(ColorFormat.RgbaU8)
                 });
+            }
         }
     }
 
@@ -54,8 +59,8 @@ public class LightGridFile
     {
         using (var bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
         {
-            bw.Write((uint) 3);
-            bw.Write((uint) 76);
+            bw.Write((uint)3);
+            bw.Write((uint)76);
             bw.Write(Width);
             bw.Write(Heigth);
             bw.Write(XBound);
@@ -63,8 +68,12 @@ public class LightGridFile
             Sun.Write(bw);
 
             foreach (var cell in Lights)
+            {
                 for (var i = 0; i < 6; i++)
+                {
                     bw.WriteColor(cell[i], ColorFormat.RgbaU8);
+                }
+            }
         }
     }
 
@@ -72,20 +81,24 @@ public class LightGridFile
     {
         using (var bw = new BinaryWriter(File.OpenWrite(fileLocation)))
         {
-            bw.Write((byte) 0); //ID Length
-            bw.Write((byte) 0); //ColorMap Type
-            bw.Write((byte) 2); //DataType Code
-            bw.Write((uint) 0); //ColorMap Origin and Length
-            bw.Write((byte) 0); //ColorMap Depth
-            bw.Write((uint) 0); //X and Y Origin
-            bw.Write((ushort) Width);
-            bw.Write((ushort) Heigth);
-            bw.Write((byte) 32); //Bits Per Color
-            bw.Write((byte) 0); //Image Descriptor
+            bw.Write((byte)0); //ID Length
+            bw.Write((byte)0); //ColorMap Type
+            bw.Write((byte)2); //DataType Code
+            bw.Write((uint)0); //ColorMap Origin and Length
+            bw.Write((byte)0); //ColorMap Depth
+            bw.Write((uint)0); //X and Y Origin
+            bw.Write((ushort)Width);
+            bw.Write((ushort)Heigth);
+            bw.Write((byte)32); //Bits Per Color
+            bw.Write((byte)0); //Image Descriptor
 
             foreach (var cell in Lights)
+            {
                 for (var i = 0; i < 6; i++)
+                {
                     bw.WriteColor(cell[i], ColorFormat.RgbaU8);
+                }
+            }
         }
     }
 }

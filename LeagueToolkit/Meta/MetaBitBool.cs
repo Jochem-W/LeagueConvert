@@ -6,7 +6,7 @@ public struct MetaBitBool
 
     public MetaBitBool(bool value)
     {
-        Value = (byte) (value ? 1 : 0);
+        Value = (byte)(value ? 1 : 0);
     }
 
     public MetaBitBool(byte value)

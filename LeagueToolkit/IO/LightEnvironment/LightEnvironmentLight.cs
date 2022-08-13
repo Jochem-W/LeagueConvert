@@ -20,9 +20,9 @@ public class LightEnvironmentLight
 
     public LightEnvironmentLight(StreamReader sr)
     {
-        var line = sr.ReadLine().Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+        var line = sr.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-        Position = new[] {int.Parse(line[0]), int.Parse(line[1]), int.Parse(line[2])};
+        Position = new[] { int.Parse(line[0]), int.Parse(line[1]), int.Parse(line[2]) };
         Color = new Color(byte.Parse(line[3]), byte.Parse(line[4]), byte.Parse(line[5]));
         Color2 = new Color(byte.Parse(line[6]), byte.Parse(line[7]), byte.Parse(line[8]));
         Unknown1 = int.Parse(line[9]);

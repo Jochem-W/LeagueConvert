@@ -92,8 +92,15 @@ public class Animation
         var jumpCacheOffset = br.ReadInt32();
         var jointNameHashesOffset = br.ReadInt32();
 
-        if (frameOffset <= 0) throw new InvalidDataException("The animation has no frames.");
-        if (jointNameHashesOffset <= 0) throw new InvalidDataException("The animation has no joint name hashes.");
+        if (frameOffset <= 0)
+        {
+            throw new InvalidDataException("The animation has no frames.");
+        }
+
+        if (jointNameHashesOffset <= 0)
+        {
+            throw new InvalidDataException("The animation has no joint name hashes.");
+        }
 
         // Joint name hashes
         br.BaseStream.Seek(jointNameHashesOffset + 12, SeekOrigin.Begin);
@@ -111,8 +118,8 @@ public class Animation
             var compressedTime = br.ReadUInt16();
 
             var bits = br.ReadUInt16();
-            var jointIndex = (ushort) (bits & 0b_00111111_11111111);
-            var transformType = (CompressedTransformType) (bits >> 14);
+            var jointIndex = (ushort)(bits & 0b_00111111_11111111);
+            var transformType = (CompressedTransformType)(bits >> 14);
 
             var compressedTransform = br.ReadBytes(6);
 
@@ -164,15 +171,29 @@ public class Animation
         var rotationsOffset = br.ReadInt32();
         var framesOffset = br.ReadInt32();
 
-        if (vectorsOffset <= 0) throw new InvalidDataException("The animation has no vectors.");
-        if (rotationsOffset <= 0) throw new InvalidDataException("The animation has no rotations.");
-        if (framesOffset <= 0) throw new InvalidDataException("The animation has no frames.");
+        if (vectorsOffset <= 0)
+        {
+            throw new InvalidDataException("The animation has no vectors.");
+        }
+
+        if (rotationsOffset <= 0)
+        {
+            throw new InvalidDataException("The animation has no rotations.");
+        }
+
+        if (framesOffset <= 0)
+        {
+            throw new InvalidDataException("The animation has no frames.");
+        }
 
         // Vectors
         br.BaseStream.Seek(vectorsOffset + 12, SeekOrigin.Begin);
         var vectorsCount = (rotationsOffset - vectorsOffset) / (sizeof(float) * 3);
         var vectors = new Vector3[vectorsCount];
-        for (var i = 0; i < vectorsCount; i++) vectors[i] = br.ReadVector3();
+        for (var i = 0; i < vectorsCount; i++)
+        {
+            vectors[i] = br.ReadVector3();
+        }
 
         // Rotations
         br.BaseStream.Seek(rotationsOffset + 12, SeekOrigin.Begin);
@@ -192,7 +213,10 @@ public class Animation
             for (var j = 0; j < trackCount; j++)
             {
                 var jointHash = br.ReadUInt32();
-                if (i == 0) Tracks.Add(new AnimationTrack(jointHash));
+                if (i == 0)
+                {
+                    Tracks.Add(new AnimationTrack(jointHash));
+                }
 
                 Tracks[j].Translations.Add(time, vectors[br.ReadUInt16()]);
                 Tracks[j].Scales.Add(time, vectors[br.ReadUInt16()]);
@@ -206,8 +230,8 @@ public class Animation
 
         Debug.Assert(formatToken is 3188167891 or 0);
         Debug.Assert(version == 0);
-        Debug.Assert(formatToken == 3188167891 && tracksOffset == -1 && assetNameOffset == -1 && timeOffset == -1 ||
-                     formatToken == 0 && tracksOffset == 0 && assetNameOffset == 0 && timeOffset == 0);
+        Debug.Assert((formatToken == 3188167891 && tracksOffset == -1 && assetNameOffset == -1 && timeOffset == -1) ||
+                     (formatToken == 0 && tracksOffset == 0 && assetNameOffset == 0 && timeOffset == 0));
     }
 
     private void ReadV5(BinaryReader br)
@@ -232,10 +256,25 @@ public class Animation
         var reservedOffset2 = br.ReadInt32();
         var reservedOffset3 = br.ReadInt32();
 
-        if (jointNameHashesOffset <= 0) throw new InvalidDataException("The animation has no joint name hashes.");
-        if (vectorsOffset <= 0) throw new InvalidDataException("The animation has no vectors.");
-        if (rotationsOffset <= 0) throw new InvalidDataException("The animation has no rotations.");
-        if (framesOffset <= 0) throw new InvalidDataException("The animation has no frames.");
+        if (jointNameHashesOffset <= 0)
+        {
+            throw new InvalidDataException("The animation has no joint name hashes.");
+        }
+
+        if (vectorsOffset <= 0)
+        {
+            throw new InvalidDataException("The animation has no vectors.");
+        }
+
+        if (rotationsOffset <= 0)
+        {
+            throw new InvalidDataException("The animation has no rotations.");
+        }
+
+        if (framesOffset <= 0)
+        {
+            throw new InvalidDataException("The animation has no frames.");
+        }
 
         // Joint name hashes
         br.BaseStream.Seek(jointNameHashesOffset + 12, SeekOrigin.Begin);
@@ -250,7 +289,10 @@ public class Animation
         br.BaseStream.Seek(vectorsOffset + 12, SeekOrigin.Begin);
         var vectorsCount = (rotationsOffset - vectorsOffset) / (sizeof(float) * 3);
         var vectors = new Vector3[vectorsCount];
-        for (var i = 0; i < vectorsCount; i++) vectors[i] = br.ReadVector3();
+        for (var i = 0; i < vectorsCount; i++)
+        {
+            vectors[i] = br.ReadVector3();
+        }
 
         // Rotations
         br.BaseStream.Seek(rotationsOffset + 12, SeekOrigin.Begin);
@@ -271,7 +313,11 @@ public class Animation
             {
                 Tracks[j].Translations.Add(time, vectors[br.ReadUInt16()]);
                 var scale = vectors[br.ReadUInt16()];
-                if (float.IsNaN(scale.X) || float.IsNaN(scale.Y) || float.IsNaN(scale.Z)) scale = Vector3.One;
+                if (float.IsNaN(scale.X) || float.IsNaN(scale.Y) || float.IsNaN(scale.Z))
+                {
+                    scale = Vector3.One;
+                }
+
                 Tracks[j].Scales.Add(time, scale);
                 Tracks[j].Rotations.Add(time, rotations[br.ReadUInt16()]);
             }
@@ -318,13 +364,13 @@ public class Animation
     private static Vector3 DecompressVector3(Vector3 min, Vector3 max, IReadOnlyList<byte> compressedData)
     {
         var uncompressed = max - min;
-        var cX = (ushort) (compressedData[0] | (compressedData[1] << 8));
-        var cY = (ushort) (compressedData[2] | (compressedData[3] << 8));
-        var cZ = (ushort) (compressedData[4] | (compressedData[5] << 8));
+        var cX = (ushort)(compressedData[0] | (compressedData[1] << 8));
+        var cY = (ushort)(compressedData[2] | (compressedData[3] << 8));
+        var cZ = (ushort)(compressedData[4] | (compressedData[5] << 8));
 
-        uncompressed.X *= cX / (float) ushort.MaxValue;
-        uncompressed.Y *= cY / (float) ushort.MaxValue;
-        uncompressed.Z *= cZ / (float) ushort.MaxValue;
+        uncompressed.X *= cX / (float)ushort.MaxValue;
+        uncompressed.Y *= cY / (float)ushort.MaxValue;
+        uncompressed.Z *= cZ / (float)ushort.MaxValue;
 
         uncompressed += min;
         return uncompressed;
@@ -332,6 +378,6 @@ public class Animation
 
     private static float DecompressTime(ushort compressedTime, float animationLength)
     {
-        return compressedTime / (float) ushort.MaxValue * animationLength;
+        return compressedTime / (float)ushort.MaxValue * animationLength;
     }
 }

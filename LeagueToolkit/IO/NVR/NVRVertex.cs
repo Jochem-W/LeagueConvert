@@ -50,9 +50,15 @@ public class NVRVertex
     public static NVRVertexType GetVertexTypeFromMaterial(NVRMaterial mat)
     {
         if (mat.Type == NVRMaterialType.MATERIAL_TYPE_FOUR_BLEND)
+        {
             return NVRVertexType.NVRVERTEX_12;
+        }
+
         if (mat.Type == NVRMaterialType.MATERIAL_TYPE_DEFAULT && mat.Flags.HasFlag(NVRMaterialFlags.ColoredVertex))
+        {
             return NVRVertexType.NVRVERTEX_8;
+        }
+
         return NVRVertexType.NVRVERTEX_4;
     }
 }

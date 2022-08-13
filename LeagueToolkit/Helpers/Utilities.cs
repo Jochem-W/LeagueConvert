@@ -11,9 +11,9 @@ public static class Utilities
         for (var i = 0; i < array.Length; i++)
         {
             var b = array[i] >> 4;
-            c[i * 2] = (char) (55 + b + (((b - 10) >> 31) & -7));
+            c[i * 2] = (char)(55 + b + (((b - 10) >> 31) & -7));
             b = array[i] & 0xF;
-            c[i * 2 + 1] = (char) (55 + b + (((b - 10) >> 31) & -7));
+            c[i * 2 + 1] = (char)(55 + b + (((b - 10) >> 31) & -7));
         }
 
         return new string(c);
@@ -21,20 +21,37 @@ public static class Utilities
 
     public static LeagueFileType GetExtensionType(byte[] magicData)
     {
-        if (magicData.Length < 4) return LeagueFileType.Unknown;
+        if (magicData.Length < 4)
+        {
+            return LeagueFileType.Unknown;
+        }
 
         if (magicData[0] == 'r' && magicData[1] == '3' && magicData[2] == 'd' && magicData[3] == '2')
         {
             if (magicData[4] == 'M' && magicData[5] == 'e' && magicData[6] == 's' && magicData[7] == 'h')
+            {
                 return LeagueFileType.StaticObjectBinary;
+            }
+
             if (magicData[4] == 's' && magicData[5] == 'k' && magicData[6] == 'l' && magicData[7] == 't')
+            {
                 return LeagueFileType.Skeleton;
+            }
+
             if (magicData[4] == 'a' && magicData[5] == 'n' && magicData[6] == 'm' && magicData[7] == 'd')
+            {
                 return LeagueFileType.Animation;
+            }
+
             if (magicData[4] == 'c' && magicData[5] == 'a' && magicData[6] == 'n' && magicData[7] == 'm')
+            {
                 return LeagueFileType.Animation;
+            }
+
             if (magicData[4] == 1 && magicData[5] == 0 && magicData[6] == 0 && magicData[7] == 0)
+            {
                 return LeagueFileType.WwisePackage;
+            }
         }
         else if (magicData[1] == 'P' && magicData[2] == 'N' && magicData[3] == 'G')
         {
@@ -104,7 +121,7 @@ public static class Utilities
     public static LeagueFileType GetExtensionType(Stream stream, int headerSizeHint = 8)
     {
         var header = new byte[headerSizeHint];
-        var originalPosition = (int) stream.Position;
+        var originalPosition = (int)stream.Position;
 
         stream.Read(header, 0, header.Length);
         stream.Seek(originalPosition, SeekOrigin.Begin);
@@ -114,9 +131,15 @@ public static class Utilities
 
     public static LeagueFileType GetExtensionType(string extension)
     {
-        if (string.IsNullOrEmpty(extension)) return LeagueFileType.Unknown;
+        if (string.IsNullOrEmpty(extension))
+        {
+            return LeagueFileType.Unknown;
+        }
 
-        if (extension[0] == '.') extension = extension.Remove(0, 1);
+        if (extension[0] == '.')
+        {
+            extension = extension.Remove(0, 1);
+        }
 
         switch (extension)
         {
@@ -192,12 +215,25 @@ public static class Utilities
 
     public static WadEntryType GetExtensionWadCompressionType(string extension)
     {
-        if (string.IsNullOrEmpty(extension)) return WadEntryType.Uncompressed;
+        if (string.IsNullOrEmpty(extension))
+        {
+            return WadEntryType.Uncompressed;
+        }
 
-        if (extension[0] == '.') extension = extension.Remove(0, 1);
+        if (extension[0] == '.')
+        {
+            extension = extension.Remove(0, 1);
+        }
 
-        if (extension.Contains("glsl")) return WadEntryType.Uncompressed;
-        if (extension.Contains("dx9")) return WadEntryType.Uncompressed;
+        if (extension.Contains("glsl"))
+        {
+            return WadEntryType.Uncompressed;
+        }
+
+        if (extension.Contains("dx9"))
+        {
+            return WadEntryType.Uncompressed;
+        }
 
         switch (extension)
         {
@@ -216,12 +252,12 @@ public static class Utilities
 
     public static float ToDegrees(float radian)
     {
-        return radian * (180 / (float) Math.PI);
+        return radian * (180 / (float)Math.PI);
     }
 
     public static float ToRadians(float degrees)
     {
-        return degrees * ((float) Math.PI / 180);
+        return degrees * ((float)Math.PI / 180);
     }
 
     public static float Clamp(float value, float min, float max)

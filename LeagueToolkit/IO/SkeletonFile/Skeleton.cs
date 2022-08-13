@@ -16,10 +16,16 @@ public class Skeleton
         Joints = joints;
         Influences = influenceMap;
         foreach (var joint in Joints)
+        {
             if (joint.ParentId == -1)
+            {
                 joint.GlobalTransform = joint.LocalTransform;
+            }
             else
+            {
                 joint.GlobalTransform = Joints[joint.ParentId].GlobalTransform * joint.LocalTransform;
+            }
+        }
     }
 
     public Skeleton(string filePath) : this(File.OpenRead(filePath))
@@ -53,7 +59,10 @@ public class Skeleton
         var fileSize = br.ReadUInt32();
         var formatToken = br.ReadUInt32();
         var version = br.ReadUInt32();
-        if (version != 0) throw new UnsupportedFileVersionException();
+        if (version != 0)
+        {
+            throw new UnsupportedFileVersionException();
+        }
 
         var flags = br.ReadUInt16();
 
@@ -81,9 +90,13 @@ public class Skeleton
                 var joint = new SkeletonJoint(br);
                 Joints.Add(joint);
                 if (joint.ParentId == -1)
+                {
                     RootJoints.Add(joint);
+                }
                 else
+                {
                     Joints[joint.ParentId].Children.Add(joint);
+                }
             }
         }
 
@@ -102,14 +115,20 @@ public class Skeleton
         }
         else
         {
-            for (var i = 0; i < jointCount; i++) Joints[i].Hash = Cryptography.ElfHash(Joints[i].Name);
+            for (var i = 0; i < jointCount; i++)
+            {
+                Joints[i].Hash = Cryptography.ElfHash(Joints[i].Name);
+            }
         }
 
         // Influences
         if (influencesOffset > 0)
         {
             br.BaseStream.Seek(influencesOffset, SeekOrigin.Begin);
-            for (var i = 0; i < influencesCount; i++) Influences.Add(br.ReadInt16());
+            for (var i = 0; i < influencesCount; i++)
+            {
+                Influences.Add(br.ReadInt16());
+            }
         }
 
         // Name
@@ -126,25 +145,32 @@ public class Skeleton
             AssetName = br.ReadZeroTerminatedString();
         }
 
-        Debug.Assert(reservedOffset1 == -1 && reservedOffset2 == -1 && reservedOffset3 == -1 && reservedOffset4 == -1 &&
-            reservedOffset5 == -1 || reservedOffset1 == 0 && reservedOffset2 == 0 && reservedOffset3 == 0 &&
-            reservedOffset4 == 0 && reservedOffset5 == 0);
+        Debug.Assert((reservedOffset1 == -1 && reservedOffset2 == -1 && reservedOffset3 == -1 &&
+                      reservedOffset4 == -1 &&
+                      reservedOffset5 == -1) || (reservedOffset1 == 0 && reservedOffset2 == 0 && reservedOffset3 == 0 &&
+                                                 reservedOffset4 == 0 && reservedOffset5 == 0));
     }
 
     private void ReadLegacy(BinaryReader br)
     {
         var magic = new string(br.ReadChars(8));
-        if (magic != "r3d2sklt") throw new InvalidFileSignatureException();
+        if (magic != "r3d2sklt")
+        {
+            throw new InvalidFileSignatureException();
+        }
 
         var version = br.ReadUInt32();
-        if (version != 1 && version != 2) throw new UnsupportedFileVersionException();
+        if (version != 1 && version != 2)
+        {
+            throw new UnsupportedFileVersionException();
+        }
 
         var skeletonId = br.ReadUInt32();
 
         var jointCount = br.ReadUInt32();
         for (var i = 0; i < jointCount; i++)
         {
-            var joint = new SkeletonJoint(br, (short) i);
+            var joint = new SkeletonJoint(br, (short)i);
             Joints.Add(joint);
             if (joint.ParentId == -1)
             {
@@ -163,10 +189,18 @@ public class Skeleton
         {
             case 2:
                 var influencesCount = br.ReadUInt32();
-                for (var i = 0; i < influencesCount; i++) Influences.Add((short) br.ReadUInt32());
+                for (var i = 0; i < influencesCount; i++)
+                {
+                    Influences.Add((short)br.ReadUInt32());
+                }
+
                 break;
             case 1:
-                for (var i = 0; i < Joints.Count; i++) Influences.Add((short) i);
+                for (var i = 0; i < Joints.Count; i++)
+                {
+                    Influences.Add((short)i);
+                }
+
                 break;
         }
     }
@@ -209,7 +243,10 @@ public class Skeleton
                 for (var j = 0; j < roots.Count; j++)
                 {
                     var joint = roots[j];
-                    if (joint.Hash != track.JointNameHash) continue;
+                    if (joint.Hash != track.JointNameHash)
+                    {
+                        continue;
+                    }
 
                     applicableJoint = joint;
                     roots.RemoveAt(j);
@@ -217,7 +254,10 @@ public class Skeleton
                     break;
                 }
 
-                if (applicableJoint == null) continue;
+                if (applicableJoint == null)
+                {
+                    continue;
+                }
 
                 change = true;
                 result[track] = applicableJoint;
@@ -238,8 +278,8 @@ public class Skeleton
         bw.Seek(4, SeekOrigin.Current); // File size
         bw.Write(FormatToken);
         bw.Write(0); // Version
-        bw.Write((ushort) 0); // Flags
-        bw.Write((ushort) Joints.Count);
+        bw.Write((ushort)0); // Flags
+        bw.Write((ushort)Joints.Count);
         bw.Write(Influences.Count);
 
         var jointsSectionSize = Joints.Count *
@@ -279,36 +319,45 @@ public class Skeleton
         // Joint names
         var jointNameOffsets = new long[Joints.Count];
         var jointNamesOffset = bw.BaseStream.Position;
-        for (var i = 0; i < Joints.Count; i++) jointNameOffsets[i] = bw.WriteZeroTerminatedString(Joints[i].Name);
+        for (var i = 0; i < Joints.Count; i++)
+        {
+            jointNameOffsets[i] = bw.WriteZeroTerminatedString(Joints[i].Name);
+        }
 
         bw.Seek(jointsOffset, SeekOrigin.Begin);
-        for (var i = 0; i < Joints.Count; i++) Joints[i].Write(bw, jointNameOffsets[i]);
+        for (var i = 0; i < Joints.Count; i++)
+        {
+            Joints[i].Write(bw, jointNameOffsets[i]);
+        }
 
         bw.Seek(influencesOffset, SeekOrigin.Begin);
-        foreach (var influence in Influences) bw.Write(influence);
+        foreach (var influence in Influences)
+        {
+            bw.Write(influence);
+        }
 
         bw.Seek(jointIndicesOffset, SeekOrigin.Begin);
         foreach (var joint in Joints)
         {
             bw.Write(joint.Id);
-            bw.Write((ushort) 0);
+            bw.Write((ushort)0);
             bw.Write(joint.Hash);
         }
 
         // Write name offset to header
         bw.BaseStream.Seek(nameOffsetOffset, SeekOrigin.Begin);
-        bw.Write((int) nameOffset);
+        bw.Write((int)nameOffset);
 
         // Write asset name offset to header
         bw.BaseStream.Seek(assetNameOffsetOffset, SeekOrigin.Begin);
-        bw.Write((int) assetNameOffset);
+        bw.Write((int)assetNameOffset);
 
         // Write joint names offset to header
         bw.BaseStream.Seek(jointNamesOffsetOffset, SeekOrigin.Begin);
-        bw.Write((int) jointNamesOffset);
+        bw.Write((int)jointNamesOffset);
 
         // Write file size to header
-        var fileSize = (uint) bw.BaseStream.Length;
+        var fileSize = (uint)bw.BaseStream.Length;
         bw.BaseStream.Seek(0, SeekOrigin.Begin);
         bw.Write(fileSize);
     }

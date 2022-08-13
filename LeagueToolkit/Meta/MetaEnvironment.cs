@@ -12,8 +12,15 @@ public sealed class MetaEnvironment
 
     internal MetaEnvironment(ICollection<Type> metaClasses, IEnumerable<KeyValuePair<uint, string>> hashes)
     {
-        if (metaClasses is null) throw new ArgumentNullException(nameof(metaClasses));
-        if (hashes is null) throw new ArgumentNullException(nameof(hashes));
+        if (metaClasses is null)
+        {
+            throw new ArgumentNullException(nameof(metaClasses));
+        }
+
+        if (hashes is null)
+        {
+            throw new ArgumentNullException(nameof(hashes));
+        }
 
         _registeredMetaClasses = metaClasses.ToList();
         RegisteredMetaClasses = _registeredMetaClasses.AsReadOnly();
@@ -24,7 +31,9 @@ public sealed class MetaEnvironment
         {
             var metaClassAttribute = metaClass.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
             if (metaClassAttribute is null)
+            {
                 throw new ArgumentException($"MetaClass: {metaClass.Name} does not have MetaClass Attribute");
+            }
         }
     }
 
@@ -34,26 +43,46 @@ public sealed class MetaEnvironment
 
     public static MetaEnvironment Create(ICollection<Type> metaClasses)
     {
-        if (metaClasses is null) throw new ArgumentNullException(nameof(metaClasses));
+        if (metaClasses is null)
+        {
+            throw new ArgumentNullException(nameof(metaClasses));
+        }
 
         return new MetaEnvironment(metaClasses, new Dictionary<uint, string>());
     }
 
     public static MetaEnvironment Create(ICollection<Type> metaClasses, IEnumerable<string> hashes)
     {
-        if (metaClasses is null) throw new ArgumentNullException(nameof(metaClasses));
-        if (hashes is null) throw new ArgumentNullException(nameof(hashes));
+        if (metaClasses is null)
+        {
+            throw new ArgumentNullException(nameof(metaClasses));
+        }
+
+        if (hashes is null)
+        {
+            throw new ArgumentNullException(nameof(hashes));
+        }
 
         Dictionary<uint, string> hashDictionary = new();
-        foreach (var hash in hashes) hashDictionary.Add(Fnv1a.HashLower(hash), hash);
+        foreach (var hash in hashes)
+        {
+            hashDictionary.Add(Fnv1a.HashLower(hash), hash);
+        }
 
         return Create(metaClasses, hashDictionary);
     }
 
     public static MetaEnvironment Create(ICollection<Type> metaClasses, IEnumerable<KeyValuePair<uint, string>> hashes)
     {
-        if (metaClasses is null) throw new ArgumentNullException(nameof(metaClasses));
-        if (hashes is null) throw new ArgumentNullException(nameof(hashes));
+        if (metaClasses is null)
+        {
+            throw new ArgumentNullException(nameof(metaClasses));
+        }
+
+        if (hashes is null)
+        {
+            throw new ArgumentNullException(nameof(hashes));
+        }
 
         return new MetaEnvironment(metaClasses, hashes);
     }
@@ -64,11 +93,15 @@ public sealed class MetaEnvironment
         var metaClassAttribute =
             metaObject.GetType().GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
         if (metaClassAttribute is null)
+        {
             throw new ArgumentException($"{nameof(metaObject)} does not have a Meta Class attribute");
+        }
 
         var pathHash = Fnv1a.HashLower(path);
         if (_registeredObjects.TryAdd(pathHash, metaObject) is false)
+        {
             throw new ArgumentException("An object with the same path is already registered", nameof(pathHash));
+        }
     }
 
     public void RegisterObject<T>(uint pathHash, T metaObject)
@@ -77,10 +110,14 @@ public sealed class MetaEnvironment
         var metaClassAttribute =
             metaObject.GetType().GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
         if (metaClassAttribute is null)
+        {
             throw new ArgumentException($"{nameof(metaObject)} does not have a Meta Class attribute");
+        }
 
         if (_registeredObjects.TryAdd(pathHash, metaObject) is false)
+        {
             throw new ArgumentException("An object with the same path is already registered", nameof(pathHash));
+        }
     }
 
     public bool DeregisterObject(string path)
@@ -112,7 +149,7 @@ public sealed class MetaEnvironment
     public T FindObject<T>(uint pathHash)
         where T : IMetaClass
     {
-        return (T) _registeredObjects.GetValueOrDefault(pathHash);
+        return (T)_registeredObjects.GetValueOrDefault(pathHash);
     }
 
     public string ResolveHash(uint hash)

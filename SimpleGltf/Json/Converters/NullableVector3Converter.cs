@@ -14,7 +14,10 @@ internal class NullableVector3Converter : JsonConverter<Vector3?>
     public override void Write(Utf8JsonWriter writer, Vector3? value, JsonSerializerOptions options)
     {
         if (!value.HasValue)
+        {
             return;
+        }
+
         writer.WriteStartArray();
         writer.WriteNumberValue(value.Value.X);
         writer.WriteNumberValue(value.Value.Y);

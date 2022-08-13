@@ -41,15 +41,24 @@ public class MOBFile
         using (var br = new BinaryReader(stream))
         {
             var magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-            if (magic != "OPAM") throw new InvalidFileSignatureException();
+            if (magic != "OPAM")
+            {
+                throw new InvalidFileSignatureException();
+            }
 
             var version = br.ReadUInt32();
-            if (version != 2) throw new UnsupportedFileVersionException();
+            if (version != 2)
+            {
+                throw new UnsupportedFileVersionException();
+            }
 
             var objectCount = br.ReadUInt32();
             br.ReadUInt32();
 
-            for (var i = 0; i < objectCount; i++) Objects.Add(new MOBObject(br));
+            for (var i = 0; i < objectCount; i++)
+            {
+                Objects.Add(new MOBObject(br));
+            }
         }
     }
 
@@ -76,11 +85,14 @@ public class MOBFile
         using (var bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
         {
             bw.Write(Encoding.ASCII.GetBytes("OPAM"));
-            bw.Write((uint) 2);
+            bw.Write((uint)2);
             bw.Write(Objects.Count);
-            bw.Write((uint) 0);
+            bw.Write((uint)0);
 
-            foreach (var mobObject in Objects) mobObject.Write(bw);
+            foreach (var mobObject in Objects)
+            {
+                mobObject.Write(bw);
+            }
         }
     }
 }

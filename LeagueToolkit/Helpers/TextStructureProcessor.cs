@@ -26,8 +26,11 @@ public static class TextStructureProcessor
     /// <param name="separator">The character which separates the components of the vector</param>
     public static Vector2 ParseVector2(string value, char separator)
     {
-        var values = value.Split(new[] {separator}, StringSplitOptions.RemoveEmptyEntries);
-        if (values.Length != 2) throw new ArgumentException("Value is not a Vector2 or is not correctly formatted");
+        var values = value.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+        if (values.Length != 2)
+        {
+            throw new ArgumentException("Value is not a Vector2 or is not correctly formatted");
+        }
 
         return ParseVector2(values);
     }
@@ -61,9 +64,11 @@ public static class TextStructureProcessor
     /// <param name="separator">The character which separates the components of the vector</param>
     public static Vector3 ParseVector3(string value, char separator)
     {
-        var values = value.Split(new[] {separator}, StringSplitOptions.RemoveEmptyEntries);
+        var values = value.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
         if (values.Length != 3)
+        {
             throw new ArgumentException("Value is either not a Vector3 or is not correctly formatted");
+        }
 
         return ParseVector3(values);
     }

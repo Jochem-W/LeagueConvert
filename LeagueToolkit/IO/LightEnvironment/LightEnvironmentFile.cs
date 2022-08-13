@@ -19,7 +19,10 @@ public class LightEnvironmentFile
         using (var sr = new StreamReader(stream))
         {
             var lightVersion = sr.ReadLine();
-            while (!sr.EndOfStream) Lights.Add(new LightEnvironmentLight(sr));
+            while (!sr.EndOfStream)
+            {
+                Lights.Add(new LightEnvironmentLight(sr));
+            }
         }
     }
 
@@ -36,7 +39,10 @@ public class LightEnvironmentFile
         {
             sw.WriteLine("3");
 
-            foreach (var light in Lights) light.Write(sw);
+            foreach (var light in Lights)
+            {
+                light.Write(sw);
+            }
         }
     }
 }

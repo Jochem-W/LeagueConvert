@@ -39,7 +39,9 @@ public class ObjectConfigFile
     public ObjectConfigFile(IniFile ini)
     {
         foreach (var objectDefinition in ini.Sections)
+        {
             Objects.Add(objectDefinition.Key, new ObjectConfigObject(objectDefinition.Value));
+        }
     }
 
     /// <summary>
@@ -64,7 +66,10 @@ public class ObjectConfigFile
     {
         var sections = new Dictionary<string, Dictionary<string, string>>();
 
-        foreach (var section in Objects) sections.Add(section.Key, section.Value.ConvertToSection());
+        foreach (var section in Objects)
+        {
+            sections.Add(section.Key, section.Value.ConvertToSection());
+        }
 
         new IniFile(sections).Write(stream, leaveOpen);
     }

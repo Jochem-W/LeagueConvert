@@ -9,11 +9,14 @@ public class NavigationGridOverlayRegion
         Width = br.ReadUInt32();
         Height = br.ReadUInt32();
 
-        CellFlags = new List<List<NavigationGridCellFlags>>((int) Height);
+        CellFlags = new List<List<NavigationGridCellFlags>>((int)Height);
         for (var i = 0; i < Height; i++)
         {
-            var line = new List<NavigationGridCellFlags>((int) Width);
-            for (var j = 0; j < Width; j++) line.Add((NavigationGridCellFlags) br.ReadUInt16());
+            var line = new List<NavigationGridCellFlags>((int)Width);
+            for (var j = 0; j < Width; j++)
+            {
+                line.Add((NavigationGridCellFlags)br.ReadUInt16());
+            }
 
             CellFlags.Add(line);
         }

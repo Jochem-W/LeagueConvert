@@ -222,7 +222,7 @@ internal static class Program
 
             Logger.Information("Finished!");
         });
-        
+
         return command;
     }
 

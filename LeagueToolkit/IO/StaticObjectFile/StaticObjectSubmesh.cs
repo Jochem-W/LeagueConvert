@@ -21,12 +21,12 @@ public class StaticObjectSubmesh
 
         for (var i = 0; i < Indices.Count; i += 3)
         {
-            uint[] indices = {Indices[i], Indices[i + 1], Indices[i + 2]};
+            uint[] indices = { Indices[i], Indices[i + 1], Indices[i + 2] };
             Vector2[] uvs =
             {
-                Vertices[(int) indices[0]].UV,
-                Vertices[(int) indices[1]].UV,
-                Vertices[(int) indices[2]].UV
+                Vertices[(int)indices[0]].UV,
+                Vertices[(int)indices[1]].UV,
+                Vertices[(int)indices[2]].UV
             };
 
             faces.Add(new StaticObjectFace(indices, Name, uvs));
