@@ -208,7 +208,7 @@ internal static class Program
                 ? SearchOption.AllDirectories
                 : SearchOption.TopDirectoryOnly;
             foreach (var filePath in Directory
-                         .EnumerateFiles(context.ParseResult.GetValueForArgument(pathArgument), "*.wad.gitHubClient",
+                         .EnumerateFiles(context.ParseResult.GetValueForArgument(pathArgument), "*.wad.client",
                              searchOption).Where(filePath =>
                              Path.GetFileName(filePath).Count(character => character == '.') == 2))
             {
