@@ -24,10 +24,10 @@ public class Skin : IDisposable
 
     internal Skin(string character, string name, ILogger logger = null, params ParentedBinTree[] binTrees)
     {
-        logger?.Debug("Parsing {Character} skin{Id}", Character, Id);
         _parent = binTrees[0].Parent;
         Character = character;
         Id = int.Parse(name[4..]);
+        logger?.Debug("Parsing {Character} skin{Id}", Character, Id);
         foreach (var binTree in binTrees)
         {
             ParseBinTree(binTree);
