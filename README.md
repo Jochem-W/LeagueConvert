@@ -70,7 +70,7 @@ A multiplatform user interface for LeagueConvert. Postponed for now.
 ## Installation instructions
 
 1. Download the
-   [.NET 6.0 Runtime](https://dotnet.microsoft.com/download/dotnet/6.0/runtime)
+   [.NET 7.0 Runtime](https://dotnet.microsoft.com/download/dotnet/7.0/runtime)
 2. Download the latest build (generic is cross-platform)
    [here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext)
 3. Extract the archive
@@ -79,7 +79,7 @@ A multiplatform user interface for LeagueConvert. Postponed for now.
 ## Set-up instructions for developing
 
 1. Clone or download the source code.
-2. Install the .NET 6.0 SDK. (Recommended: Visual Studio 2022 with the '.NET
+2. Install the .NET 7.0 SDK. (Recommended: Visual Studio 2022 with the '.NET
    desktop development' workload and the 'Development tools for .NET'
    component.)
 3. Install Rider, a better C# IDE (optional).
