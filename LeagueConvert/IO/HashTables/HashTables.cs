@@ -65,7 +65,7 @@ public static class HashTables
 
     private static async Task<bool> TryLoadFromGitHub(string path, ILogger logger = null)
     {
-        _gitHubClient ??= new GitHubClient(new ProductHeaderValue("LeagueBulkConvert"));
+        _gitHubClient ??= new GitHubClient(new ProductHeaderValue("LeagueConvert"));
         _httpClient ??= new HttpClient();
         IReadOnlyList<RepositoryContent> contents;
         try
