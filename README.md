@@ -72,7 +72,7 @@ A multiplatform user interface for LeagueConvert. Postponed for now.
 1. Download the
    [.NET 7.0 Runtime](https://dotnet.microsoft.com/download/dotnet/7.0/runtime)
 2. Download the latest build (generic is cross-platform)
-   [here](https://github.com/Jochem-W/LeagueBulkConvert/actions?query=branch%3Avnext)
+   [here](https://github.com/Jochem-W/LeagueConvert/actions)
 3. Extract the archive
 4. Run the executable or `dotnet LeagueConvert.CommandLine.dll`
 
