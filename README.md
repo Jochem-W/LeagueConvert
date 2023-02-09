@@ -82,5 +82,5 @@ A multiplatform user interface for LeagueConvert. Postponed for now.
 2. Install the .NET 7.0 SDK. (Recommended: Visual Studio 2022 with the '.NET
    desktop development' workload and the 'Development tools for .NET'
    component.)
-3. Install Rider, a better C# IDE (optional).
+3. Optional: Install Rider.
 4. Open the .sln.
