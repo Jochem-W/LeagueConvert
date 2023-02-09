@@ -3,6 +3,16 @@
 Effortlessly convert League of Legends models to glTF, with textures and
 animations.
 
+## Installation instructions
+
+1. Download and install the
+   [.NET 7.0 Runtime](https://dotnet.microsoft.com/download/dotnet/7.0/runtime). If you installed an older .NET Runtime for this program, you can uninstall it.
+2. Download and extract the latest build of LeagueConvert for your platform 
+   [here](https://github.com/Jochem-W/LeagueConvert/actions).
+   1. Alternatively, you can navigate to the "Actions" tab at the top, which should lead you to the same place. Note that build artifacts might expire.
+   2. Generic is a cross-platform build, but it might not run on platforms that aren't explicitly listed due to missing libraries. I might not be able to provide support for unsupported platforms.
+3. Run the executable, e.g. `LeagueConvert.CommandLine.exe`, or `dotnet LeagueConvert.CommandLine.dll`
+
 ## Status and roadmap
 
 This version was built from scratch to replace the GUI version
@@ -67,20 +77,11 @@ Planned:
 
 A multiplatform user interface for LeagueConvert. Postponed for now.
 
-## Installation instructions
-
-1. Download the
-   [.NET 7.0 Runtime](https://dotnet.microsoft.com/download/dotnet/7.0/runtime)
-2. Download the latest build (generic is cross-platform)
-   [here](https://github.com/Jochem-W/LeagueConvert/actions)
-3. Extract the archive
-4. Run the executable or `dotnet LeagueConvert.CommandLine.dll`
-
 ## Set-up instructions for developing
 
 1. Clone or download the source code.
 2. Install the .NET 7.0 SDK. (Recommended: Visual Studio 2022 with the '.NET
    desktop development' workload and the 'Development tools for .NET'
    component.)
-3. Optional: Install Rider.
-4. Open the .sln.
+   1. Optionally Install Rider.
+3. Open the .sln.
