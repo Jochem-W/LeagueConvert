@@ -26,11 +26,11 @@ public static class HashTables
             {
                 case HashTable.Game:
                     logger?.Information("Loading {Path}", filePath);
-                    LoadGame(GetUlongHashPairs(await File.ReadAllTextAsync(filePath)), logger);
+                    LoadGame(GetUlongHashPairs(await File.ReadAllTextAsync(filePath)), true, logger);
                     break;
                 case HashTable.BinHashes:
                     logger?.Information("Loading {Path}", filePath);
-                    LoadBinHashes(GetUintHashPairs(await File.ReadAllTextAsync(filePath)), logger);
+                    LoadBinHashes(GetUintHashPairs(await File.ReadAllTextAsync(filePath)), true, logger);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(hashTable), hashTable, "Invalid hash table");
@@ -70,8 +70,8 @@ public static class HashTables
         IReadOnlyList<RepositoryContent> contents;
         try
         {
-            contents = await _gitHubClient.Repository.Content.GetAllContents("CommunityDragon", "CDTB",
-                "cdragontoolbox");
+            contents = await _gitHubClient.Repository.Content.GetAllContents("CommunityDragon", "Data",
+                "hashes/lol");
         }
         catch (Exception e)
         {
@@ -79,20 +79,23 @@ public static class HashTables
             return false;
         }
 
+
+        var gameInitializedBefore = false;
+        var binhashesInitializedBefore = false;
+
         foreach (var repositoryContent in contents)
         {
-            switch (repositoryContent.Name)
-            {
-                case "hashes.game.txt":
-                    var content = await Download(repositoryContent, path, logger);
-                    logger?.Information("Loading downloaded {FileName}", repositoryContent.Name);
-                    LoadGame(GetUlongHashPairs(content), logger);
-                    break;
-                case "hashes.binhashes.txt":
-                    content = await Download(repositoryContent, path, logger);
-                    logger?.Information("Loading downloaded {FileName}", repositoryContent.Name);
-                    LoadBinHashes(GetUintHashPairs(content), logger);
-                    break;
+            if (repositoryContent.Name.StartsWith("hashes.game.txt")) {
+                var content = await Download(repositoryContent, path, logger);
+                logger?.Information("Loading downloaded {FileName}", repositoryContent.Name);
+                LoadGame(GetUlongHashPairs(content), !gameInitializedBefore, logger);
+                gameInitializedBefore = true;
+            }
+            if (repositoryContent.Name.StartsWith("hashes.binhashes.txt")) {
+                var content = await Download(repositoryContent, path, logger);
+                logger?.Information("Loading downloaded {FileName}", repositoryContent.Name);
+                LoadBinHashes(GetUintHashPairs(content), !binhashesInitializedBefore, logger);
+                binhashesInitializedBefore = true;
             }
         }
 
@@ -151,18 +154,18 @@ public static class HashTables
             .Select(split => new KeyValuePair<uint, string>(Convert.ToUInt32(split[0], 16), split[1]));
     }
 
-    private static void LoadGame(IEnumerable<KeyValuePair<ulong, string>> hashPairs, ILogger logger = null)
+    private static void LoadGame(IEnumerable<KeyValuePair<ulong, string>> hashPairs, bool shouldClear, ILogger logger = null)
     {
-        Game ??= new Dictionary<ulong, string>();
+        if (shouldClear) Game ??= new Dictionary<ulong, string>();
         foreach (var (hash, value) in hashPairs)
         {
             TryLoadHash(hash, value, Game, logger);
         }
     }
 
-    private static void LoadBinHashes(IEnumerable<KeyValuePair<uint, string>> hashPairs, ILogger logger = null)
+    private static void LoadBinHashes(IEnumerable<KeyValuePair<uint, string>> hashPairs, bool shouldClear, ILogger logger = null)
     {
-        BinHashes ??= new Dictionary<uint, string>();
+        if (shouldClear) BinHashes ??= new Dictionary<uint, string>();
         foreach (var (hash, value) in hashPairs)
         {
             TryLoadHash(hash, value, BinHashes, logger);
